@@ -1,0 +1,1538 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>开单运营方案 1.0 美化原型</title>
+  <style>
+    :root {
+      --bg: #f7fafc;
+      --surface: #ffffff;
+      --surface-2: #f1f5f9;
+      --teal: #0f766e;
+      --teal-dark: #115e59;
+      --teal-soft: #ccfbf1;
+      --blue: #2563eb;
+      --blue-soft: #dbeafe;
+      --amber: #f59e0b;
+      --amber-soft: #fef3c7;
+      --red: #dc2626;
+      --red-soft: #fee2e2;
+      --green: #16a34a;
+      --green-soft: #dcfce7;
+      --text: #111827;
+      --muted: #64748b;
+      --line: #e5e7eb;
+      --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      letter-spacing: 0;
+    }
+
+    .page {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 32px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 24px;
+      align-items: stretch;
+      margin-bottom: 24px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-main {
+      padding: 32px;
+      min-height: 360px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .eyebrow {
+      color: var(--teal);
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(32px, 4vw, 56px);
+      line-height: 1.08;
+      letter-spacing: 0;
+      max-width: 760px;
+    }
+
+    .subtitle {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.7;
+      max-width: 720px;
+    }
+
+    .hero-tags,
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: var(--radius);
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .tag.teal {
+      background: var(--teal-soft);
+      color: var(--teal-dark);
+    }
+
+    .tag.blue {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .tag.amber {
+      background: var(--amber-soft);
+      color: #92400e;
+    }
+
+    .tag.green {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .hero-side {
+      padding: 22px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      align-content: stretch;
+    }
+
+    .metric-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      background: var(--surface);
+      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .metric-value {
+      color: var(--text);
+      font-size: 28px;
+      font-weight: 800;
+      margin-top: 12px;
+    }
+
+    .metric-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+
+    .section {
+      margin-top: 24px;
+      padding: 28px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      font-size: 28px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+      max-width: 620px;
+    }
+
+    .model-grid {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 18px;
+    }
+
+    .logic-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      background: var(--surface);
+    }
+
+    .logic-card h3 {
+      font-size: 18px;
+      margin-bottom: 14px;
+    }
+
+    .logic-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .logic-item {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .number {
+      width: 30px;
+      height: 30px;
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      color: var(--teal-dark);
+      background: var(--teal-soft);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .logic-item strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .logic-item span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .flow-node {
+      min-height: 108px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      background: var(--surface);
+      position: relative;
+    }
+
+    .flow-node::after {
+      content: "";
+      position: absolute;
+      right: -12px;
+      top: 50%;
+      width: 12px;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .flow-node:nth-child(4n)::after,
+    .flow-node:last-child::after {
+      display: none;
+    }
+
+    .flow-node h3 {
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .flow-node p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .phone-board {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(250px, 1fr));
+      gap: 18px;
+      align-items: start;
+    }
+
+    .phone-board.ops {
+      grid-template-columns: repeat(3, minmax(260px, 1fr));
+    }
+
+    .phone {
+      width: 100%;
+      max-width: 330px;
+      margin: 0 auto;
+      border: 1px solid #cbd5e1;
+      border-radius: 28px;
+      padding: 10px;
+      background: #0f172a;
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16);
+    }
+
+    .screen {
+      min-height: 620px;
+      border-radius: 22px;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .status {
+      height: 28px;
+      padding: 8px 16px 0;
+      display: flex;
+      justify-content: space-between;
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--surface);
+    }
+
+    .phone-head {
+      padding: 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .phone-title {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .phone-body {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .mini-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 14px;
+    }
+
+    .mini-card h3 {
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+
+    .form-row {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .input {
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfdff;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      color: #94a3b8;
+      font-size: 13px;
+    }
+
+    .upload-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .upload {
+      height: 54px;
+      border: 1px dashed #94a3b8;
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      background: #f8fafc;
+    }
+
+    .check-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      margin-top: 8px;
+    }
+
+    .box {
+      width: 16px;
+      height: 16px;
+      border: 1px solid #94a3b8;
+      border-radius: 4px;
+      flex: 0 0 auto;
+      margin-top: 1px;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .btn {
+      height: 40px;
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 800;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--muted);
+    }
+
+    .btn.primary {
+      border-color: var(--teal);
+      background: var(--teal);
+      color: var(--surface);
+    }
+
+    .hero-card-mobile {
+      background: var(--teal);
+      color: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .hero-card-mobile .small {
+      opacity: 0.78;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .money {
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .stat {
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.14);
+      padding: 10px;
+    }
+
+    .stat b {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+
+    .stat span {
+      opacity: 0.78;
+      font-size: 11px;
+    }
+
+    .todo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+
+    .todo strong,
+    .list-item strong {
+      font-size: 13px;
+    }
+
+    .todo span,
+    .list-item span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: var(--radius);
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .pill.teal {
+      background: var(--teal-soft);
+      color: var(--teal-dark);
+    }
+
+    .pill.blue {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .pill.amber {
+      background: var(--amber-soft);
+      color: #92400e;
+    }
+
+    .pill.green {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .pill.red {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .list-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .list-item:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .filter span {
+      padding: 6px 8px;
+      border-radius: var(--radius);
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .ai-box {
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      border-radius: var(--radius);
+      padding: 12px;
+      color: #1e3a8a;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .signature {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .money-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .money-tile {
+      border-radius: var(--radius);
+      background: var(--surface-2);
+      padding: 10px;
+    }
+
+    .money-tile span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+
+    .money-tile b {
+      font-size: 15px;
+    }
+
+    .ops-hero {
+      background: var(--blue);
+    }
+
+    .desktop-board {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .desktop {
+      border: 1px solid #cbd5e1;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .desktop-bar {
+      height: 46px;
+      background: #111827;
+      color: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .desktop-content {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: 640px;
+    }
+
+    .side {
+      border-right: 1px solid var(--line);
+      background: #f8fafc;
+      padding: 18px;
+    }
+
+    .side-title {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    .nav-item {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      border-radius: var(--radius);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .nav-item.active {
+      background: var(--teal-soft);
+      color: var(--teal-dark);
+    }
+
+    .admin-main {
+      padding: 20px;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .admin-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .admin-head h3 {
+      font-size: 22px;
+    }
+
+    .admin-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .admin-tab {
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      background: var(--surface);
+    }
+
+    .admin-tab.active {
+      color: var(--teal-dark);
+      background: var(--teal-soft);
+      border-color: #99f6e4;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfdff;
+    }
+
+    .tool-field {
+      min-width: 126px;
+      height: 34px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      background: var(--surface);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      padding: 12px 10px;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      background: #f8fafc;
+    }
+
+    .table-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .sub-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .hint {
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius);
+      background: #eff6ff;
+      color: #1e3a8a;
+      padding: 12px 14px;
+      font-size: 13px;
+      line-height: 1.65;
+      font-weight: 700;
+    }
+
+    .decision-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .decision-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      background: var(--surface);
+    }
+
+    .decision-card h3 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    .check-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .check-list div {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--teal);
+      flex: 0 0 auto;
+      margin-top: 7px;
+    }
+
+    .note {
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    @media (max-width: 1180px) {
+      .hero,
+      .model-grid,
+      .decision-grid,
+      .sub-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .phone-board,
+      .phone-board.ops {
+        grid-template-columns: repeat(2, minmax(250px, 1fr));
+      }
+
+      .flow {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .flow-node:nth-child(2n)::after {
+        display: none;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        padding: 16px;
+      }
+
+      .hero-side,
+      .phone-board,
+      .phone-board.ops,
+      .flow,
+      .money-row {
+        grid-template-columns: 1fr;
+      }
+
+      .section {
+        padding: 18px;
+      }
+
+      .section-head,
+      .admin-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .desktop-content {
+        grid-template-columns: 1fr;
+      }
+
+      .side {
+        display: none;
+      }
+
+      table {
+        min-width: 860px;
+      }
+
+      .table-card {
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="panel hero-main">
+        <div>
+          <div class="eyebrow">AIcanTARA / 产品原型视觉稿</div>
+          <h1>开单运营方案 1.0</h1>
+          <p class="subtitle">用一套清晰的三端原型，把医生劳务费、区域运营激励、后台配置和结算追溯串成可评审的闭环。</p>
+        </div>
+        <div class="hero-tags">
+          <span class="tag teal">医生端 H5</span>
+          <span class="tag blue">运营端 H5</span>
+          <span class="tag">青藤平台后台</span>
+          <span class="tag amber">V0.1 推进讨论稿</span>
+        </div>
+      </div>
+
+      <div class="panel hero-side">
+        <div class="metric-card">
+          <div>
+            <div class="metric-label">医生劳务费</div>
+            <div class="metric-value">¥360</div>
+          </div>
+          <p class="metric-note">按临床报告咨询任务确认，形成可追溯劳务记录。</p>
+        </div>
+        <div class="metric-card">
+          <div>
+            <div class="metric-label">区域订单</div>
+            <div class="metric-value">128</div>
+          </div>
+          <p class="metric-note">运营激励按区域业绩归属，不直接表达医生绑定收益。</p>
+        </div>
+        <div class="metric-card">
+          <div>
+            <div class="metric-label">待确认咨询</div>
+            <div class="metric-value">3 单</div>
+          </div>
+          <p class="metric-note">医生确认或按后台规则自动确认，保留任务状态。</p>
+        </div>
+        <div class="metric-card">
+          <div>
+            <div class="metric-label">规则版本</div>
+            <div class="metric-value">R202604</div>
+          </div>
+          <p class="metric-note">历史结算沿用历史版本，避免规则调整后不可解释。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">关系模型</div>
+          <h2 class="section-title">区域归属用于结算，服务关系用于过程管理</h2>
+        </div>
+        <p class="section-desc">医生激励和运营激励在表达口径上分离：医生拿的是临床报告咨询劳务费，运营看的是负责区域订单业绩。</p>
+      </div>
+
+      <div class="model-grid">
+        <div class="logic-card">
+          <h3>归属优先级</h3>
+          <div class="logic-list">
+            <div class="logic-item">
+              <div class="number">1</div>
+              <div><strong>后台人工指定服务区域</strong><span>用于覆盖特殊机构、跨区服务和历史迁移。</span></div>
+            </div>
+            <div class="logic-item">
+              <div class="number">2</div>
+              <div><strong>开单机构所属区域</strong><span>优先匹配医生实际业务发生地。</span></div>
+            </div>
+            <div class="logic-item">
+              <div class="number">3</div>
+              <div><strong>检查机构或执业机构区域</strong><span>作为自动归属的补充依据。</span></div>
+            </div>
+            <div class="logic-item">
+              <div class="number">4</div>
+              <div><strong>待归属订单</strong><span>无法匹配时进入后台人工处理。</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow">
+          <div class="flow-node">
+            <h3>医生注册申请</h3>
+            <p>提交身份、资质、协议和结算信息。</p>
+          </div>
+          <div class="flow-node">
+            <h3>后台审核通过</h3>
+            <p>生成医生主体档案，关联手机号和微信身份。</p>
+          </div>
+          <div class="flow-node">
+            <h3>医生开单</h3>
+            <p>患者支付、检查、报告出具后生成咨询任务。</p>
+          </div>
+          <div class="flow-node">
+            <h3>咨询确认</h3>
+            <p>AI 生成内容，医生确认后形成劳务费。</p>
+          </div>
+          <div class="flow-node">
+            <h3>区域匹配</h3>
+            <p>订单按区域归属到运营业绩。</p>
+          </div>
+          <div class="flow-node">
+            <h3>运营看板</h3>
+            <p>运营查看辖区医生、订单转化和区域激励。</p>
+          </div>
+          <div class="flow-node">
+            <h3>规则版本</h3>
+            <p>医生劳务费和区域提成都记录规则版本。</p>
+          </div>
+          <div class="flow-node">
+            <h3>统一结算</h3>
+            <p>医生劳务费与运营激励进入后台结算管理。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">医生端 H5</div>
+          <h2 class="section-title">从申请入驻到确认咨询，再到查看劳务费</h2>
+        </div>
+        <p class="section-desc">医生端强调“我该处理什么”和“每笔劳务费从哪里来”，减少复杂运营话术。</p>
+      </div>
+
+      <div class="phone-board">
+        <article class="phone">
+          <div class="screen">
+            <div class="status"><span>9:41</span><span>5G 100%</span></div>
+            <div class="phone-head">
+              <div class="phone-title">申请成为签约医生</div>
+              <span class="pill amber">草稿</span>
+            </div>
+            <div class="phone-body">
+              <div class="mini-card">
+                <h3>基础信息</h3>
+                <div class="form-row"><div class="label">姓名</div><div class="input">请输入医生姓名</div></div>
+                <div class="form-row"><div class="label">手机号</div><div class="input">请输入手机号</div></div>
+                <div class="form-row"><div class="label">所在机构</div><div class="input">请选择或填写机构</div></div>
+                <div class="form-row"><div class="label">科室 / 职称</div><div class="input">影像科 / 主治医师</div></div>
+              </div>
+              <div class="mini-card">
+                <h3>资质信息</h3>
+                <div class="form-row"><div class="label">医师资格证编号</div><div class="input">请输入编号</div></div>
+                <div class="upload-grid">
+                  <div class="upload">上传资格证</div>
+                  <div class="upload">上传执业证</div>
+                </div>
+              </div>
+              <div class="mini-card">
+                <h3>服务协议</h3>
+                <div class="check-row"><span class="box"></span><span>我已阅读并同意《平台服务协议》</span></div>
+                <div class="check-row"><span class="box"></span><span>我已阅读并同意《临床报告咨询劳务协议》</span></div>
+              </div>
+              <div class="button-row">
+                <div class="btn">保存草稿</div>
+                <div class="btn primary">提交审核</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="phone">
+          <div class="screen">
+            <div class="status"><span>9:41</span><span>5G 100%</span></div>
+            <div class="phone-head">
+              <div class="phone-title">医生中心</div>
+              <span class="pill green">审核通过</span>
+            </div>
+            <div class="phone-body">
+              <div class="hero-card-mobile">
+                <div class="small">张医生 / XX 医院</div>
+                <div class="money">¥360.00</div>
+                <div class="small">本月预计劳务费</div>
+                <div class="stats-grid">
+                  <div class="stat"><b>3</b><span>待确认咨询</span></div>
+                  <div class="stat"><b>1</b><span>即将自动确认</span></div>
+                </div>
+              </div>
+              <div class="mini-card">
+                <h3>订单状态</h3>
+                <div class="stats-grid">
+                  <div class="money-tile"><span>待支付</span><b>2</b></div>
+                  <div class="money-tile"><span>已支付</span><b>8</b></div>
+                  <div class="money-tile"><span>已检查</span><b>5</b></div>
+                  <div class="money-tile"><span>已出报告</span><b>3</b></div>
+                </div>
+              </div>
+              <div class="mini-card">
+                <h3>待我处理</h3>
+                <div class="todo">
+                  <div><strong>临床报告咨询待确认</strong><br><span>AI 内容已生成，等待医生确认</span></div>
+                  <span class="pill amber">3 单</span>
+                </div>
+                <div class="btn primary" style="margin-top: 12px;">去处理</div>
+              </div>
+              <div class="mini-card">
+                <h3>最近患者</h3>
+                <div class="list">
+                  <div class="list-item"><div><strong>王*</strong><br><span>CT 胸部平扫 / 报告已出</span></div><span class="pill amber">待确认</span></div>
+                  <div class="list-item"><div><strong>李*</strong><br><span>MR 腰椎 / 等待报告</span></div><span class="pill blue">已检查</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="phone">
+          <div class="screen">
+            <div class="status"><span>9:41</span><span>5G 100%</span></div>
+            <div class="phone-head">
+              <div class="phone-title">咨询确认</div>
+              <span class="pill amber">待确认</span>
+            </div>
+            <div class="phone-body">
+              <div class="mini-card">
+                <h3>患者信息</h3>
+                <div class="list">
+                  <div class="list-item"><div><strong>王*</strong><br><span>女 / 56 岁</span></div><span class="pill blue">已出报告</span></div>
+                  <div class="list-item"><div><strong>CT 胸部平扫</strong><br><span>咨询任务：待确认</span></div><span class="pill amber">劳务 ¥30</span></div>
+                </div>
+              </div>
+              <div class="mini-card">
+                <h3>影像报告摘要</h3>
+                <p class="section-desc" style="font-size: 13px;">检查所见与检查结论已同步，医生可基于报告确认咨询内容。</p>
+              </div>
+              <div class="mini-card">
+                <h3>AI 生成临床报告咨询</h3>
+                <div class="ai-box">建议患者结合影像报告结果，按医生建议进行进一步复诊或随访。内容可编辑，编辑记录需留痕。</div>
+                <div class="btn" style="margin-top: 10px;">编辑咨询内容</div>
+              </div>
+              <div class="mini-card">
+                <div class="signature">
+                  <div><strong>医生签字</strong><br><span class="section-desc" style="font-size: 12px;">张医生 / XX 医院</span></div>
+                  <span class="pill teal">待签字</span>
+                </div>
+                <div class="check-row"><span class="box"></span><span>我确认以上咨询内容</span></div>
+              </div>
+              <div class="button-row">
+                <div class="btn">暂不处理</div>
+                <div class="btn primary">确认咨询</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="phone">
+          <div class="screen">
+            <div class="status"><span>9:41</span><span>5G 100%</span></div>
+            <div class="phone-head">
+              <div class="phone-title">我的劳务费</div>
+              <span class="pill teal">2026-04</span>
+            </div>
+            <div class="phone-body">
+              <div class="mini-card">
+                <div class="money-row">
+                  <div class="money-tile"><span>本月预计</span><b>¥360</b></div>
+                  <div class="money-tile"><span>待结算</span><b>¥360</b></div>
+                  <div class="money-tile"><span>已结算</span><b>¥920</b></div>
+                </div>
+              </div>
+              <div class="filter"><span>月份</span><span>结算状态</span><span>查询</span></div>
+              <div class="mini-card">
+                <h3>劳务费明细</h3>
+                <div class="list">
+                  <div class="list-item"><div><strong>王* / CT 胸部平扫</strong><br><span>04-10 18:30 确认</span></div><span class="pill amber">¥30 待结算</span></div>
+                  <div class="list-item"><div><strong>赵* / CT 腹部平扫</strong><br><span>04-08 12:20 确认</span></div><span class="pill green">¥30 已结算</span></div>
+                  <div class="list-item"><div><strong>钱* / MR 腰椎</strong><br><span>04-07 09:14 自动确认</span></div><span class="pill teal">¥30 待结算</span></div>
+                </div>
+              </div>
+              <div class="hint">每笔劳务费都可回溯到对应咨询任务、确认方式、规则版本和结算批次。</div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">运营端 H5</div>
+          <h2 class="section-title">区域业务看板，不表达医生个人绑定收益</h2>
+        </div>
+        <p class="section-desc">运营端将医生服务、订单跟进和激励明细统一放在“区域”主语下，便于过程管理和合规表达。</p>
+      </div>
+
+      <div class="phone-board ops">
+        <article class="phone">
+          <div class="screen">
+            <div class="status"><span>9:41</span><span>5G 100%</span></div>
+            <div class="phone-head">
+              <div class="phone-title">运营中心</div>
+              <span class="pill blue">1级运营</span>
+            </div>
+            <div class="phone-body">
+              <div class="hero-card-mobile ops-hero">
+                <div class="small">负责区域：杭州市</div>
+                <div class="money">128 单</div>
+                <div class="small">本月区域订单数</div>
+                <div class="stats-grid">
+                  <div class="stat"><b>¥2,560</b><span>预计激励</span></div>
+                  <div class="stat"><b>2%</b><span>提成比例</span></div>
+                </div>
+              </div>
+              <div class="mini-card">
+                <h3>区域业务概览</h3>
+                <div class="stats-grid">
+                  <div class="money-tile"><span>今日开单</span><b>12</b></div>
+                  <div class="money-tile"><span>已支付</span><b>9</b></div>
+                  <div class="money-tile"><span>已检查</span><b>6</b></div>
+                  <div class="money-tile"><span>已出报告</span><b>3</b></div>
+                </div>
+              </div>
+              <div class="mini-card">
+                <h3>辖区医生概览</h3>
+                <div class="list">
+                  <div class="list-item"><div><strong>已审核医生</strong><br><span>本月活跃 18 人</span></div><span class="pill green">36</span></div>
+                  <div class="list-item"><div><strong>待审核 / 待跟进</strong><br><span>邀请注册和资质补全</span></div><span class="pill amber">5</span></div>
+                </div>
+              </div>
+              <div class="tag-row">
+                <span class="tag blue">开单订单</span>
+                <span class="tag teal">下级运营</span>
+                <span class="tag">区域说明</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="phone">
+          <div class="screen">
+            <div class="status"><span>9:41</span><span>5G 100%</span></div>
+            <div class="phone-head">
+              <div class="phone-title">辖区医生</div>
+              <span class="pill teal">服务视图</span>
+            </div>
+            <div class="phone-body">
+              <div class="filter"><span>杭州市</span><span>区县</span><span>注册状态</span><span>查询</span></div>
+              <div class="mini-card">
+                <h3>医生服务列表</h3>
+                <div class="list">
+                  <div class="list-item"><div><strong>张医生 / XX医院</strong><br><span>西湖区 / 本月开单 12 / 咨询完成 8</span></div><span class="pill green">查看</span></div>
+                  <div class="list-item"><div><strong>李医生 / YY医院</strong><br><span>滨江区 / 待审核 / 最近开单 -</span></div><span class="pill amber">跟进</span></div>
+                  <div class="list-item"><div><strong>王医生 / ZZ医院</strong><br><span>西湖区 / 未注册 / 本月开单 3</span></div><span class="pill blue">邀请注册</span></div>
+                </div>
+              </div>
+              <div class="hint">这里是辖区医生和服务医生，不使用绑定医生提成表达。</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="phone">
+          <div class="screen">
+            <div class="status"><span>9:41</span><span>5G 100%</span></div>
+            <div class="phone-head">
+              <div class="phone-title">运营激励</div>
+              <span class="pill amber">待结算</span>
+            </div>
+            <div class="phone-body">
+              <div class="mini-card">
+                <div class="money-row">
+                  <div class="money-tile"><span>预计激励</span><b>¥2,560</b></div>
+                  <div class="money-tile"><span>待结算</span><b>¥2,560</b></div>
+                  <div class="money-tile"><span>已结算</span><b>¥8,400</b></div>
+                </div>
+              </div>
+              <div class="filter"><span>月份</span><span>区域</span><span>结算状态</span></div>
+              <div class="mini-card">
+                <h3>区域明细</h3>
+                <div class="list">
+                  <div class="list-item"><div><strong>西湖区</strong><br><span>80 单 / ¥80,000 / 2%</span></div><span class="pill amber">¥1,600</span></div>
+                  <div class="list-item"><div><strong>滨江区</strong><br><span>48 单 / ¥48,000 / 2%</span></div><span class="pill amber">¥960</span></div>
+                </div>
+              </div>
+              <div class="mini-card">
+                <h3>规则版本</h3>
+                <div class="tag-row">
+                  <span class="tag blue">R202604</span>
+                  <span class="tag teal">区域业绩</span>
+                  <span class="tag">可下钻追溯</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">青藤平台后台</div>
+          <h2 class="section-title">审核、区域、关系、任务、规则和结算统一配置</h2>
+        </div>
+        <p class="section-desc">后台保留可追溯配置，前台保持合规表达；历史归属、规则版本和结算来源都可以查回来。</p>
+      </div>
+
+      <div class="desktop-board">
+        <article class="desktop">
+          <div class="desktop-bar">
+            <span>青藤平台后台 / 开单运营管理</span>
+            <span>运营后台</span>
+          </div>
+          <div class="desktop-content">
+            <aside class="side">
+              <div class="side-title">模块导航</div>
+              <div class="nav-item active">医生审核管理</div>
+              <div class="nav-item">运营人员管理</div>
+              <div class="nav-item">区域负责人配置</div>
+              <div class="nav-item">医生区域关系管理</div>
+              <div class="nav-item">临床报告咨询任务</div>
+              <div class="nav-item">激励规则配置</div>
+              <div class="nav-item">结算管理</div>
+            </aside>
+            <div class="admin-main">
+              <div class="admin-head">
+                <h3>医生审核管理</h3>
+                <div class="admin-tabs">
+                  <span class="admin-tab active">待审核</span>
+                  <span class="admin-tab">审核通过</span>
+                  <span class="admin-tab">审核驳回</span>
+                </div>
+              </div>
+              <div class="toolbar">
+                <div class="tool-field">姓名 / 手机号</div>
+                <div class="tool-field">机构</div>
+                <div class="tool-field">审核状态</div>
+                <div class="tool-field">提交时间</div>
+                <div class="btn primary" style="height: 34px; width: 78px;">查询</div>
+              </div>
+              <div class="table-card">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>医生</th>
+                      <th>手机号</th>
+                      <th>机构</th>
+                      <th>科室</th>
+                      <th>提交时间</th>
+                      <th>审核状态</th>
+                      <th>协议状态</th>
+                      <th>结算信息</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>张医生</td>
+                      <td>138****0000</td>
+                      <td>XX医院</td>
+                      <td>影像科</td>
+                      <td>04-10</td>
+                      <td><span class="pill amber">待审核</span></td>
+                      <td><span class="pill green">已签署</span></td>
+                      <td><span class="pill teal">已填写</span></td>
+                      <td>查看 / 通过 / 驳回</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="sub-grid">
+                <div class="table-card">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th colspan="4">区域负责人配置</th>
+                      </tr>
+                      <tr>
+                        <th>区域层级</th>
+                        <th>区域名称</th>
+                        <th>负责人</th>
+                        <th>状态</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>城市</td>
+                        <td>杭州市</td>
+                        <td>高运营</td>
+                        <td><span class="pill green">启用</span></td>
+                      </tr>
+                      <tr>
+                        <td>区县</td>
+                        <td>西湖区</td>
+                        <td>高运营 / 陈运营</td>
+                        <td><span class="pill green">启用</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="table-card">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th colspan="4">医生区域关系管理</th>
+                      </tr>
+                      <tr>
+                        <th>医生</th>
+                        <th>服务区域</th>
+                        <th>关系类型</th>
+                        <th>结算归属</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>张医生</td>
+                        <td>西湖区</td>
+                        <td>区域服务</td>
+                        <td><span class="pill teal">是</span></td>
+                      </tr>
+                      <tr>
+                        <td>李医生</td>
+                        <td>滨江区</td>
+                        <td>邀请注册</td>
+                        <td><span class="pill amber">待确认</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="hint">区域归属用于结算，服务运营用于过程跟进。所有关系变更记录生效时间、失效时间和操作人。</div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">任务、规则与结算</div>
+          <h2 class="section-title">两条激励线进入同一个可追溯结算闭环</h2>
+        </div>
+        <p class="section-desc">医生劳务费从咨询任务来，运营激励从区域有效订单来；结算前都要能看到来源明细和规则版本。</p>
+      </div>
+
+      <div class="desktop">
+        <div class="desktop-bar">
+          <span>结算管理 / 规则版本 R202604</span>
+          <span>月度批次</span>
+        </div>
+        <div class="admin-main">
+          <div class="admin-tabs">
+            <span class="admin-tab active">医生劳务费结算</span>
+            <span class="admin-tab">运营激励结算</span>
+            <span class="admin-tab">异常数据</span>
+          </div>
+          <div class="table-card">
+            <table>
+              <thead>
+                <tr>
+                  <th>结算批次</th>
+                  <th>结算对象</th>
+                  <th>结算周期</th>
+                  <th>订单 / 任务数</th>
+                  <th>应结金额</th>
+                  <th>规则版本</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>S202604-D01</td>
+                  <td>张医生</td>
+                  <td>2026-04</td>
+                  <td>12 个咨询任务</td>
+                  <td>¥360</td>
+                  <td><span class="pill blue">R202604</span></td>
+                  <td><span class="pill amber">待审核</span></td>
+                  <td>查看 / 审核</td>
+                </tr>
+                <tr>
+                  <td>S202604-O01</td>
+                  <td>高运营</td>
+                  <td>2026-04</td>
+                  <td>128 个区域订单</td>
+                  <td>¥2,560</td>
+                  <td><span class="pill blue">R202604</span></td>
+                  <td><span class="pill amber">待审核</span></td>
+                  <td>查看 / 审核</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-grid" style="margin-top: 18px;">
+        <div class="decision-card">
+          <h3>V1 建议先做</h3>
+          <div class="check-list">
+            <div><span class="dot"></span><span>医生注册申请、后台审核、医生中心和咨询确认。</span></div>
+            <div><span class="dot"></span><span>运营中心、辖区医生、区域开单数据和运营激励明细。</span></div>
+            <div><span class="dot"></span><span>运营人员管理、区域负责人配置、医生区域关系管理。</span></div>
+            <div><span class="dot"></span><span>咨询任务、激励规则、结算管理和异常处理。</span></div>
+          </div>
+        </div>
+        <div class="decision-card">
+          <h3>评审待确认</h3>
+          <div class="check-list">
+            <div><span class="dot"></span><span>劳务协议签署时机，以及自动确认等待时长。</span></div>
+            <div><span class="dot"></span><span>有效订单按支付成功、检查完成，还是报告出具计算。</span></div>
+            <div><span class="dot"></span><span>1 级运营与 2 级运营是否都参与结算。</span></div>
+            <div><span class="dot"></span><span>跨区域开单按医生、开单机构，还是检查机构归属。</span></div>
+          </div>
+        </div>
+      </div>
+
+      <p class="note">视觉稿基于原始文档《2026-04-开单运营方案1.0-原型.md》整理。若继续迁入 Figma，建议按医生端 H5、运营端 H5、后台桌面端、流程说明四个画板拆分。</p>
+    </section>
+  </main>
+</body>
+</html>
