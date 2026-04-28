@@ -1,7 +1,24 @@
+# macOS
 .DS_Store
 **/.DS_Store
-04_workspace/demos/.runtime/
-04_workspace/demos/h5/node_modules/
-04_workspace/demos/h5/dist/
-04_workspace/demos/pc/node_modules/
-04_workspace/demos/pc/dist/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local env files
+.env
+.env.local
+.env.*.local
+
+# JS / demo runtime artifacts
+**/node_modules/
+**/dist/
+**/.runtime/
+**/.vite/
+coverage/
+.cache/
+.turbo/
+*.log
