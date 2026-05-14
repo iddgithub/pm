@@ -281,20 +281,41 @@ h1 {
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
 }
 
 .screen--form {
-  background: linear-gradient(180deg, #fbfbfd 0%, #f5f6f9 26%, #fbfbfd 100%);
+  background:
+    radial-gradient(circle at top right, rgba(167, 231, 255, 0.32), transparent 26%),
+    linear-gradient(180deg, #f5fbff 0%, #eef7ff 34%, #f7fbff 100%);
 }
 
 .screen--list {
-  background: linear-gradient(180deg, #dff5ff 0%, #ecfbff 18%, #f8fcff 40%, #f7fbff 100%);
+  background:
+    radial-gradient(circle at top right, rgba(167, 231, 255, 0.38), transparent 26%),
+    linear-gradient(180deg, #e8f8ff 0%, #eefaff 20%, #f7fbff 100%);
 }
 
 .screen--confirm {
   background:
-    radial-gradient(circle at top right, rgba(157, 233, 216, 0.24), transparent 28%),
-    linear-gradient(180deg, #d8f6fa 0%, #ecfdf8 20%, #f8fbff 44%, #f6fbff 100%);
+    radial-gradient(circle at top right, rgba(157, 233, 216, 0.26), transparent 26%),
+    linear-gradient(180deg, #def7fa 0%, #edfdf8 18%, #f7fbff 44%, #f5fbff 100%);
+}
+
+.screen--form::before,
+.screen--list::before,
+.screen--confirm::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 22%);
+  pointer-events: none;
+}
+
+.screen > * {
+  position: relative;
+  z-index: 1;
 }
 
 .statusbar {
@@ -305,6 +326,58 @@ h1 {
   font-size: 14px;
   font-weight: 700;
   color: #0f172a;
+}
+
+.segment-tabbar {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid rgba(12, 178, 127, 0.9);
+  box-shadow: 0 10px 24px rgba(41, 102, 84, 0.08);
+}
+
+.segment-tabbar button {
+  min-width: 150px;
+  min-height: 46px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: #0d9e75;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0;
+  cursor: default;
+}
+
+.segment-tabbar button.is-active {
+  background: linear-gradient(135deg, #08b57f, #11c68c);
+  color: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.phone-segment-tabs {
+  display: flex;
+  justify-content: center;
+  padding: 0 14px 10px;
+}
+
+.phone-segment-tabs .segment-tabbar {
+  width: 100%;
+  border-radius: 15px;
+  padding: 3px;
+  box-shadow: 0 8px 18px rgba(41, 102, 84, 0.06);
+}
+
+.phone-segment-tabs .segment-tabbar button {
+  min-width: 0;
+  min-height: 34px;
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .status-icons {
@@ -337,7 +410,7 @@ h1 {
   grid-template-columns: 44px minmax(0, 1fr) 68px;
   align-items: center;
   gap: 8px;
-  padding: 6px 16px 14px;
+  padding: 4px 16px 10px;
 }
 
 .nav-icon {
@@ -362,7 +435,7 @@ h1 {
 
 .appbar-title strong {
   display: block;
-  font-size: 18px;
+  font-size: 17px;
 }
 
 .appbar-title span {
@@ -376,7 +449,7 @@ h1 {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 0 16px 12px;
+  padding: 0 14px 12px;
   min-height: 0;
 }
 
@@ -397,18 +470,18 @@ h1 {
 }
 
 .form-panel {
-  padding: 16px;
+  padding: 14px;
 }
 
 .field-group + .field-group {
-  margin-top: 18px;
+  margin-top: 16px;
 }
 
 .label-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   font-size: 15px;
   font-weight: 700;
 }
@@ -420,8 +493,8 @@ h1 {
 }
 
 .textarea-like {
-  min-height: 90px;
-  padding: 16px 14px;
+  min-height: 82px;
+  padding: 14px 14px;
   border-radius: 16px;
   background: #f4f6fa;
   color: #b0b9c4;
@@ -436,7 +509,7 @@ h1 {
 }
 
 .shortcut-chip {
-  padding: 9px 16px;
+  padding: 8px 15px;
   border-radius: 999px;
   background: #ffffff;
   border: 1px solid #d9e1eb;
@@ -449,8 +522,8 @@ h1 {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 12px;
-  padding: 14px 16px;
+  margin-top: 10px;
+  padding: 12px 15px;
   border-radius: 999px;
   background: #f3f5f8;
   color: #22353a;
@@ -464,16 +537,16 @@ h1 {
 .choice-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .choice-card {
   display: grid;
   place-items: center;
   gap: 8px;
-  min-height: 104px;
-  padding: 14px 10px;
-  border-radius: 18px;
+  min-height: 96px;
+  padding: 12px 10px;
+  border-radius: 16px;
   background: #f2faf7;
   border: 1px solid rgba(23, 180, 135, 0.08);
   color: #2d4c48;
@@ -523,8 +596,8 @@ h1 {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 16px;
-  padding: 14px 14px;
+  margin-top: 14px;
+  padding: 13px 14px;
   border-radius: 16px;
   background: #f7f8fb;
   color: #243944;
@@ -552,7 +625,7 @@ h1 {
 }
 
 .phone-footer {
-  padding-top: 14px;
+  padding-top: 12px;
 }
 
 .primary-action {
@@ -560,7 +633,7 @@ h1 {
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 56px;
+  min-height: 52px;
   border-radius: 999px;
   background: linear-gradient(90deg, #31c98d 0%, #09a268 100%);
   color: #ffffff;
@@ -571,13 +644,13 @@ h1 {
 .date-strip {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
 }
 
 .date-card {
-  min-height: 92px;
-  padding: 12px 7px;
-  border-radius: 14px;
+  min-height: 84px;
+  padding: 10px 6px;
+  border-radius: 13px;
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(204, 223, 233, 0.88);
   display: grid;
@@ -601,7 +674,7 @@ h1 {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 10px;
-  padding: 12px 4px 4px;
+  padding: 10px 4px 2px;
   color: #788892;
   font-size: 12px;
 }
@@ -627,18 +700,18 @@ h1 {
 }
 
 .list-divider {
-  height: 14px;
+  height: 10px;
 }
 
 .institution-card {
   display: grid;
   grid-template-columns: 64px minmax(0, 1fr) auto;
   gap: 14px;
-  padding: 16px;
+  padding: 14px;
 }
 
 .institution-card + .institution-card {
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
 .institution-logo {
@@ -750,7 +823,7 @@ h1 {
 }
 
 .top-banner {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   padding: 10px 12px;
   border-radius: 18px;
   background: linear-gradient(135deg, rgba(168, 244, 226, 0.6), rgba(225, 255, 248, 0.92));
@@ -812,7 +885,7 @@ h1 {
 }
 
 .inline-card {
-  padding: 14px;
+  padding: 13px 14px;
   font-size: 14px;
   font-weight: 800;
   color: #08a572;
@@ -831,7 +904,7 @@ h1 {
 }
 
 .fee-card {
-  padding: 14px 14px 12px;
+  padding: 13px 14px 12px;
 }
 
 .fee-head {
@@ -897,8 +970,8 @@ h1 {
 
 .action-stack {
   display: grid;
-  gap: 10px;
-  padding-top: 10px;
+  gap: 8px;
+  padding-top: 8px;
 }
 
 .scan-action {
@@ -906,8 +979,8 @@ h1 {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  min-height: 52px;
-  border-radius: 18px;
+  min-height: 50px;
+  border-radius: 16px;
   background: linear-gradient(90deg, #08a56b 0%, #089f61 100%);
   color: #ffffff;
   font-size: 16px;
@@ -928,7 +1001,7 @@ h1 {
 }
 
 .outline-action {
-  min-height: 48px;
+  min-height: 46px;
   border-radius: 999px;
   border: 1px solid rgba(23, 180, 135, 0.34);
   background: rgba(255, 255, 255, 0.9);
@@ -945,9 +1018,9 @@ h1 {
   display: flex;
   justify-content: center;
   gap: 40px;
-  padding-top: 10px;
+  padding-top: 8px;
   color: #203138;
-  font-size: 28px;
+  font-size: 24px;
 }
 
 .stage-notes {
@@ -1005,6 +1078,10 @@ h1 {
   .summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .segment-tabbar button {
+    min-width: 128px;
+  }
 }
 
 @media (max-width: 560px) {
@@ -1012,5 +1089,9 @@ h1 {
   .choice-grid,
   .dual-actions {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .phone-segment-tabs .segment-tabbar button {
+    min-width: 0;
   }
 }

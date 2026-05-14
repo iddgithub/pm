@@ -89,7 +89,10 @@
     }
 
     .phone {
-      width: 308px;
+      position: relative;
+      width: min(100%, 390px);
+      aspect-ratio: 390 / 844;
+      margin: 0 auto;
       border-radius: 34px;
       background: var(--phone);
       padding: 10px;
@@ -97,7 +100,7 @@
     }
 
     .screen {
-      min-height: 664px;
+      height: 100%;
       border-radius: 26px;
       overflow: hidden;
       background:
@@ -474,42 +477,6 @@
       color: #56727a;
     }
 
-    .doctor-card {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-    }
-
-    .avatar {
-      width: 52px;
-      height: 52px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, rgba(19, 201, 162, 0.18), rgba(19, 201, 162, 0.04));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--brand-deep);
-      font-weight: 700;
-      font-size: 22px;
-      flex: none;
-    }
-
-    .doctor-meta {
-      display: grid;
-      gap: 4px;
-      min-width: 0;
-      font-size: 12px;
-      color: #58727a;
-    }
-
-    .doctor-meta strong {
-      font-size: 18px;
-      color: #24363d;
-      letter-spacing: 0;
-      line-height: 1.3;
-      word-break: break-all;
-    }
-
     .bullet-list {
       margin: 0;
       padding-left: 18px;
@@ -520,32 +487,48 @@
       color: #56727a;
     }
 
+    .service-note {
+      margin-top: 8px;
+      padding-top: 7px;
+      border-top: 1px dashed #e5efec;
+      color: #9aaeaf;
+      font-size: 10px;
+      line-height: 1.45;
+      text-align: left;
+      display: grid;
+      gap: 1px;
+    }
+
+    .review-card {
+      padding: 12px 12px 10px;
+    }
+
     .review-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-top: 10px;
+      gap: 5px;
+      margin-top: 6px;
     }
 
     .review-item {
       border: 1px solid var(--line);
       border-radius: 12px;
-      padding: 10px 6px 8px;
+      padding: 7px 4px 5px;
       text-align: center;
       background: #fff;
     }
 
     .review-item .emoji {
       display: block;
-      font-size: 18px;
-      margin-bottom: 4px;
+      font-size: 15px;
+      margin-bottom: 1px;
     }
 
     .review-item strong {
       display: block;
-      min-height: 30px;
-      font-size: 10px;
-      line-height: 1.4;
+      min-height: 22px;
+      font-size: 9px;
+      line-height: 1.25;
       color: #44606a;
     }
 
@@ -565,17 +548,17 @@
     }
 
     .footer-note {
-      margin-top: 10px;
+      margin-top: 4px;
       color: #8aa0a8;
-      font-size: 12px;
-      line-height: 1.7;
+      font-size: 10px;
+      line-height: 1.4;
     }
 
     .counter {
       text-align: right;
       color: #94a7ae;
-      font-size: 12px;
-      margin-top: 10px;
+      font-size: 11px;
+      margin-top: 2px;
     }
 
     .caption {
@@ -615,7 +598,7 @@
     <section class="hero">
       <span class="eyebrow">患者侧补回原型</span>
       <h1>患者查看报告解读与服务评价</h1>
-      <p>根据当前页面风格补充聚合原型。左侧为患者微信扫码入口，中间为患者从已出报告进入“报告解读”的入口页，右侧为患者查看医生解读内容并提交评价的结果页。</p>
+      <p>根据当前页面风格补充聚合原型。左侧为患者微信扫码入口，中间为患者从已出报告进入“报告解读”的入口页，右侧为患者查看解读内容并提交评价的结果页。</p>
     </section>
 
     <section class="screens">
@@ -750,16 +733,6 @@
               </div>
             </div>
             <div class="content">
-              <section class="card doctor-card">
-                <div class="avatar">👨‍⚕️</div>
-                <div class="doctor-meta">
-                  <div>解读医生　张报告医生</div>
-                  <div>医生姓名　<strong>张报告医生</strong></div>
-                  <div>解读时间　2025-10-15 11:35:20</div>
-                  <div>检查项目　CT颅脑(平扫)</div>
-                </div>
-              </section>
-
               <section class="card">
                 <div class="section-title">解读内容</div>
                 <ul class="bullet-list">
@@ -769,9 +742,14 @@
                   <li>这说明结合自身临床症状观察，目前暂无明显不适，可按医嘱定期复诊；如出现头痛、头晕、恶心、肢体无力等不适症状，请及时就医复查。</li>
                   <li>如有其他疑问，欢迎随时咨询。</li>
                 </ul>
+                <div class="service-note">
+                  <div>本次解读服务由平台认证医生提供</div>
+                  <div>服务医生：张报告医生</div>
+                  <div>解读时间：2025-10-15 11:35:20</div>
+                </div>
               </section>
 
-              <section class="card">
+              <section class="card review-card">
                 <div class="section-title">患者评价</div>
                 <div class="review-grid">
                   <div class="review-item good">
@@ -791,7 +769,7 @@
                     <strong>未解决问题</strong>
                   </div>
                 </div>
-                <div class="footer-note">医生解释很清楚，已了解后续注意事项</div>
+                <div class="footer-note">解读内容清晰，已了解后续注意事项</div>
                 <div class="counter">18/200</div>
               </section>
             </div>

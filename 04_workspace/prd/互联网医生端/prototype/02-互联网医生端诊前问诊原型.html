@@ -218,17 +218,35 @@
       gap: 0;
     }
 
-    .stage.followup {
-      grid-column: 2;
+    .stage.onboarding {
+      order: 1;
     }
 
-    .stage.onboarding {
-      grid-column: 3;
+    .stage.qr {
+      order: 2;
+    }
+
+    .stage.aitriage {
+      order: 3;
+    }
+
+    .stage.payment-priority {
+      order: 4;
+    }
+
+    .stage.chat {
+      order: 5;
+    }
+
+    .stage.followup {
+      order: 6;
     }
 
     .phone {
       position: relative;
+      width: min(100%, 390px);
       aspect-ratio: 390 / 844;
+      margin: 0 auto;
       border-radius: 42px;
       background: linear-gradient(180deg, #101418, #1a1f24);
       padding: 12px;
@@ -724,6 +742,370 @@
       color: #0f9b73;
     }
 
+    .aitriage-screen {
+      position: relative;
+      background:
+        radial-gradient(circle at 50% 2%, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0) 30%),
+        radial-gradient(circle at 18% 84%, rgba(170, 235, 226, 0.36), rgba(255, 255, 255, 0) 23%),
+        radial-gradient(circle at 84% 80%, rgba(178, 228, 255, 0.3), rgba(255, 255, 255, 0) 24%),
+        linear-gradient(180deg, #bde4ff 0%, #daf5f0 48%, #eefcf7 100%);
+      overflow: hidden;
+    }
+
+    .aitriage-screen::before,
+    .aitriage-screen::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(8px);
+      pointer-events: none;
+    }
+
+    .aitriage-screen::before {
+      width: 184px;
+      height: 184px;
+      left: -40px;
+      top: 156px;
+      background: rgba(255, 255, 255, 0.26);
+    }
+
+    .aitriage-screen::after {
+      width: 160px;
+      height: 160px;
+      right: -28px;
+      bottom: 154px;
+      background: rgba(164, 230, 255, 0.18);
+    }
+
+    .aitriage-appbar {
+      align-items: center;
+      padding-top: 14px;
+      padding-bottom: 4px;
+    }
+
+    .aitriage-appbar .appbar-title {
+      padding-top: 0;
+      text-align: center;
+    }
+
+    .aitriage-appbar .appbar-title strong {
+      font-size: 17px;
+      color: #313638;
+      letter-spacing: -0.03em;
+    }
+
+    .aitriage-menu {
+      width: 76px;
+      height: 34px;
+      border-radius: 17px;
+      background: rgba(255, 255, 255, 0.76);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.62);
+      box-shadow: 0 10px 22px rgba(88, 144, 145, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 11px;
+      color: #253438;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .aitriage-menu span:last-child {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #324247;
+      display: grid;
+      place-items: center;
+      font-size: 10px;
+    }
+
+    .aitriage-content {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 0 14px 0;
+      overflow: hidden;
+    }
+
+    .aitriage-watermark {
+      position: absolute;
+      top: 148px;
+      left: -22px;
+      right: -18px;
+      font-size: 102px;
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      color: rgba(123, 173, 177, 0.08);
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .aitriage-hero {
+      position: relative;
+      height: 254px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-top: 4px;
+    }
+
+    .aitriage-doctor {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      z-index: 1;
+      overflow: hidden;
+      filter: drop-shadow(0 16px 24px rgba(62, 122, 119, 0.1));
+    }
+
+    .aitriage-doctor::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 8px;
+      width: 124px;
+      height: 22px;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      background: rgba(120, 189, 178, 0.14);
+      filter: blur(12px);
+      z-index: 0;
+    }
+
+    .aitriage-doctor::after {
+      content: "";
+      position: absolute;
+      inset: 18px 38px 30px 38px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(223, 245, 241, 0.45), rgba(223, 245, 241, 0) 72%);
+      z-index: 0;
+    }
+
+    .aitriage-doctor img {
+      position: absolute;
+      left: -50px;
+      top: -18px;
+      z-index: 1;
+      width: 320px;
+      height: auto;
+      clip-path: inset(0 0 0 0);
+    }
+
+    .aitriage-card {
+      position: relative;
+      z-index: 1;
+      padding: 22px 18px 18px;
+      border-radius: 28px;
+      background: rgba(241, 253, 250, 0.62);
+      border: 2px solid rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 14px 28px rgba(79, 145, 132, 0.06);
+    }
+
+    .aitriage-card-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-size: 19px;
+      font-weight: 800;
+      color: #2b3e3f;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+    }
+
+    .aitriage-wave {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 15px;
+      margin: 0 1px;
+    }
+
+    .aitriage-wave span {
+      width: 2px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #36dcb8, #18b89c);
+    }
+
+    .aitriage-wave span:nth-child(1) { height: 8px; }
+    .aitriage-wave span:nth-child(2) { height: 12px; }
+    .aitriage-wave span:nth-child(3) { height: 15px; }
+    .aitriage-wave span:nth-child(4) { height: 10px; }
+    .aitriage-wave span:nth-child(5) { height: 13px; }
+
+    .aitriage-copy {
+      margin: 0 0 16px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #475a5e;
+    }
+
+    .aitriage-questions {
+      display: grid;
+      gap: 12px;
+    }
+
+    .aitriage-question {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 56px;
+      padding: 0 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 8px 18px rgba(66, 120, 108, 0.05);
+      color: #334142;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .question-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 2px solid #18a37d;
+      color: #18a37d;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      font-weight: 800;
+      flex: 0 0 auto;
+      box-shadow: inset 0 0 0 2px rgba(24, 163, 125, 0.12);
+    }
+
+    .aitriage-feature {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 186px;
+      margin-top: 6px;
+      padding: 18px 18px 16px;
+      border-radius: 22px;
+      background: rgba(248, 255, 253, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.76);
+      box-shadow: 0 10px 22px rgba(87, 147, 134, 0.06);
+      backdrop-filter: blur(14px);
+    }
+
+    .aitriage-feature-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      background: linear-gradient(180deg, #2dd4bf 0%, #0ea5a4 100%);
+      color: white;
+      font-size: 18px;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 8px 18px rgba(14, 165, 164, 0.2);
+      flex: 0 0 auto;
+    }
+
+    .aitriage-feature strong {
+      display: block;
+      color: #354549;
+      font-size: 14px;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+    }
+
+    .aitriage-feature span {
+      display: block;
+      margin-top: 4px;
+      color: #8ea0af;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .aitriage-bottom {
+      margin-top: auto;
+      padding-bottom: 2px;
+    }
+
+    .aitriage-search {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 52px;
+      padding: 0 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 10px 20px rgba(79, 144, 133, 0.06);
+      color: #7d898c;
+      font-size: 13px;
+    }
+
+    .aitriage-search-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid #2f4246;
+      display: grid;
+      place-items: center;
+      color: #2f4246;
+      font-size: 13px;
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+
+    .aitriage-disclaimer {
+      margin-top: 8px;
+      text-align: center;
+      color: #a3b2bd;
+      font-size: 11px;
+    }
+
+    .aitriage-tabbar {
+      margin: 8px -10px 0;
+      padding: 10px 18px 7px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: rgba(255, 255, 255, 0.96);
+      border-top: 1px solid rgba(214, 228, 232, 0.8);
+    }
+
+    .aitriage-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      color: #a1a7ac;
+      font-size: 10px;
+    }
+
+    .aitriage-tab.active {
+      color: #18a37d;
+      font-weight: 700;
+    }
+
+    .aitriage-tab-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .aitriage-tab-icon.square {
+      border-radius: 8px;
+    }
+
+    .aitriage-home-indicator {
+      width: 100px;
+      height: 4px;
+      margin: 5px auto 6px;
+      border-radius: 999px;
+      background: rgba(23, 23, 23, 0.92);
+    }
+
     .chat-screen {
       background:
         linear-gradient(180deg, rgba(84, 216, 175, 0.1) 0%, rgba(255, 255, 255, 0) 16%),
@@ -893,6 +1275,30 @@
       gap: 10px;
       font-size: 12px;
       color: #334155;
+    }
+
+    .payment-focus-body {
+      display: grid;
+      gap: 12px;
+      padding-bottom: 232px;
+    }
+
+    .payment-focus-note {
+      padding: 14px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #ebfbf4, #f4fdfa);
+      border: 1px solid rgba(14, 168, 124, 0.18);
+      color: #11684f;
+      font-size: 12px;
+      line-height: 1.7;
+      font-weight: 600;
+      box-shadow: 0 8px 18px rgba(14, 168, 124, 0.06);
+    }
+
+    .payment-focus-chat {
+      display: grid;
+      gap: 10px;
+      padding-top: 2px;
     }
 
     .confirm-flow {
@@ -1260,14 +1666,6 @@
         grid-template-columns: 1fr;
       }
 
-      .stage.followup {
-        grid-column: auto;
-      }
-
-      .stage.onboarding {
-        grid-column: auto;
-      }
-
       .summary-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
@@ -1302,13 +1700,14 @@
         <h1>承接上下文、完成问诊确认与生成支付订单原型</h1>
         <p>
           该原型聚焦线下诊所医生与患者初诊沟通后，如何把病诉、病史、推荐影像项目、预约意向与推荐机构顺滑转交给互联网医院医生，
-          并通过二维码唤起微信问诊，再完成检查申请、时间确认、检查须知确认与订单支付。
+          并通过二维码唤起 AI 首页浏览推荐问法与推荐项目，再进入微信问诊，完成检查申请、时间确认、检查须知确认与订单支付。
         </p>
         <div class="flow-pills">
           <span class="pill">Step 01 线下采集患者信息</span>
           <span class="pill">Step 02 生成诊前问诊二维码</span>
-          <span class="pill">Step 03 进入胡医生问诊与支付</span>
-          <span class="pill">Step 04 点击确认问诊信息</span>
+          <span class="pill">Step 03 进入青藤 AI 首页</span>
+          <span class="pill">Step 04 进入胡医生问诊与支付</span>
+          <span class="pill">Step 05 点击确认问诊信息</span>
         </div>
       </div>
       <div class="summary-card">
@@ -1322,7 +1721,7 @@
         </div>
         <div class="summary-grid">
           <div class="summary-item">
-            <strong>4</strong>
+            <strong>6</strong>
             <span>核心界面</span>
           </div>
           <div class="summary-item">
@@ -1330,7 +1729,7 @@
             <span>问诊确认环节</span>
           </div>
           <div class="summary-item">
-            <strong>1</strong>
+            <strong>2</strong>
             <span>支付闭环入口</span>
           </div>
         </div>
@@ -1338,7 +1737,7 @@
     </section>
 
     <section class="screens">
-      <article class="stage">
+      <article class="stage qr">
         <div class="phone">
           <div class="phone-inner">
             <div class="screen">
@@ -1417,7 +1816,179 @@
         </div>
       </article>
 
-      <article class="stage">
+      <article class="stage aitriage">
+        <div class="phone">
+          <div class="phone-inner">
+            <div class="screen aitriage-screen">
+              <div class="statusbar">
+                <span>11:11</span>
+                <div class="status-icons">
+                  <span>▮▮▮</span>
+                  <span>◜◝</span>
+                  <span>61</span>
+                </div>
+              </div>
+              <div class="appbar aitriage-appbar">
+                <div class="appbar-spacer" aria-hidden="true"></div>
+                <div class="appbar-title">
+                  <strong>一脉青藤</strong>
+                </div>
+                <div class="aitriage-menu" aria-hidden="true">
+                  <span>•••</span>
+                  <span>○</span>
+                </div>
+              </div>
+              <div class="content aitriage-content">
+                <div class="aitriage-watermark" aria-hidden="true">Imaging me</div>
+
+                <section class="aitriage-hero" aria-label="青藤 AI 主视觉">
+                  <div class="aitriage-doctor">
+                    <img src="file:///Users/hugaopeng/Library/Containers/com.tencent.xinWeChat/Data/Documents/xwechat_files/wxid_7vh7k61j5w6m22_7e68/temp/RWTemp/2026-05/9e20f478899dc29eb19741386f9343c8/b710a051311fe8bd4ef0ca73b2e65659.png" alt="青藤 AI 医生形象" />
+                  </div>
+                </section>
+
+                <section class="aitriage-card">
+                  <div class="aitriage-card-title">
+                    <span>Hi,</span>
+                    <span class="aitriage-wave" aria-hidden="true">
+                      <span></span><span></span><span></span><span></span><span></span>
+                    </span>
+                    <span>我是青藤AI</span>
+                  </div>
+                  <p class="aitriage-copy">您可以尝试这样问我：</p>
+                  <div class="aitriage-questions">
+                    <div class="aitriage-question">
+                      <span class="question-badge">#</span>
+                      <span>影像拍片前要注意哪些事项？</span>
+                    </div>
+                    <div class="aitriage-question">
+                      <span class="question-badge">#</span>
+                      <span>基层医院影像拍片准确率够吗？</span>
+                    </div>
+                    <div class="aitriage-question">
+                      <span class="question-badge">#</span>
+                      <span>医学影像辐射危害大不大？</span>
+                    </div>
+                  </div>
+                </section>
+
+                <div class="aitriage-feature">
+                  <div class="aitriage-feature-icon">▣</div>
+                  <div>
+                    <strong>AI检查项目推荐</strong>
+                    <span>输入症状，智能推荐</span>
+                  </div>
+                </div>
+
+                <div class="aitriage-bottom">
+                  <div class="aitriage-search">
+                    <span class="aitriage-search-icon">◔</span>
+                    <span>有什么健康问题问我吗～</span>
+                  </div>
+                  <div class="aitriage-disclaimer">内容由AI生成，仅供参考</div>
+                  <div class="aitriage-tabbar">
+                    <div class="aitriage-tab active">
+                      <span class="aitriage-tab-icon square">✣</span>
+                      <span>青藤 AI</span>
+                    </div>
+                    <div class="aitriage-tab">
+                      <span class="aitriage-tab-icon">⌁</span>
+                      <span>检查</span>
+                    </div>
+                    <div class="aitriage-tab">
+                      <span class="aitriage-tab-icon">◡</span>
+                      <span>我的</span>
+                    </div>
+                  </div>
+                  <div class="aitriage-home-indicator" aria-hidden="true"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="stage payment-priority">
+        <div class="phone">
+          <div class="phone-inner">
+            <div class="screen chat-screen">
+              <div class="statusbar">
+                <span>9:46</span>
+                <div class="status-icons">
+                  <span>微信内</span>
+                  <span>◉◉◉</span>
+                  <span>84%</span>
+                </div>
+              </div>
+              <div class="appbar">
+                <div class="back">‹</div>
+                <div class="appbar-title">
+                  <strong>胡医生在线问诊</strong>
+                  <span>互联网医院 · 支付确认</span>
+                </div>
+                <div class="appbar-spacer" aria-hidden="true"></div>
+              </div>
+              <div class="content">
+                <div class="card doctor-banner">
+                  <div class="doctor-avatar">胡</div>
+                  <div class="doctor-meta">
+                    <strong>胡医生</strong>
+                    <span>影像问诊医生</span>
+                  </div>
+                  <div class="live-dot" aria-hidden="true"></div>
+                </div>
+
+                <div class="timeline">
+                  <div class="timeline-step active">01 支付订单</div>
+                  <div class="timeline-step">02 确认病诉</div>
+                  <div class="timeline-step">03 确认项目</div>
+                  <div class="timeline-step">04 确认机构</div>
+                  <div class="timeline-step">05 确认预约</div>
+                  <div class="timeline-step">06 检查须知</div>
+                </div>
+
+                <div class="payment-focus-body">
+                  <div class="payment-focus-note">系统提示：问诊信息已确认，当前进入支付订单确认。请核对本次检查项目、机构与预约时间后完成支付。</div>
+
+                  <div class="payment-focus-chat">
+                    <div class="bubble-row">
+                      <div class="bubble-avatar doctor">胡</div>
+                      <div class="bubble">您好，我是互联网医院胡医生。为尽快为您安排后续问诊，本次建议您先完成检查订单支付，支付后我再接着为您提供问诊服务。</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="order-sheet">
+                <div class="order-sheet-top">
+                  <div>
+                    <strong>头颅 MRI 平扫订单</strong>
+                    <div class="tiny">支付成功后预约生效</div>
+                  </div>
+                  <div class="price">¥398</div>
+                </div>
+                <div class="order-meta">
+                  <div class="order-line">
+                    <span>接诊医生</span>
+                    <strong>胡医生</strong>
+                  </div>
+                  <div class="order-line">
+                    <span>检查机构</span>
+                    <strong>南昌一脉检查影像中心</strong>
+                  </div>
+                  <div class="order-line">
+                    <span>预约时间</span>
+                    <strong>05-04 09:00-10:00</strong>
+                  </div>
+                </div>
+                <button class="primary-btn alt">去支付</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="stage chat">
         <div class="phone">
           <div class="phone-inner">
             <div class="screen chat-screen">

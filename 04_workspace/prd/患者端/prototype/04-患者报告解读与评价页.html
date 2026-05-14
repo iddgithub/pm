@@ -262,42 +262,6 @@
       color: #56727a;
     }
 
-    .doctor-card {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-    }
-
-    .avatar {
-      width: 52px;
-      height: 52px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, rgba(19, 201, 162, 0.18), rgba(19, 201, 162, 0.04));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--brand-deep);
-      font-weight: 700;
-      font-size: 22px;
-      flex: none;
-    }
-
-    .doctor-meta {
-      display: grid;
-      gap: 4px;
-      min-width: 0;
-      font-size: 12px;
-      color: #58727a;
-    }
-
-    .doctor-meta strong {
-      font-size: 18px;
-      color: #24363d;
-      letter-spacing: 0;
-      line-height: 1.3;
-      word-break: break-all;
-    }
-
     .bullet-list {
       margin: 0;
       padding-left: 18px;
@@ -306,6 +270,18 @@
       font-size: 13px;
       line-height: 1.8;
       color: #56727a;
+    }
+
+    .service-note {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed #e5efec;
+      color: #9aaeaf;
+      font-size: 11px;
+      line-height: 1.7;
+      text-align: left;
+      display: grid;
+      gap: 2px;
     }
 
     .review-grid {
@@ -419,16 +395,6 @@
               </div>
             </div>
             <div class="content">
-              <section class="card doctor-card">
-                <div class="avatar">👨‍⚕️</div>
-                <div class="doctor-meta">
-                  <div>解读医生　张报告医生</div>
-                  <div>医生姓名　<strong>张报告医生</strong></div>
-                  <div>解读时间　2025-10-15 11:35:20</div>
-                  <div>检查项目　CT颅脑(平扫)</div>
-                </div>
-              </section>
-
               <section class="card">
                 <div class="section-title">解读内容</div>
                 <ul class="bullet-list">
@@ -437,8 +403,13 @@
                   <li>整体来看，影像资料内未见明显异常密度影、未见出血、占位或明显梗死灶；脑室系统形态大小正常，中线结构居中；骨质未见明显破坏征象。</li>
                   <li>这说明结合自身临床症状观察，目前暂无明显不适，可按医嘱定期复诊；如出现头痛、头晕、恶心、肢体无力等不适症状，请及时就医复查。</li>
                   <li>如有其他疑问，欢迎随时咨询。</li>
-                </ul>
-              </section>
+              </ul>
+              <div class="service-note">
+                <div>本次解读服务由平台认证医生提供</div>
+                <div>服务医生：张报告医生</div>
+                <div>解读时间：2025-10-15 11:35:20</div>
+              </div>
+            </section>
 
               <section class="card">
                 <div class="section-title">患者评价</div>
@@ -460,7 +431,7 @@
                     <strong>未解决问题</strong>
                   </div>
                 </div>
-                <div class="footer-note">医生解释很清楚，已了解后续注意事项</div>
+                <div class="footer-note">解读内容清晰，已了解后续注意事项</div>
                 <div class="counter">18/200</div>
               </section>
             </div>

@@ -61,6 +61,36 @@
       font-weight: 700;
     }
 
+    .segment-tabbar {
+      display: inline-grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px;
+      padding: 4px;
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px solid rgba(12, 178, 127, 0.9);
+      box-shadow: 0 10px 24px rgba(41, 102, 84, 0.08);
+    }
+
+    .segment-tabbar button {
+      min-width: 150px;
+      min-height: 46px;
+      border: 0;
+      border-radius: 14px;
+      background: transparent;
+      color: #0d9e75;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0;
+      cursor: default;
+    }
+
+    .segment-tabbar button.is-active {
+      background: linear-gradient(135deg, #08b57f, #11c68c);
+      color: #ffffff;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    }
+
     .gallery-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -84,6 +114,27 @@
     .legacy-gallery-grid .phone-card {
       flex: 0 0 calc((100% - 44px) / 3);
       max-width: calc((100% - 44px) / 3);
+    }
+
+    .legacy-gallery-grid .phone {
+      aspect-ratio: 390 / 844;
+    }
+
+    .legacy-gallery-grid .screen {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .legacy-report-body {
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+
+    .legacy-report-body::-webkit-scrollbar {
+      display: none;
     }
 
     .phone-card {
@@ -425,6 +476,7 @@
     }
 
     .legacy-report-screen {
+      height: 100%;
       background:
         radial-gradient(circle at top right, rgba(167, 231, 255, 0.36), transparent 28%),
         linear-gradient(180deg, #f5fbff 0%, #eef7ff 100%);
@@ -436,6 +488,27 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
+    }
+
+    .phone-segment-tabs {
+      display: flex;
+      justify-content: center;
+      padding: 0 14px 12px;
+    }
+
+    .phone-segment-tabs .segment-tabbar {
+      width: 100%;
+      border-radius: 15px;
+      padding: 3px;
+      box-shadow: 0 8px 18px rgba(41, 102, 84, 0.06);
+    }
+
+    .phone-segment-tabs .segment-tabbar button {
+      min-width: 0;
+      min-height: 34px;
+      border-radius: 12px;
+      font-size: 12px;
+      line-height: 1;
     }
 
     .legacy-top-hero {
@@ -602,6 +675,12 @@
       line-height: 1.55;
     }
 
+    .legacy-task-summary {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
     .legacy-tag-status {
       flex-shrink: 0;
       padding: 7px 12px;
@@ -619,19 +698,16 @@
 
     .legacy-task-meta-real {
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 12px;
+      flex-direction: column;
+      gap: 2px;
+      margin-top: 10px;
     }
 
     .legacy-task-meta-real span {
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: #fbfdfd;
-      border: 1px solid rgba(23, 180, 135, 0.08);
-      color: #95a7b2;
+      color: #7f95a0;
       font-size: 12px;
       font-weight: 700;
+      line-height: 1.55;
     }
 
     .legacy-task-action {
@@ -965,6 +1041,10 @@
         flex-basis: calc((100% - 22px) / 2);
         max-width: calc((100% - 22px) / 2);
       }
+
+      .segment-tabbar button {
+        min-width: 136px;
+      }
     }
 
     @media (max-width: 1120px) {
@@ -977,6 +1057,10 @@
       .phone-card.break-row {
         flex-basis: calc((100% - 22px) / 2);
         max-width: calc((100% - 22px) / 2);
+      }
+
+      .segment-tabbar button {
+        min-width: 128px;
       }
     }
 
@@ -999,6 +1083,14 @@
       .phone-card.break-row {
         flex-basis: 100%;
         max-width: 100%;
+      }
+
+      .phone-card > .segment-tabbar {
+        width: 100%;
+      }
+
+      .phone-card > .segment-tabbar button {
+        min-width: 0;
       }
 
       .section-block {
@@ -1079,6 +1171,12 @@
                     <span class="status-battery">100%</span>
                   </div>
                 </div>
+                <div class="phone-segment-tabs" aria-label="报告解读任务列表页切换">
+                  <div class="segment-tabbar" role="tablist" aria-label="报告解读任务列表切换">
+                    <button type="button">检查检验</button>
+                    <button class="is-active" type="button" aria-selected="true">我的管理</button>
+                  </div>
+                </div>
                 <div class="legacy-report-body">
                   <section class="legacy-top-hero">
                     <span class="legacy-kicker">今日工作台</span>
@@ -1110,7 +1208,10 @@
                     <div class="legacy-task-head">
                       <div>
                         <strong>CT 颅脑影像报告</strong>
-                        <div class="legacy-line-muted">患者 王先生 · 58 岁 · 编号 CT20260502001</div>
+                        <div class="legacy-line-muted legacy-task-summary">
+                          <span>患者 王先生 · 58 岁</span>
+                          <span>编号 CT20260502001</span>
+                        </div>
                       </div>
                       <span class="legacy-tag-status">待解读</span>
                     </div>
@@ -1127,7 +1228,10 @@
                     <div class="legacy-task-head">
                       <div>
                         <strong>MRI 腰椎平扫报告</strong>
-                        <div class="legacy-line-muted">患者 李女士 · 44 岁 · 编号 MR20260502005</div>
+                        <div class="legacy-line-muted legacy-task-summary">
+                          <span>患者 李女士 · 44 岁</span>
+                          <span>编号 MR20260502005</span>
+                        </div>
                       </div>
                       <span class="legacy-tag-status">待解读</span>
                     </div>
@@ -1144,7 +1248,10 @@
                     <div class="legacy-task-head">
                       <div>
                         <strong>胸部 CT 增强影像报告</strong>
-                        <div class="legacy-line-muted">患者 周先生 · 63 岁 · 编号 CT20260502008</div>
+                        <div class="legacy-line-muted legacy-task-summary">
+                          <span>患者 周先生 · 63 岁</span>
+                          <span>编号 CT20260502008</span>
+                        </div>
                       </div>
                       <span class="legacy-tag-status done">已解读</span>
                     </div>
@@ -1177,6 +1284,12 @@
                   <div class="status-icons">
                     <span>5G</span>
                     <span class="status-battery">100%</span>
+                  </div>
+                </div>
+                <div class="phone-segment-tabs" aria-label="报告详情页切换">
+                  <div class="segment-tabbar" role="tablist" aria-label="报告详情切换">
+                    <button type="button">检查检验</button>
+                    <button class="is-active" type="button" aria-selected="true">我的管理</button>
                   </div>
                 </div>
                 <div class="legacy-report-body">
@@ -1250,6 +1363,12 @@
                   <div class="status-icons">
                     <span>5G</span>
                     <span class="status-battery">100%</span>
+                  </div>
+                </div>
+                <div class="phone-segment-tabs" aria-label="收益汇总页切换">
+                  <div class="segment-tabbar" role="tablist" aria-label="收益汇总切换">
+                    <button type="button">检查检验</button>
+                    <button class="is-active" type="button" aria-selected="true">我的管理</button>
                   </div>
                 </div>
                 <div class="legacy-report-body">
@@ -1344,6 +1463,12 @@
                     <span class="status-battery">100%</span>
                   </div>
                 </div>
+                <div class="phone-segment-tabs" aria-label="打款记录页切换">
+                  <div class="segment-tabbar" role="tablist" aria-label="打款记录切换">
+                    <button type="button">检查检验</button>
+                    <button class="is-active" type="button" aria-selected="true">我的管理</button>
+                  </div>
+                </div>
                 <div class="legacy-report-body">
                   <div class="legacy-payout-toolbar">
                     <span class="legacy-month-pill">5月 ▼</span>
@@ -1433,6 +1558,13 @@
                     <span>▮▮▮</span>
                     <span>◜◝</span>
                     <span class="status-battery">13%</span>
+                  </div>
+                </div>
+
+                <div class="phone-segment-tabs" aria-label="医生检查开单页切换">
+                  <div class="segment-tabbar" role="tablist" aria-label="医生检查开单切换">
+                    <button class="is-active" type="button" aria-selected="true">检查检验</button>
+                    <button type="button">我的管理</button>
                   </div>
                 </div>
 
@@ -1526,6 +1658,13 @@
                     <span>▮▮▮</span>
                     <span>◜◝</span>
                     <span class="status-battery is-green">67%</span>
+                  </div>
+                </div>
+
+                <div class="phone-segment-tabs" aria-label="检查机构选择页切换">
+                  <div class="segment-tabbar" role="tablist" aria-label="检查机构选择切换">
+                    <button class="is-active" type="button" aria-selected="true">检查检验</button>
+                    <button type="button">我的管理</button>
                   </div>
                 </div>
 
@@ -1654,6 +1793,13 @@
                     <span>▮▮▮</span>
                     <span>◜◝</span>
                     <span class="status-battery">41%</span>
+                  </div>
+                </div>
+
+                <div class="phone-segment-tabs" aria-label="预约确认与扫码开单页切换">
+                  <div class="segment-tabbar" role="tablist" aria-label="预约确认与扫码开单切换">
+                    <button class="is-active" type="button" aria-selected="true">检查检验</button>
+                    <button type="button">我的管理</button>
                   </div>
                 </div>
 
