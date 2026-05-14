@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>预约确认与扫码开单页</title>
+  <link rel="stylesheet" href="./appointment-pages.css" />
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="hero-card">
+        <span class="eyebrow">诊所医生端 / 页面补充</span>
+        <h1>预约确认与扫码开单页</h1>
+        <p>承接机构选择后的最终确认动作，集中展示机构说明、预约日期、就诊人、费用与时间选择，并把“扫码开单 / 分享订单给患者”放到首要操作位。</p>
+        <div class="flow-pills">
+          <span class="pill">机构信息</span>
+          <span class="pill">预约日期</span>
+          <span class="pill">就诊人维护</span>
+          <span class="pill">扫码开单</span>
+        </div>
+        <div class="hero-actions">
+          <a class="secondary" href="./06-检查机构选择页.html">返回上一页</a>
+          <a class="primary" href="./05-医生检查开单页.html">回到起点</a>
+        </div>
+      </div>
+
+      <aside class="summary-card">
+        <div>
+          <div class="summary-top">
+            <span class="summary-label">screen summary</span>
+            <span>03 / 03</span>
+          </div>
+          <h2>确认后即可发起开单</h2>
+          <p>保持大面积浅青渐变背景和白色费用卡片，确保金额、时间和扫码动作在视觉上形成明确主次。</p>
+        </div>
+        <div class="summary-grid">
+          <div class="summary-item"><strong>1</strong><span>机构说明卡</span></div>
+          <div class="summary-item"><strong>2</strong><span>底部次级动作</span></div>
+          <div class="summary-item"><strong>196</strong><span>示例金额</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="screens">
+      <div class="stage">
+        <article class="phone">
+          <div class="phone-inner">
+            <div class="screen screen--confirm">
+              <div class="statusbar">
+                <span>15:47</span>
+                <div class="status-icons">
+                  <span>▮▮▮</span>
+                  <span>◜◝</span>
+                  <span class="status-battery">41%</span>
+                </div>
+              </div>
+
+              <div class="appbar">
+                <div class="nav-icon">×</div>
+                <div class="appbar-title">
+                  <strong>选择日期</strong>
+                  <span>mtest.imavine.com</span>
+                </div>
+                <div class="nav-right">
+                  <span>⌕</span>
+                  <span>⋯</span>
+                </div>
+              </div>
+
+              <div class="phone-body">
+                <div class="content-scroll">
+                  <div class="top-banner">已为当前检查单匹配到附近可预约机构，建议继续完善就诊人与预约时间后再发起开单。</div>
+
+                  <section class="panel detail-card">
+                    <p>长沙一脉阳光医学影像诊断中心致力于打造成医学影像领域的核心，服务患者，服务医生，服务医院，服务医学影像。中心引进价值1亿元等多...</p>
+                    <a class="more-link" href="javascript:void(0)">查看更多</a>
+                    <div class="detail-meta">
+                      <div>
+                        <strong>292.61km</strong>
+                        <span>长沙市雨花区人民中路238号2楼</span>
+                      </div>
+                      <div class="detail-actions">
+                        <div><span>📍</span><span>导航</span></div>
+                        <div><span>☎</span><span>致电</span></div>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section class="panel inline-card">当前预约日期：2026年03月18号</section>
+
+                  <section class="panel inline-card is-action">
+                    <span>就诊人：</span>
+                    <span class="inline-action">＋ 添加就诊人</span>
+                  </section>
+
+                  <section class="panel fee-card">
+                    <div class="fee-head">
+                      <strong>检查费用</strong>
+                      <span>🛡 长沙一脉阳光医学诊断中心收取</span>
+                    </div>
+
+                    <div class="fee-row">
+                      <div class="fee-main">
+                        <strong>* CT颅脑(平扫)</strong>
+                        <span>* 预约受检时间　请选择时间 ›</span>
+                      </div>
+                      <div class="fee-price">¥ 196.00</div>
+                    </div>
+
+                    <div class="summary-row">
+                      <span>检查费用</span>
+                      <span>¥ 196.00</span>
+                    </div>
+                    <div class="summary-row">
+                      <strong>总金额</strong>
+                      <strong class="danger">¥ 196.00</strong>
+                    </div>
+                  </section>
+                </div>
+
+                <div class="action-stack">
+                  <div class="scan-action">
+                    <span>▦</span>
+                    <div>
+                      问诊二维码
+                      <span class="subtext">向患者出示，扫码后即可问诊</span>
+                    </div>
+                  </div>
+
+                  <div class="dual-actions">
+                    <div class="outline-action">▦ 扫码开单</div>
+                    <div class="outline-action">⤴ 分享订单给患者</div>
+                  </div>
+                </div>
+
+                <div class="phone-nav">
+                  <span>‹</span>
+                  <span>›</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <div class="stage-notes">
+          <section class="note-card">
+            <h3>页面重点</h3>
+            <ul>
+              <li>机构信息、预约日期和就诊人入口先于费用区展示，符合“先确认对象，再确认金额”的认知顺序。</li>
+              <li>费用卡片内部单列呈现项目、预约时间与合计金额，避免信息拥挤。</li>
+              <li>底部采用“一个强主动作 + 两个辅助动作”的结构，和截图保持一致。</li>
+            </ul>
+          </section>
+
+          <section class="note-card">
+            <h3>交付说明</h3>
+            <p>本页已按当前专题视觉风格补齐，可直接作为“医生查询机构后确认并发起开单”的展示页使用。</p>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-links">
+      <a class="secondary" href="./06-检查机构选择页.html">回到第 2 页</a>
+      <a class="primary" href="./05-医生检查开单页.html">从第 1 页重新查看</a>
+    </div>
+  </main>
+</body>
+</html>

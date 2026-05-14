@@ -1,0 +1,335 @@
+.medical-home-dashboard {
+  min-height: 100%;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(20, 184, 166, 0.16), transparent 24%),
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.10), transparent 26%),
+    linear-gradient(180deg, #f4fbfa 0%, #f7fafc 42%, #eef5f7 100%);
+  overflow: auto;
+}
+
+.medical-home-hero {
+  display: grid;
+  grid-template-columns: 1.65fr 0.95fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.medical-home-hero-main,
+.medical-home-hero-aside,
+.medical-home-card,
+.medical-home-stat-card {
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.06);
+}
+
+.medical-home-hero-main {
+  position: relative;
+  padding: 28px 30px;
+  border-radius: 28px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(242, 251, 249, 0.98)),
+    linear-gradient(180deg, #ffffff, #f7fbfd);
+  overflow: hidden;
+}
+
+.medical-home-hero-main::after {
+  content: '';
+  position: absolute;
+  right: -70px;
+  top: -70px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.18), transparent 68%);
+}
+
+.medical-home-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(15, 118, 110, 0.08);
+  color: #0f766e;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.medical-home-hero-main h1 {
+  margin: 16px 0 12px;
+  color: #0f172a;
+  font-size: 32px;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+
+.medical-home-hero-main p {
+  max-width: 720px;
+  margin-bottom: 24px;
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+.medical-home-hero-aside {
+  padding: 28px 24px;
+  border-radius: 28px;
+  background: linear-gradient(160deg, #0f766e, #0f9f95 48%, #22c55e 140%);
+  color: #f8fafc;
+}
+
+.medical-home-aside-label {
+  margin-bottom: 10px;
+  color: rgba(248, 250, 252, 0.78);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+
+.medical-home-aside-value {
+  margin-bottom: 10px;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.medical-home-aside-text {
+  color: rgba(248, 250, 252, 0.86);
+  font-size: 14px;
+  line-height: 1.85;
+}
+
+.medical-home-aside-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.medical-home-aside-grid div {
+  padding: 14px 14px 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(6px);
+}
+
+.medical-home-aside-grid span {
+  display: block;
+  margin-bottom: 6px;
+  color: rgba(248, 250, 252, 0.7);
+  font-size: 12px;
+}
+
+.medical-home-aside-grid strong {
+  font-size: 18px;
+}
+
+.medical-home-stat-card.ant-card .ant-card-body {
+  padding: 20px 22px;
+}
+
+.medical-home-stat-card {
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.medical-home-stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.medical-home-stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.12), rgba(14, 165, 233, 0.12));
+  color: #0f766e;
+  font-size: 18px;
+}
+
+.medical-home-stat-hint {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.medical-home-card {
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.medical-home-card.ant-card .ant-card-body {
+  padding: 20px 22px 22px;
+}
+
+.medical-home-card-title {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.medical-home-module-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.medical-home-module-card {
+  padding: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 20px;
+  text-align: left;
+  background: linear-gradient(180deg, #ffffff, #f8fbfb);
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  cursor: pointer;
+}
+
+.medical-home-module-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+}
+
+.medical-home-module-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.medical-home-module-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  font-size: 18px;
+}
+
+.medical-home-module-arrow {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.medical-home-module-card strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #0f172a;
+  font-size: 17px;
+}
+
+.medical-home-module-card p {
+  min-height: 48px;
+  margin-bottom: 12px;
+  color: #64748b;
+  line-height: 1.75;
+}
+
+.medical-home-module-link {
+  color: #0f766e;
+  font-weight: 600;
+}
+
+.tone-amber .medical-home-module-icon {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+}
+
+.tone-teal .medical-home-module-icon {
+  background: rgba(20, 184, 166, 0.12);
+  color: #0f766e;
+}
+
+.tone-cyan .medical-home-module-icon {
+  background: rgba(14, 165, 233, 0.12);
+  color: #0369a1;
+}
+
+.tone-slate .medical-home-module-icon {
+  background: rgba(51, 65, 85, 0.10);
+  color: #334155;
+}
+
+.medical-home-pulse-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.medical-home-pulse-item {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: #f8fbfb;
+}
+
+.medical-home-pulse-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: #0f172a;
+}
+
+.medical-home-pulse-meta {
+  display: block;
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.medical-home-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(20, 184, 166, 0.08);
+  color: #0f766e;
+}
+
+.medical-home-money {
+  color: #0f766e;
+  font-weight: 600;
+}
+
+.medical-home-application-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.medical-home-application-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 18px;
+  background: #fbfefe;
+}
+
+.medical-home-application-item strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #0f172a;
+}
+
+.medical-home-application-item p {
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.medical-home-application-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 12px;
+  white-space: nowrap;
+}

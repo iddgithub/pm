@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>检查机构选择页</title>
+  <link rel="stylesheet" href="./appointment-pages.css" />
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="hero-card">
+        <span class="eyebrow">诊所医生端 / 页面补充</span>
+        <h1>检查机构选择页</h1>
+        <p>根据预约日期快速列出机构候选，保留日期切换、基础筛选和机构卡片信息密度，让医生能在同一屏完成“浏览、比较、进入确认页”的动作。</p>
+        <div class="flow-pills">
+          <span class="pill">日期切换</span>
+          <span class="pill">距离筛选</span>
+          <span class="pill">机构等级</span>
+          <span class="pill">确认入口</span>
+        </div>
+        <div class="hero-actions">
+          <a class="secondary" href="./05-医生检查开单页.html">返回上一页</a>
+          <a class="primary" href="./07-预约确认与扫码开单页.html">下一页：预约确认</a>
+        </div>
+      </div>
+
+      <aside class="summary-card">
+        <div>
+          <div class="summary-top">
+            <span class="summary-label">screen summary</span>
+            <span>02 / 03</span>
+          </div>
+          <h2>先看日期，再选机构</h2>
+          <p>上方日期卡优先展示近几日可约性，下方机构卡保持统一信息层级，方便医生快速横向判断。</p>
+        </div>
+        <div class="summary-grid">
+          <div class="summary-item"><strong>6</strong><span>日期入口卡</span></div>
+          <div class="summary-item"><strong>5</strong><span>筛选触点</span></div>
+          <div class="summary-item"><strong>4</strong><span>机构示例</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="screens">
+      <div class="stage">
+        <article class="phone">
+          <div class="phone-inner">
+            <div class="screen screen--list">
+              <div class="statusbar">
+                <span>22:53</span>
+                <div class="status-icons">
+                  <span>▮▮▮</span>
+                  <span>◜◝</span>
+                  <span class="status-battery is-green">67%</span>
+                </div>
+              </div>
+
+              <div class="appbar">
+                <div class="nav-icon">×</div>
+                <div class="appbar-title">
+                  <strong>一脉青藤</strong>
+                  <span>m.imavine.com</span>
+                </div>
+                <div class="nav-right">
+                  <span>⌕</span>
+                  <span>⋯</span>
+                </div>
+              </div>
+
+              <div class="phone-body">
+                <div class="content-scroll">
+                  <div class="date-strip">
+                    <div class="date-card is-active"><span>今天</span><strong>03.24</strong></div>
+                    <div class="date-card"><span>周三</span><strong>03.25</strong></div>
+                    <div class="date-card"><span>周四</span><strong>03.26</strong></div>
+                    <div class="date-card"><span>周五</span><strong>03.27</strong></div>
+                    <div class="date-card"><span>周六</span><strong>03.28</strong></div>
+                    <div class="date-card"><span>📅</span><strong>更多</strong></div>
+                  </div>
+
+                  <div class="filter-row">
+                    <span>距离最近</span>
+                    <span>只看三甲</span>
+                    <span>只看公立</span>
+                    <span class="ghost-link">⌕搜索</span>
+                    <span class="ghost-link">⟟筛选</span>
+                  </div>
+
+                  <div class="list-divider"></div>
+
+                  <section class="panel institution-card">
+                    <div class="institution-logo"><span class="cross"></span></div>
+                    <div class="institution-main">
+                      <strong>遂川县人民医院</strong>
+                      <p>地址：江西省吉安市遂川县宝龙福源路北段院区</p>
+                      <div class="tag-row">
+                        <span class="tag is-blue">二甲</span>
+                        <span class="tag is-mint">公立医院</span>
+                      </div>
+                    </div>
+                    <div class="distance">
+                      <div class="pin">◎</div>
+                      <div>483.1km</div>
+                    </div>
+                  </section>
+
+                  <section class="panel institution-card">
+                    <div class="institution-logo is-blue">RIMAG</div>
+                    <div class="institution-main">
+                      <strong>一脉阳光上海正影医学影像诊断中心</strong>
+                      <p>地址：上海市普陀区绥德路379弄12号</p>
+                      <div class="tag-row">
+                        <span class="tag is-green">三级医疗机构</span>
+                        <span class="tag is-mint">影像中心</span>
+                      </div>
+                    </div>
+                    <div class="distance">
+                      <div class="pin">◎</div>
+                      <div>678.3km</div>
+                    </div>
+                  </section>
+
+                  <section class="panel institution-card">
+                    <div class="institution-logo is-photo">影像</div>
+                    <div class="institution-main">
+                      <strong>济南槐荫医学影像诊断中心</strong>
+                      <p>地址：济南市槐荫区张庄路18号济南广场附近</p>
+                      <div class="tag-row">
+                        <span class="tag is-green">三级医疗机构</span>
+                        <span class="tag is-mint">民营医院</span>
+                      </div>
+                    </div>
+                    <div class="distance">
+                      <div class="pin">◎</div>
+                      <div>713.39km</div>
+                    </div>
+                  </section>
+
+                  <section class="panel institution-card">
+                    <div class="institution-logo is-blue">RIMAG</div>
+                    <div class="institution-main">
+                      <strong>北京一脉阳光医学诊断中心</strong>
+                      <p>地址：北京市朝阳区亚运村街道民族园路甲1号</p>
+                      <div class="tag-row">
+                        <span class="tag is-green">三级医疗机构</span>
+                        <span class="tag is-mint">影像中心</span>
+                      </div>
+                    </div>
+                    <div class="distance">
+                      <div class="pin">◎</div>
+                      <div>1054.87km</div>
+                    </div>
+                  </section>
+                </div>
+
+                <div class="phone-nav">
+                  <span>‹</span>
+                  <span>›</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <div class="stage-notes">
+          <section class="note-card">
+            <h3>页面重点</h3>
+            <ul>
+              <li>日期卡与筛选行固定在列表顶端，帮助医生先收窄条件再做选择。</li>
+              <li>机构卡片统一为“logo / 主信息 / 距离操作”三列结构，便于复用。</li>
+              <li>医院等级与机构类型用不同色块区分，强化快速扫读能力。</li>
+            </ul>
+          </section>
+
+          <section class="note-card">
+            <h3>衔接关系</h3>
+            <p>点击任一机构后进入预约确认与扫码开单页，开始补齐就诊人、预约时段和费用确认。</p>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-links">
+      <a class="secondary" href="./05-医生检查开单页.html">回到第 1 页</a>
+      <a class="primary" href="./07-预约确认与扫码开单页.html">继续查看第 3 页</a>
+    </div>
+  </main>
+</body>
+</html>

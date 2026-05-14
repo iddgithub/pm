@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>医生绑定码</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      .showcase { grid-template-columns: minmax(340px, 390px); padding: 32px 20px; }
+    </style>
+  </head>
+  <body>
+    <main class="showcase" aria-label="医生绑定码">
+      <section class="phone" aria-labelledby="doctor-qr-title">
+        <div class="status-bar">
+          <span>9:41</span>
+          <span>5G · 100%</span>
+        </div>
+
+        <div class="screen screen-qr">
+          <header class="hero hero-compact">
+            <div>
+              <h1 id="doctor-qr-title">医生绑定码</h1>
+            </div>
+            <button class="pill-button light" type="button">刷新</button>
+          </header>
+
+          <section class="qr-panel" aria-label="医生绑定二维码">
+            <div class="qr-code" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span>
+            </div>
+          </section>
+    </main>
+    <div class="toast" role="status" aria-live="polite">已打开扫码绑定入口</div>
+    <script src="../script.js"></script>
+  </body>
+</html>

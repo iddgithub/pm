@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>互联网医生注册页</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      .showcase { grid-template-columns: minmax(340px, 390px); padding: 32px 20px; }
+    </style>
+  </head>
+  <body>
+    <main class="showcase" aria-label="互联网医生注册页">
+      <section class="phone" aria-labelledby="register-title">
+        <div class="status-bar">
+          <span>9:41</span>
+          <span>5G · 100%</span>
+        </div>
+
+        <div class="screen">
+          <header class="hero register-hero">
+            <p class="eyebrow">互联网医生入驻</p>
+            <h1 id="register-title">完成执业资质认证</h1>
+            <p class="hero-copy">提交核心执业信息后，平台审核通过即可接收报告解读服务单。</p>
+          </header>
+
+          <section class="progress-card" aria-label="注册进度">
+            <div class="progress-line">
+              <span class="active"></span>
+              <span class="active"></span>
+              <span></span>
+            </div>
+            <div class="progress-copy">
+              <strong>基础信息</strong>
+              <span>预计 3 分钟完成</span>
+            </div>
+          </section>
+    </main>
+    <div class="toast" role="status" aria-live="polite">已打开扫码绑定入口</div>
+    <script src="../script.js"></script>
+  </body>
+</html>

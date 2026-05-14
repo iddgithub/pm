@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>患者已出报告详情页</title>
+  <style>
+:root {
+      --bg: #eefaf6;
+      --phone: #11181d;
+      --screen: #ffffff;
+      --brand: #13c9a2;
+      --brand-deep: #0fb28e;
+      --text: #20323a;
+      --muted: #7c929b;
+      --line: #e8f0ee;
+      --card: #ffffff;
+      --shadow: 0 18px 40px rgba(31, 71, 60, 0.12);
+      --good: #2acb6d;
+      --warn: #ffb33f;
+      --bad: #ff6b6b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "SF Pro Display", "PingFang SC", "Noto Sans SC", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(19, 201, 162, 0.14), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(19, 201, 162, 0.1), transparent 24%),
+        linear-gradient(180deg, #f7fffc 0%, #eefaf6 100%);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 36px 24px 56px;
+    }
+
+    .hero {
+      margin-bottom: 28px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(19, 201, 162, 0.12);
+      color: var(--brand-deep);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 14px 0 10px;
+      font-size: 34px;
+      line-height: 1.2;
+    }
+
+    .hero p {
+      margin: 0 auto;
+      max-width: 760px;
+      color: #637b84;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .screens {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(280px, 340px));
+      justify-content: center;
+      gap: 26px;
+      align-items: start;
+    }
+
+    .stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .phone {
+      width: 308px;
+      border-radius: 34px;
+      background: var(--phone);
+      padding: 10px;
+      box-shadow: 0 28px 58px rgba(17, 24, 29, 0.2);
+    }
+
+    .screen {
+      min-height: 664px;
+      border-radius: 26px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(19, 201, 162, 0.12) 0%, rgba(255,255,255,0) 22%),
+        var(--screen);
+    }
+
+    .topbar {
+      background: linear-gradient(180deg, var(--brand) 0%, #16d0a8 100%);
+      color: #fff;
+      padding: 14px 16px 18px;
+    }
+
+    .statusbar,
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+
+    .nav {
+      margin-top: 10px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .nav-center {
+      flex: 1;
+      text-align: center;
+    }
+
+    .nav-right {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 46px;
+      justify-content: flex-end;
+    }
+
+    .nav-pill {
+      width: 28px;
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.24);
+    }
+
+    .content {
+      padding: 14px 12px 18px;
+    }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .action {
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid #edf3f2;
+      box-shadow: 0 8px 18px rgba(50, 91, 79, 0.08);
+      padding: 12px 8px;
+      text-align: center;
+    }
+
+    .action-icon {
+      width: 36px;
+      height: 36px;
+      margin: 0 auto 8px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(19, 201, 162, 0.18), rgba(19, 201, 162, 0.06));
+      color: var(--brand-deep);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .action strong {
+      display: block;
+      font-size: 12px;
+      color: #45616a;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .patient-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .patient-name {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 4px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .tag {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(19, 201, 162, 0.14);
+      color: var(--brand-deep);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .patient-code {
+      text-align: right;
+      max-width: 132px;
+      word-break: break-word;
+    }
+
+    .info-list {
+      display: grid;
+      gap: 6px;
+      font-size: 13px;
+      color: #46626b;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #2f4c55;
+    }
+
+    .section-title::before {
+      content: "";
+      width: 4px;
+      height: 14px;
+      border-radius: 999px;
+      background: var(--brand);
+    }
+
+    .section-text {
+      font-size: 13px;
+      line-height: 1.8;
+      color: #56727a;
+    }
+
+    .doctor-card {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(19, 201, 162, 0.18), rgba(19, 201, 162, 0.04));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--brand-deep);
+      font-weight: 700;
+      font-size: 22px;
+      flex: none;
+    }
+
+    .doctor-meta {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+      font-size: 12px;
+      color: #58727a;
+    }
+
+    .doctor-meta strong {
+      font-size: 18px;
+      color: #24363d;
+      letter-spacing: 0;
+      line-height: 1.3;
+      word-break: break-all;
+    }
+
+    .bullet-list {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+      font-size: 13px;
+      line-height: 1.8;
+      color: #56727a;
+    }
+
+    .review-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .review-item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 6px 8px;
+      text-align: center;
+      background: #fff;
+    }
+
+    .review-item .emoji {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+
+    .review-item strong {
+      display: block;
+      min-height: 30px;
+      font-size: 10px;
+      line-height: 1.4;
+      color: #44606a;
+    }
+
+    .review-item.good .emoji,
+    .review-item.good strong {
+      color: var(--good);
+    }
+
+    .review-item.warn .emoji,
+    .review-item.warn strong {
+      color: var(--warn);
+    }
+
+    .review-item.bad .emoji,
+    .review-item.bad strong {
+      color: var(--bad);
+    }
+
+    .footer-note {
+      margin-top: 10px;
+      color: #8aa0a8;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .counter {
+      text-align: right;
+      color: #94a7ae;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    .caption {
+      padding: 8px 14px;
+      border-radius: 10px;
+      background: #17a85f;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.3;
+      text-align: center;
+    }
+
+    @media (max-width: 860px) {
+      .screens {
+        grid-template-columns: 1fr;
+      }
+
+      .stage {
+        width: 100%;
+      }
+
+      .phone {
+        width: min(308px, 100%);
+      }
+    }
+
+    .hero { display: none !important; }
+    .screens { grid-template-columns: 1fr; gap: 0; }
+    .page { max-width: 360px; padding: 32px 20px 48px; }
+    .stage { width: 100%; }
+    .phone { margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="screens" aria-label="患者已出报告详情页">
+      <div class="stage">
+        <div class="phone">
+          <div class="screen">
+            <div class="topbar">
+              <div class="statusbar">
+                <span>9:41</span>
+                <span>5G · 100%</span>
+              </div>
+              <div class="nav">
+                <span>‹</span>
+                <div class="nav-center">已出报告</div>
+                <div class="nav-right">
+                  <span>•••</span>
+                  <div class="nav-pill"></div>
+                </div>
+              </div>
+            </div>
+            <div class="content">
+              <div class="action-grid">
+                <div class="action">
+                  <div class="action-icon">IMG</div>
+                  <strong>查看影像</strong>
+                </div>
+                <div class="action">
+                  <div class="action-icon">PDF</div>
+                  <strong>查看报告</strong>
+                </div>
+                <div class="action">
+                  <div class="action-icon">解读</div>
+                  <strong>报告解读</strong>
+                </div>
+              </div>
+
+              <section class="card">
+                <div class="patient-head">
+                  <div>
+                    <div class="patient-name">刘大福 <span class="tag">MR</span></div>
+                    <div class="muted">男 ｜ 20岁</div>
+                  </div>
+                  <div class="muted patient-code">
+                    <div>检查单号 CT20251015089</div>
+                    <div>检查日期 2025-10-15 10:05:30</div>
+                  </div>
+                </div>
+                <div class="info-list">
+                  <div>检查项目：CT颅脑(平扫)</div>
+                  <div>检查机构：南昌一脉阳光医学诊断中心</div>
+                  <div>报告医生：张报告医生</div>
+                  <div>审核医生：刘审核医生</div>
+                  <div>报告日期：2025-10-15 11:20:45</div>
+                </div>
+              </section>
+
+              <section class="card">
+                <div class="section-title">影像学表现</div>
+                <div class="section-text">双肺野清晰，未见明显结节及斑片状密度增高影；纵隔居中，心影大小形态正常；双侧胸腔未见积液征象。</div>
+              </section>
+
+              <section class="card">
+                <div class="section-title">影像学诊断</div>
+                <div class="section-text">胸部 CT 平扫未见明显异常，请结合临床症状及其他检查综合判断，必要时复查。</div>
+              </section>
+            </div>
+          </div>
+        </div>
+        <div class="caption">患者查看报告解读入口</div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

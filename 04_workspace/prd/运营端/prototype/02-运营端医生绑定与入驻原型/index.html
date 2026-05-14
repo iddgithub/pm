@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>运营管理移动端原型</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="showcase" aria-label="移动端页面原型">
+      <section class="phone" aria-label="运营人员管理页">
+        <div class="status-bar">
+          <span>9:41</span>
+          <span>5G · 100%</span>
+        </div>
+
+        <div class="screen">
+          <nav class="segmented" aria-label="运营工作台切换">
+            <button type="button">检查检验</button>
+            <button class="active" type="button">我的管理</button>
+          </nav>
+
+          <header class="operator-header">
+            <div class="operator-meta">
+              <div class="operator-avatar">运营</div>
+              <div>
+                <p class="eyebrow dark">一级运营</p>
+              </div>
+            </div>
+            <button class="scan-button" type="button" data-scan>扫码绑定</button>
+          </header>
+
+          <section class="summary-card">
+            <article>
+              <strong>¥2,000</strong>
+              <span>我的提成</span>
+            </article>
+            <article>
+              <strong>10 人</strong>
+              <span>绑定医生</span>
+            </article>
+          </section>
+
+          <section class="filters" aria-label="患者订单筛选">
+            <label>
+              <span class="sr-only">选择月份</span>
+              <select>
+                <option>2026年05月</option>
+                <option>2026年04月</option>
+              </select>
+            </label>
+            <label class="search-box">
+              <span class="sr-only">搜索患者或手机号</span>
+              <input type="search" placeholder="请输入姓名和手机号" />
+            </label>
+            <button class="search-submit" type="button">搜索</button>
+          </section>
+
+          <div class="status-tabs" role="tablist" aria-label="订单状态">
+            <button class="active" type="button" data-status="all">全部</button>
+            <button type="button" data-status="paid">已支付</button>
+            <button type="button" data-status="checked">已检查</button>
+            <button type="button" data-status="reported">已出报告</button>
+            <button type="button" data-status="interpreted">已解读</button>
+          </div>
+
+          <section class="order-list" aria-label="患者检查订单">
+            <article class="order-card" data-order-status="paid">
+              <div>
+                <h2>刘大福 · CT 颅脑影像报告</h2>
+                <p>医生：张报告医生 · 患者：王先生 58岁</p>
+              </div>
+              <span class="status paid">已支付</span>
+              <dl>
+                <div><dt>手机号</dt><dd>132****8888</dd></div>
+                <div><dt>项目数</dt><dd>1</dd></div>
+                <div><dt>金额</dt><dd>¥80.00</dd></div>
+                <div class="field-wide"><dt>时间</dt><dd>2026-05-10 12:12</dd></div>
+              </dl>
+            </article>
+            <article class="order-card" data-order-status="reported">
+              <div>
+                <h2>刘大福 · MRI 腰椎平扫</h2>
+                <p>医生：刘审核医生 · 患者：李女士 44岁</p>
+              </div>
+              <span class="status reported">已出报告</span>
+              <dl>
+                <div><dt>手机号</dt><dd>139****2108</dd></div>
+                <div><dt>项目数</dt><dd>1</dd></div>
+                <div><dt>金额</dt><dd>¥136.00</dd></div>
+                <div class="field-wide"><dt>时间</dt><dd>2026-05-10 14:32</dd></div>
+              </dl>
+            </article>
+            <article class="order-card" data-order-status="interpreted">
+              <div>
+                <h2>陈医生 · 胸部 CT 增强</h2>
+                <p>医生：周医生 · 患者：周先生 63岁</p>
+              </div>
+              <span class="status done">已解读</span>
+              <dl>
+                <div><dt>手机号</dt><dd>186****9021</dd></div>
+                <div><dt>项目数</dt><dd>2</dd></div>
+                <div><dt>金额</dt><dd>¥158.00</dd></div>
+                <div class="field-wide"><dt>时间</dt><dd>2026-05-09 18:20</dd></div>
+              </dl>
+            </article>
+            <article class="order-card" data-order-status="checked">
+              <div>
+                <h2>王医生 · 颈椎 MRI 报告</h2>
+                <p>医生：吴医生 · 患者：吴先生 39岁</p>
+              </div>
+              <span class="status checked">已检查</span>
+              <dl>
+                <div><dt>手机号</dt><dd>151****0328</dd></div>
+                <div><dt>项目数</dt><dd>1</dd></div>
+                <div><dt>金额</dt><dd>¥126.00</dd></div>
+                <div class="field-wide"><dt>时间</dt><dd>2026-05-08 09:16</dd></div>
+              </dl>
+            </article>
+          </section>
+        </div>
+      </section>
+
+    </main>
+
+    <div class="toast" role="status" aria-live="polite">已打开扫码绑定入口</div>
+    <script src="./script.js"></script>
+  </body>
+</html>

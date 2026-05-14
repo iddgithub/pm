@@ -8,8 +8,8 @@ import Withdrawal from '../features/incentive-admin/pages/Incentive/Withdrawal'
 import Dashboard from '../features/platform-ops/pages/Platform/Dashboard'
 import Analysis from '../features/platform-ops/pages/Platform/Analysis'
 import DoctorAnalysis from '../features/platform-ops/pages/Platform/DoctorAnalysis'
-import MonthlyReview from '../features/platform-ops/pages/Platform/MonthlyReview'
 import AiReportUpload from '../features/platform-ops/pages/Platform/AiReportUpload'
+import ActivityManagement from '../features/platform-ops/pages/Platform/ActivityManagement'
 
 export const menuItems = [
   {
@@ -28,35 +28,29 @@ export const menuItems = [
   },
   {
     key: 'incentive-admin',
-    label: '激励管理',
+    label: '签约与结算',
     children: [
-      {
-        key: 'incentive',
-        label: '签约与结算',
-        children: [
-          { key: '/incentive/review', label: '医生审核' },
-          { key: '/incentive/binding', label: '绑定管理' },
-          { key: '/incentive/commission', label: '分佣配置' },
-          { key: '/incentive/withdrawal', label: '提现审核' },
-        ],
-      },
+      { key: '/incentive/review', label: '医生审核' },
+      { key: '/incentive/binding', label: '绑定管理' },
+      { key: '/incentive/commission', label: '分佣配置' },
+      { key: '/incentive/withdrawal', label: '提现审核' },
     ],
   },
   {
     key: 'platform-ops',
-    label: '平台运营',
+    label: '经营分析',
     children: [
-      {
-        key: 'platform',
-        label: '经营分析',
-        children: [
-          { key: '/platform/dashboard', label: '业务总览' },
-          { key: '/platform/analysis', label: '业绩分析' },
-          { key: '/platform/doctor-analysis', label: '医生业绩分析' },
-          { key: '/platform/monthly-review', label: '月度复盘' },
-          { key: '/platform/ai-report-upload', label: 'AI报告上传' },
-        ],
-      },
+      { key: '/platform/dashboard', label: '业务总览' },
+      { key: '/platform/analysis', label: '业绩分析' },
+      { key: '/platform/doctor-analysis', label: '医生业绩分析' },
+    ],
+  },
+  {
+    key: 'product-features',
+    label: '产品功能',
+    children: [
+      { key: '/platform/ai-report-upload', label: 'AI报告上传' },
+      { key: '/platform/activity-management', label: '活动管理' },
     ],
   },
 ]
@@ -72,6 +66,9 @@ export const routeConfig = {
   '/platform/dashboard': { label: '业务总览', component: Dashboard },
   '/platform/analysis': { label: '业绩分析', component: Analysis },
   '/platform/doctor-analysis': { label: '医生业绩分析', component: DoctorAnalysis },
-  '/platform/monthly-review': { label: '月度复盘', component: MonthlyReview },
   '/platform/ai-report-upload': { label: 'AI报告上传', component: AiReportUpload },
+  '/platform/activity-management': { label: '活动管理', component: ActivityManagement },
+  '/platform/activity-management/create': { label: '新建活动', component: ActivityManagement },
+  '/platform/activity-management/edit/:id': { label: '编辑活动', component: ActivityManagement },
+  '/platform/activity-management/:id': { label: '活动详情', component: ActivityManagement },
 }

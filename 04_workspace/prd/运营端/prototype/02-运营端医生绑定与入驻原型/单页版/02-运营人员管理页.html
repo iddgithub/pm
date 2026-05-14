@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>运营人员管理页</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      .showcase { grid-template-columns: minmax(340px, 390px); padding: 32px 20px; }
+    </style>
+  </head>
+  <body>
+    <main class="showcase" aria-label="运营人员管理页">
+      <section class="phone" aria-label="运营人员管理页">
+        <div class="status-bar">
+          <span>9:41</span>
+          <span>5G · 100%</span>
+        </div>
+
+        <div class="screen">
+          <nav class="segmented" aria-label="运营工作台切换">
+            <button type="button">检查检验</button>
+            <button class="active" type="button">我的管理</button>
+          </nav>
+
+          <header class="operator-header">
+            <div class="operator-meta">
+              <div class="operator-avatar">运营</div>
+              <div>
+                <p class="eyebrow dark">一级运营</p>
+              </div>
+            </div>
+            <button class="scan-button" type="button" data-scan>扫码绑定</button>
+          </header>
+
+          <section class="summary-card">
+            <article>
+              <strong>¥2,000</strong>
+              <span>我的提成</span>
+            </article>
+            <article>
+              <strong>10 人</strong>
+              <span>绑定医生</span>
+            </article>
+          </section>
+    </main>
+    <div class="toast" role="status" aria-live="polite">已打开扫码绑定入口</div>
+    <script src="../script.js"></script>
+  </body>
+</html>
