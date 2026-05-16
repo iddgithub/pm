@@ -9,15 +9,25 @@ const statusColors = {
   '已驳回': 'red',
 }
 
+const seedWithdrawalRows = withdrawalRequests.map((item, index) => {
+  const personType = index % 3 === 0 ? '运营' : '医生'
+  return {
+    ...item,
+    personType,
+    personName: personType === '运营' ? (index % 2 === 0 ? '运营A' : '运营B') : item.doctorName,
+  }
+})
+
 export default function Withdrawal() {
-  const [query, setQuery] = useState({ status: undefined, keyword: '' })
+  const [query, setQuery] = useState({ personType: undefined, status: undefined, keyword: '' })
 
   const filteredData = useMemo(() => {
-    return withdrawalRequests.filter((item) => {
+    return seedWithdrawalRows.filter((item) => {
+      if (query.personType && item.personType !== query.personType) return false
       if (query.status && item.status !== query.status) return false
       if (query.keyword) {
         const keyword = query.keyword.trim()
-        const hit = item.doctorName.includes(keyword)
+        const hit = item.personName.includes(keyword)
         if (!hit) return false
       }
       return true
@@ -25,16 +35,17 @@ export default function Withdrawal() {
   }, [query])
 
   const summary = useMemo(() => ({
-    pendingCount: withdrawalRequests.filter((item) => item.status === '待审核').length,
-    approvedCount: withdrawalRequests.filter((item) => item.status === '审核通过').length,
-    pendingAmount: withdrawalRequests
+    pendingCount: seedWithdrawalRows.filter((item) => item.status === '待审核').length,
+    approvedCount: seedWithdrawalRows.filter((item) => item.status === '审核通过').length,
+    pendingAmount: seedWithdrawalRows
       .filter((item) => item.status === '待审核')
       .reduce((sum, item) => sum + item.amount, 0),
   }), [])
 
   const columns = [
     { title: '申请时间', dataIndex: 'applyTime', width: 160 },
-    { title: '医生姓名', dataIndex: 'doctorName', width: 110 },
+    { title: '人员类型', dataIndex: 'personType', width: 100 },
+    { title: '提现人员', dataIndex: 'personName', width: 110 },
     { title: '申请金额', dataIndex: 'amount', width: 110, render: (value) => `¥${value.toLocaleString()}` },
     { title: '当前可提现金额', dataIndex: 'availableAmount', width: 140, render: (value) => `¥${value.toLocaleString()}` },
     {
@@ -52,10 +63,10 @@ export default function Withdrawal() {
       width: 180,
       render: (_, record) => (
         <Space size="small">
-          <Button type="link" size="small" onClick={() => message.success(`已通过 ${record.doctorName} 的提现申请`)}>
+          <Button type="link" size="small" onClick={() => message.success(`已通过 ${record.personName} 的提现申请`)}>
             通过
           </Button>
-          <Button type="link" size="small" danger onClick={() => message.warning(`已驳回 ${record.doctorName} 的提现申请`)}>
+          <Button type="link" size="small" danger onClick={() => message.warning(`已驳回 ${record.personName} 的提现申请`)}>
             驳回
           </Button>
         </Space>
@@ -75,10 +86,23 @@ export default function Withdrawal() {
 
       <Card bodyStyle={{ paddingBottom: 8 }}>
         <Form layout="inline">
+          <Form.Item label="人员筛选">
+            <Select
+              placeholder="请选择"
+              allowClear
+              value={query.personType}
+              style={{ width: 140 }}
+              onChange={(value) => setQuery({ ...query, personType: value })}
+            >
+              <Select.Option value="医生">医生</Select.Option>
+              <Select.Option value="运营">运营</Select.Option>
+            </Select>
+          </Form.Item>
           <Form.Item label="提现状态">
             <Select
               placeholder="请选择"
               allowClear
+              value={query.status}
               style={{ width: 140 }}
               onChange={(value) => setQuery({ ...query, status: value })}
             >
@@ -88,13 +112,17 @@ export default function Withdrawal() {
               <Select.Option value="已驳回">已驳回</Select.Option>
             </Select>
           </Form.Item>
-          <Form.Item label="医生搜索">
+          <Form.Item label="人员搜索">
             <Input
               allowClear
-              placeholder="请输入医生姓名"
+              value={query.keyword}
+              placeholder="请输入人员姓名"
               style={{ width: 200 }}
               onChange={(event) => setQuery({ ...query, keyword: event.target.value })}
             />
+          </Form.Item>
+          <Form.Item>
+            <Button onClick={() => setQuery({ personType: undefined, status: undefined, keyword: '' })}>重置</Button>
           </Form.Item>
         </Form>
       </Card>
@@ -104,7 +132,7 @@ export default function Withdrawal() {
         columns={columns}
         dataSource={filteredData}
         pagination={{ pageSize: 10, showSizeChanger: false }}
-        scroll={{ x: 1300, y: 'calc(100vh - 360px)' }}
+        scroll={{ x: 1400, y: 'calc(100vh - 360px)' }}
         style={{ flex: 1 }}
       />
     </div>

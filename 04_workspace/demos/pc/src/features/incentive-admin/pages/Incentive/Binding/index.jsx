@@ -26,14 +26,9 @@ export default function Binding() {
   }), [filteredData])
 
   const columns = [
+    { title: '关联运营', dataIndex: 'operatorName', width: 120, fixed: 'left' },
     { title: '医生姓名', dataIndex: 'doctorName', width: 100, fixed: 'left' },
     { title: '手机号', dataIndex: 'phone', width: 130 },
-    { title: '诊所名称', dataIndex: 'clinicName', width: 150 },
-    { title: '诊所区域', dataIndex: 'clinicRegion', width: 130 },
-    { title: '医生科室', dataIndex: 'department', width: 100 },
-    { title: '当前绑定运营', dataIndex: 'operatorName', width: 120 },
-    { title: '运营负责区域', dataIndex: 'operatorRegion', width: 130 },
-    { title: '运营负责科室', dataIndex: 'operatorDepartment', width: 120 },
     { title: '医生提成比例', dataIndex: 'doctorRate', width: 110, render: (value) => `${value}%` },
     { title: '运营提成比例', dataIndex: 'operatorRate', width: 110, render: (value) => `${value}%` },
     { title: '绑定生效时间', dataIndex: 'effectiveAt', width: 130 },
@@ -110,7 +105,7 @@ export default function Binding() {
         columns={columns}
         dataSource={filteredData}
         pagination={{ pageSize: 10, showSizeChanger: false }}
-        scroll={{ x: 1750, y: 'calc(100vh - 360px)' }}
+        scroll={{ x: 1100, y: 'calc(100vh - 360px)' }}
         style={{ flex: 1 }}
       />
     </div>

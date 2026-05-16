@@ -29,6 +29,10 @@ import {
 } from '@ant-design/icons'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import dayjs from 'dayjs'
+import {
+  ACTIVITY_MANAGEMENT_BASE_PATH,
+  ACTIVITY_MANAGEMENT_SHARE_BASE_PATH,
+} from '../../../../../routes/pcRoutes'
 import './ActivityManagement.css'
 
 const { Paragraph, Text } = Typography
@@ -36,7 +40,8 @@ const { RangePicker } = DatePicker
 
 const DATE_TIME_FORMAT = 'YYYY-MM-DD HH:mm'
 
-const STORAGE_KEY_V3 = 'pm-agent-activity-management-v3'
+const STORAGE_KEY_BACKSTAGE = 'pm-agent-activity-management-v3'
+const STORAGE_KEY_SHARE = 'pm-agent-activity-management-share-v1'
 
 const channels = [
   { label: '一脉青藤', value: 'channel-qt' },
@@ -199,13 +204,41 @@ const statusMeta = {
   offline: { label: '已下架', className: 'activity-status-offline', tagColor: 'orange' },
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function isSharePath(pathname) {
+  return pathname.startsWith(ACTIVITY_MANAGEMENT_SHARE_BASE_PATH)
+}
+
+function getActivityBasePath(pathname) {
+  return isSharePath(pathname) ? ACTIVITY_MANAGEMENT_SHARE_BASE_PATH : ACTIVITY_MANAGEMENT_BASE_PATH
+}
+
+function getActivityStorageKey(pathname) {
+  return isSharePath(pathname) ? STORAGE_KEY_SHARE : STORAGE_KEY_BACKSTAGE
+}
+
+function isCreatePath(pathname, basePath) {
+  return pathname === `${basePath}/create`
+}
+
+function isEditPath(pathname, basePath) {
+  return new RegExp(`^${escapeRegExp(basePath)}/edit/[^/]+$`).test(pathname)
+}
+
+function isDetailPath(pathname, basePath) {
+  return new RegExp(`^${escapeRegExp(basePath)}/[^/]+$`).test(pathname)
+}
+
 function cloneSeedActivities() {
   return JSON.parse(JSON.stringify(seedActivities))
 }
 
-function loadActivities() {
+function loadActivities(storageKey) {
   if (typeof window === 'undefined') return cloneSeedActivities()
-  const saved = window.localStorage.getItem(STORAGE_KEY_V3)
+  const saved = window.localStorage.getItem(storageKey)
   if (!saved) return cloneSeedActivities()
   try {
     return JSON.parse(saved)
@@ -214,9 +247,9 @@ function loadActivities() {
   }
 }
 
-function saveActivities(activities) {
+function saveActivities(storageKey, activities) {
   if (typeof window === 'undefined') return
-  window.localStorage.setItem(STORAGE_KEY_V3, JSON.stringify(activities))
+  window.localStorage.setItem(storageKey, JSON.stringify(activities))
 }
 
 function now() {
@@ -290,10 +323,10 @@ function StatusText({ status }) {
   return <span className={`activity-status-dot ${meta.className}`}>{meta.label}</span>
 }
 
-function ActivityFrame({ title, subtitle, extra, children }) {
+function ActivityFrame({ title, subtitle, extra, children, standalone = false }) {
   return (
-    <div className="activity-page">
-      <div className="activity-shell">
+    <div className={`activity-page${standalone ? ' activity-page--standalone' : ''}`}>
+      <div className={`activity-shell${standalone ? ' activity-shell--standalone' : ''}`}>
         <div className="activity-header">
           <div>
             <h1 className="activity-title">{title}</h1>
@@ -319,13 +352,13 @@ function enrichActivity(activity) {
   }
 }
 
-function useActivityStore() {
-  const [activities, setActivities] = useState(loadActivities)
+function useActivityStore(storageKey) {
+  const [activities, setActivities] = useState(() => loadActivities(storageKey))
 
   const commit = (updater) => {
     setActivities((prev) => {
       const next = updater(prev)
-      saveActivities(next)
+      saveActivities(storageKey, next)
       return next
     })
   }
@@ -370,7 +403,7 @@ function canPassIntegrity(values, institutionProjectMap, activities, editingId) 
   return ''
 }
 
-function ActivityListPage({ activities, commit }) {
+function ActivityListPage({ activities, commit, basePath, standalone }) {
   const navigate = useNavigate()
   const rows = useMemo(() => activities.map(enrichActivity), [activities])
 
@@ -467,10 +500,10 @@ function ActivityListPage({ activities, commit }) {
       width: 300,
       render: (_, row) => (
         <Space size={14}>
-          <Button type="link" className="activity-link" icon={<EyeOutlined />} onClick={() => navigate(`/platform/activity-management/${row.id}`)}>
+          <Button type="link" className="activity-link" icon={<EyeOutlined />} onClick={() => navigate(`${basePath}/${row.id}`)}>
             查看
           </Button>
-          <Button type="link" className="activity-link" icon={<EditOutlined />} onClick={() => navigate(`/platform/activity-management/edit/${row.id}`)}>
+          <Button type="link" className="activity-link" icon={<EditOutlined />} onClick={() => navigate(`${basePath}/edit/${row.id}`)}>
             编辑
           </Button>
           {row.status === 'running' || row.status === 'listed' ? (
@@ -495,10 +528,11 @@ function ActivityListPage({ activities, commit }) {
       title="活动管理"
       subtitle="统一由平台运营负责人创建；一个活动可绑定同一渠道下多个机构，每个机构独立维护项目活动价。"
       extra={(
-        <Button className="activity-green-btn" icon={<PlusOutlined />} onClick={() => navigate('/platform/activity-management/create')}>
+        <Button className="activity-green-btn" icon={<PlusOutlined />} onClick={() => navigate(`${basePath}/create`)}>
           新建活动
         </Button>
       )}
+      standalone={standalone}
     >
       <Table
         className="activity-table"
@@ -512,7 +546,7 @@ function ActivityListPage({ activities, commit }) {
   )
 }
 
-function ActivityFormPage({ activities, commit }) {
+function ActivityFormPage({ activities, commit, basePath, standalone }) {
   const navigate = useNavigate()
   const { id } = useParams()
   const editingActivity = activities.find((item) => item.id === id)
@@ -760,7 +794,7 @@ function ActivityFormPage({ activities, commit }) {
       return [nextActivity, ...prev]
     })
     message.success('活动已保存并上架')
-    navigate('/platform/activity-management')
+    navigate(basePath)
   }
 
   return (
@@ -768,10 +802,11 @@ function ActivityFormPage({ activities, commit }) {
       title={isEdit ? '编辑活动' : '新建活动'}
       extra={(
         <Space>
-          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/platform/activity-management')}>返回列表</Button>
+          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(basePath)}>返回列表</Button>
           <Button className="activity-green-btn" onClick={handleSubmit}>保存并上架</Button>
         </Space>
       )}
+      standalone={standalone}
     >
       <div className="activity-form-grid">
         <Card className="activity-panel" title="基础信息">
@@ -940,7 +975,7 @@ function ActivityFormPage({ activities, commit }) {
   )
 }
 
-function ActivityDetailPage({ activities, commit }) {
+function ActivityDetailPage({ activities, commit, basePath, standalone }) {
   const navigate = useNavigate()
   const { id } = useParams()
   const activity = activities.find((item) => item.id === id)
@@ -948,7 +983,7 @@ function ActivityDetailPage({ activities, commit }) {
 
   if (!activity) {
     return (
-      <ActivityFrame title="活动详情" extra={<Button onClick={() => navigate('/platform/activity-management')}>返回列表</Button>}>
+      <ActivityFrame title="活动详情" extra={<Button onClick={() => navigate(basePath)}>返回列表</Button>} standalone={standalone}>
         <Card>
           <Text type="secondary">未找到该活动。</Text>
         </Card>
@@ -1009,11 +1044,12 @@ function ActivityDetailPage({ activities, commit }) {
       title="活动详情"
       extra={(
         <Space>
-          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/platform/activity-management')}>返回列表</Button>
-          <Button icon={<EditOutlined />} onClick={() => navigate(`/platform/activity-management/edit/${activity.id}`)}>编辑活动</Button>
+          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(basePath)}>返回列表</Button>
+          <Button icon={<EditOutlined />} onClick={() => navigate(`${basePath}/edit/${activity.id}`)}>编辑活动</Button>
           {row.status === 'running' || row.status === 'listed' ? <Button danger icon={<StopOutlined />} onClick={handleOffline}>下架活动</Button> : null}
         </Space>
       )}
+      standalone={standalone}
     >
       <Card className="activity-panel" title="基础信息">
         <Descriptions column={3} bordered size="middle">
@@ -1063,15 +1099,17 @@ function ActivityDetailPage({ activities, commit }) {
 
 export default function ActivityManagementPage() {
   const location = useLocation()
-  const [activities, commit] = useActivityStore()
+  const basePath = getActivityBasePath(location.pathname)
+  const standalone = isSharePath(location.pathname)
+  const [activities, commit] = useActivityStore(getActivityStorageKey(location.pathname))
 
-  if (location.pathname.includes('/create') || location.pathname.includes('/edit/')) {
-    return <ActivityFormPage activities={activities} commit={commit} />
+  if (isCreatePath(location.pathname, basePath) || isEditPath(location.pathname, basePath)) {
+    return <ActivityFormPage activities={activities} commit={commit} basePath={basePath} standalone={standalone} />
   }
 
-  if (/\/platform\/activity-management\/[^/]+$/.test(location.pathname)) {
-    return <ActivityDetailPage activities={activities} commit={commit} />
+  if (isDetailPath(location.pathname, basePath) && !isCreatePath(location.pathname, basePath) && !isEditPath(location.pathname, basePath)) {
+    return <ActivityDetailPage activities={activities} commit={commit} basePath={basePath} standalone={standalone} />
   }
 
-  return <ActivityListPage activities={activities} commit={commit} />
+  return <ActivityListPage activities={activities} commit={commit} basePath={basePath} standalone={standalone} />
 }

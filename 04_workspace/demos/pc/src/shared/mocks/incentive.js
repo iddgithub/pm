@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 
-const regions = ['杭州西湖区', '杭州拱墅区', '宁波鄞州区', '温州鹿城区']
+const regions = ['江西省南昌市某某地址', '江西省南昌市红谷滩区某某地址', '江西省南昌市西湖区某某地址', '江西省南昌市青山湖区某某地址']
 const departments = ['放射科', '心内科', '神经内科', '骨科']
 const operators = [
   { name: '运营A', region: '杭州西湖区', department: '放射科' },
@@ -10,6 +10,7 @@ const operators = [
 ]
 const clinics = ['城西影像中心', '滨江康复诊所', '海曙综合门诊', '鹿城骨科门诊', '未来医学诊所']
 const doctors = ['张医生', '李医生', '王医生', '赵医生', '周医生', '吴医生', '郑医生', '钱医生']
+const doctorTypes = ['互联网医生', '线下医生']
 const auditStatuses = ['待审核', '审核通过', '审核驳回']
 const enableStatuses = ['已启用', '已停用']
 const withdrawStatuses = ['待审核', '审核通过', '已打款', '已驳回']
@@ -21,7 +22,9 @@ function pick(list, index) {
 
 export const doctorApplications = Array.from({ length: 28 }, (_, index) => ({
   id: index + 1,
+  applicationNo: `SQ${dayjs().subtract(index, 'day').format('YYYYMMDD')}${String(index + 1).padStart(4, '0')}`,
   applyTime: dayjs().subtract(index, 'day').format('YYYY-MM-DD HH:mm'),
+  doctorType: pick(doctorTypes, index),
   doctorName: pick(doctors, index),
   phone: `1380000${String(100 + index).padStart(4, '0')}`,
   clinicName: pick(clinics, index),

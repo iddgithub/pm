@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Button, Card, Col, Descriptions, Drawer, Form, Input, Row, Select, Space, Statistic, Table, Tag, message } from 'antd'
-import { CheckCircleOutlined, CloseCircleOutlined, EyeOutlined } from '@ant-design/icons'
+import { CheckCircleOutlined, CloseCircleOutlined, SettingOutlined } from '@ant-design/icons'
 import { doctorApplications } from '../../../../../shared/mocks/incentive'
 
 const statusColors = {
@@ -10,81 +10,71 @@ const statusColors = {
 }
 
 export default function DoctorReview() {
-  const [query, setQuery] = useState({ keyword: '', auditStatus: undefined })
+  const [applications, setApplications] = useState(doctorApplications)
+  const [query, setQuery] = useState({ keyword: '', auditStatus: undefined, doctorType: undefined })
   const [selected, setSelected] = useState(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   const filteredData = useMemo(() => {
-    return doctorApplications.filter((item) => {
+    return applications.filter((item) => {
       if (query.keyword) {
         const keyword = query.keyword.trim()
-        const hit = item.doctorName.includes(keyword) || item.phone.includes(keyword)
+        const hit = item.doctorName.includes(keyword)
+          || item.phone.includes(keyword)
+          || item.applicationNo.includes(keyword)
         if (!hit) return false
       }
       if (query.auditStatus && item.auditStatus !== query.auditStatus) return false
+      if (query.doctorType && item.doctorType !== query.doctorType) return false
       return true
     })
-  }, [query])
+  }, [applications, query])
 
   const metrics = useMemo(() => {
     return {
-      total: doctorApplications.length,
-      pending: doctorApplications.filter((item) => item.auditStatus === '待审核').length,
-      approved: doctorApplications.filter((item) => item.auditStatus === '审核通过').length,
+      total: applications.length,
+      pending: applications.filter((item) => item.auditStatus === '待审核').length,
+      approved: applications.filter((item) => item.auditStatus === '审核通过').length,
     }
-  }, [])
+  }, [applications])
+
+  const openDetail = (record) => {
+    setSelected(record)
+    setDrawerOpen(true)
+  }
+
+  const updateAuditStatus = (record, auditStatus) => {
+    const nextRecord = { ...record, auditStatus }
+    setApplications((prev) => prev.map((item) => (item.id === record.id ? nextRecord : item)))
+    setSelected(nextRecord)
+    message.success(auditStatus === '审核通过'
+      ? `已通过 ${record.doctorName}，系统将自动短信通知医生`
+      : `已驳回 ${record.doctorName}，请补充资质后重新提交`)
+  }
 
   const columns = [
+    { title: '申请单号', dataIndex: 'applicationNo', width: 160 },
     { title: '申请时间', dataIndex: 'applyTime', width: 150 },
+    { title: '医生类型', dataIndex: 'doctorType', width: 110 },
     { title: '医生姓名', dataIndex: 'doctorName', width: 110 },
     { title: '手机号', dataIndex: 'phone', width: 130 },
-    { title: '诊所名称', dataIndex: 'clinicName', width: 160 },
-    { title: '所在区域', dataIndex: 'region', width: 140 },
-    { title: '所属科室', dataIndex: 'department', width: 100 },
+    { title: '医院名称', dataIndex: 'clinicName', width: 160 },
+    { title: '所在位置', dataIndex: 'region', width: 210 },
     {
       title: '审核状态',
       dataIndex: 'auditStatus',
       width: 100,
       render: (value) => <Tag color={statusColors[value]}>{value}</Tag>,
     },
-    { title: '启用状态', dataIndex: 'enabledStatus', width: 100 },
-    { title: '备注', dataIndex: 'note', width: 180 },
     {
       title: '操作',
       key: 'action',
       fixed: 'right',
-      width: 220,
+      width: 110,
       render: (_, record) => (
-        <Space size="small">
-          <Button
-            type="link"
-            size="small"
-            icon={<EyeOutlined />}
-            onClick={() => {
-              setSelected(record)
-              setDrawerOpen(true)
-            }}
-          >
-            查看
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            icon={<CheckCircleOutlined />}
-            onClick={() => message.success(`已通过 ${record.doctorName}，系统将自动短信通知医生`)}
-          >
-            通过
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            danger
-            icon={<CloseCircleOutlined />}
-            onClick={() => message.warning(`已驳回 ${record.doctorName}，请补充资质后重新提交`)}
-          >
-            驳回
-          </Button>
-        </Space>
+        <Button type="link" size="small" icon={<SettingOutlined />} onClick={() => openDetail(record)}>
+          操作
+        </Button>
       ),
     },
   ]
@@ -107,10 +97,23 @@ export default function DoctorReview() {
 
       <Card bodyStyle={{ paddingBottom: 8 }}>
         <Form layout="inline">
+          <Form.Item label="医生类型">
+            <Select
+              placeholder="请选择"
+              allowClear
+              value={query.doctorType}
+              style={{ width: 140 }}
+              onChange={(value) => setQuery({ ...query, doctorType: value })}
+            >
+              <Select.Option value="互联网医生">互联网医生</Select.Option>
+              <Select.Option value="线下医生">线下医生</Select.Option>
+            </Select>
+          </Form.Item>
           <Form.Item label="审核状态">
             <Select
               placeholder="请选择"
               allowClear
+              value={query.auditStatus}
               style={{ width: 140 }}
               onChange={(value) => setQuery({ ...query, auditStatus: value })}
             >
@@ -123,12 +126,13 @@ export default function DoctorReview() {
             <Input
               placeholder="医生姓名/手机号"
               allowClear
+              value={query.keyword}
               style={{ width: 220 }}
               onChange={(event) => setQuery({ ...query, keyword: event.target.value })}
             />
           </Form.Item>
           <Form.Item>
-            <Button onClick={() => setQuery({ keyword: '', auditStatus: undefined })}>重置</Button>
+            <Button onClick={() => setQuery({ keyword: '', auditStatus: undefined, doctorType: undefined })}>重置</Button>
           </Form.Item>
         </Form>
       </Card>
@@ -138,7 +142,7 @@ export default function DoctorReview() {
         columns={columns}
         dataSource={filteredData}
         pagination={{ pageSize: 10, showSizeChanger: false }}
-        scroll={{ x: 1500, y: 'calc(100vh - 360px)' }}
+        scroll={{ x: 1380, y: 'calc(100vh - 360px)' }}
         style={{ flex: 1 }}
       />
 
@@ -150,15 +154,32 @@ export default function DoctorReview() {
       >
         {selected && (
           <Descriptions column={1} size="small" bordered>
+            <Descriptions.Item label="申请单号">{selected.applicationNo}</Descriptions.Item>
             <Descriptions.Item label="申请时间">{selected.applyTime}</Descriptions.Item>
+            <Descriptions.Item label="医生类型">{selected.doctorType}</Descriptions.Item>
             <Descriptions.Item label="医生姓名">{selected.doctorName}</Descriptions.Item>
             <Descriptions.Item label="手机号">{selected.phone}</Descriptions.Item>
-            <Descriptions.Item label="诊所名称">{selected.clinicName}</Descriptions.Item>
-            <Descriptions.Item label="所在区域">{selected.region}</Descriptions.Item>
-            <Descriptions.Item label="所属科室">{selected.department}</Descriptions.Item>
-            <Descriptions.Item label="资质状态">{selected.credentialStatus}</Descriptions.Item>
-            <Descriptions.Item label="备注">{selected.note}</Descriptions.Item>
+            <Descriptions.Item label="医院名称">{selected.clinicName}</Descriptions.Item>
+            <Descriptions.Item label="所在位置">{selected.region}</Descriptions.Item>
           </Descriptions>
+        )}
+        {selected && (
+          <Space style={{ marginTop: 16 }}>
+            <Button
+              type="primary"
+              icon={<CheckCircleOutlined />}
+              onClick={() => updateAuditStatus(selected, '审核通过')}
+            >
+              通过
+            </Button>
+            <Button
+              danger
+              icon={<CloseCircleOutlined />}
+              onClick={() => updateAuditStatus(selected, '审核驳回')}
+            >
+              拒绝
+            </Button>
+          </Space>
         )}
       </Drawer>
     </div>

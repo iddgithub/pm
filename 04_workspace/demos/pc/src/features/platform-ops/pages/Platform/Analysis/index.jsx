@@ -41,7 +41,7 @@ export default function Analysis() {
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: 16, gap: 16, overflow: 'auto' }}>
-      <div style={{ fontSize: 16, fontWeight: 500, color: '#333' }}>医生 / 运营业绩分析</div>
+      <div style={{ fontSize: 16, fontWeight: 500, color: '#333' }}>运营业绩分析</div>
 
       <Card bodyStyle={{ paddingBottom: 8 }}>
         <Form layout="inline">
