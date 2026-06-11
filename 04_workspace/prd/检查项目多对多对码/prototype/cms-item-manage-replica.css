@@ -1,0 +1,139 @@
+@import "./cms-hospital-item-replica.css";
+
+.toolbar-row--single {
+  justify-content: flex-start;
+}
+
+.inline-field--keyword-wide input {
+  width: 120px;
+}
+
+.data-table--item-manage {
+  min-width: 1860px;
+}
+
+.data-table--item-manage th,
+.data-table--item-manage td {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.cell-status {
+  min-width: 56px;
+}
+
+.cell-created-at {
+  color: var(--text-sub);
+}
+
+.cell-detail {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.modal-panel--detail {
+  width: min(1180px, calc(100vw - 32px));
+}
+
+.detail-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding: 18px 20px 0;
+}
+
+.detail-meta {
+  padding: 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  background: #fafcfa;
+}
+
+.detail-meta span {
+  display: block;
+  color: var(--text-light);
+  font-size: 12px;
+}
+
+.detail-meta strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-main);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.detail-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 18px 20px 0;
+}
+
+.detail-tab {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  color: var(--text-sub);
+  font-size: 13px;
+  transition: border-color 120ms ease, color 120ms ease, background-color 120ms ease;
+}
+
+.detail-tab:hover {
+  border-color: #b7e1cf;
+  color: var(--primary);
+}
+
+.detail-tab.is-active {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.detail-body {
+  padding: 18px 20px 20px;
+}
+
+.detail-card {
+  min-height: 320px;
+  padding: 20px 22px;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fcfefc 0%, #f8fbf9 100%);
+}
+
+.detail-card__label {
+  color: var(--text-light);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.detail-card__title {
+  margin-top: 10px;
+  color: var(--text-main);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.detail-card__content {
+  margin-top: 18px;
+  color: #52615a;
+  line-height: 1.9;
+  white-space: pre-line;
+}
+
+@media (max-width: 1200px) {
+  .detail-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .detail-summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -48,7 +48,7 @@ export function H5PrototypeShowcase({ roleTitle, roleSummary, flowSteps, childre
   )
 }
 
-export function PrototypePhone({ label, tabs = [], activeTab, onTabChange, children }) {
+export function PrototypePhone({ label, tabs = [], activeTab, onTabChange, children, showTabs = true }) {
   return (
     <article className="prototype-panel">
       <div className="prototype-phone">
@@ -71,7 +71,7 @@ export function PrototypePhone({ label, tabs = [], activeTab, onTabChange, child
           </div>
         </div>
 
-        {tabs.length ? (
+        {tabs.length && showTabs ? (
           <div className="prototype-segment">
             {tabs.map((tab) => (
               <button

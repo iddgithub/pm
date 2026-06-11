@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CMS 平台项目列表高保真原型</title>
+  <link rel="stylesheet" href="./cms-hospital-item-replica.css" />
+  <link rel="stylesheet" href="./cms-item-manage-replica.css" />
+</head>
+<body>
+  <section class="workspace-screen">
+    <div class="app-shell" id="appShell">
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="sidebar-brand__logo">
+            <span class="sidebar-brand__glyph"></span>
+          </div>
+          <div class="sidebar-brand__text">
+            <strong>检查检验流转平台</strong>
+          </div>
+        </div>
+
+        <div class="sidebar-nav">
+          <button class="menu-item" type="button">
+            <span class="menu-item__icon">⌂</span>
+            <span class="menu-item__text">首页</span>
+          </button>
+          <button class="menu-item" type="button">
+            <span class="menu-item__icon">◫</span>
+            <span class="menu-item__text">医院信息</span>
+          </button>
+          <button class="menu-item" type="button" data-route="./03-cms院内检查项目对码高保真原型.html">
+            <span class="menu-item__icon">⇆</span>
+            <span class="menu-item__text">检查项目对码</span>
+          </button>
+          <button class="menu-item" type="button">
+            <span class="menu-item__icon">⊞</span>
+            <span class="menu-item__text">医院管理</span>
+          </button>
+          <button class="menu-item is-active" type="button">
+            <span class="menu-item__icon">☰</span>
+            <span class="menu-item__text">平台项目列表</span>
+          </button>
+          <button class="menu-item" type="button">
+            <span class="menu-item__icon">≣</span>
+            <span class="menu-item__text">平台患者列表</span>
+          </button>
+          <button class="menu-item" type="button">
+            <span class="menu-item__icon">¥</span>
+            <span class="menu-item__text">财务管理</span>
+          </button>
+          <button class="menu-item" type="button">
+            <span class="menu-item__icon">⚙</span>
+            <span class="menu-item__text">设备管理</span>
+          </button>
+          <button class="menu-item" type="button">
+            <span class="menu-item__icon">✎</span>
+            <span class="menu-item__text">设备排班</span>
+          </button>
+          <button class="menu-item" type="button">
+            <span class="menu-item__icon">⚑</span>
+            <span class="menu-item__text">权限管理</span>
+          </button>
+        </div>
+      </aside>
+
+      <div class="main-shell">
+        <header class="topbar">
+          <div class="topbar__left">
+            <button class="icon-btn" id="collapseToggle" type="button" aria-label="切换侧边栏">☰</button>
+            <button class="hospital-chip" id="hospitalSwitchButton" type="button"></button>
+          </div>
+
+          <div class="topbar__right">
+            <div class="user-box">
+              <button class="user-box__trigger" id="userMenuButton" type="button">
+                <span class="user-box__name">胡高鹏</span>
+                <span class="user-box__caret">▾</span>
+              </button>
+              <div class="user-menu" id="userMenu" hidden>
+                <button class="user-menu__item" id="changePasswordButton" type="button">修改密码</button>
+                <button class="user-menu__item" id="switchHospitalButton" type="button">切换医院</button>
+                <button class="user-menu__item user-menu__item--danger" id="logoutButton" type="button">退出登录</button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main class="content-shell">
+          <section class="page-panel">
+            <div class="page-panel__title">平台项目列表</div>
+
+            <div class="toolbar-row toolbar-row--single">
+              <div class="toolbar-row__filters">
+                <label class="inline-field inline-field--select">
+                  <span>检查类型：</span>
+                  <select id="modalityFilter"></select>
+                </label>
+                <label class="inline-field inline-field--keyword inline-field--keyword-wide">
+                  <span>编码/名称关键字：</span>
+                  <input id="keywordFilter" type="text" placeholder="编码/名称关键字" />
+                </label>
+                <button class="btn btn-primary btn-search" id="searchButton" type="button">查询</button>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <div class="table-scroll">
+                <table class="data-table data-table--item-manage">
+                  <thead>
+                    <tr>
+                      <th>项目名称</th>
+                      <th>项目编码</th>
+                      <th>扫描编码</th>
+                      <th>后处理编码</th>
+                      <th>后处理</th>
+                      <th>检查类型</th>
+                      <th>扫描方式</th>
+                      <th>一级编码</th>
+                      <th>一级部位</th>
+                      <th>二级编码</th>
+                      <th>二级部位</th>
+                      <th>三级编码</th>
+                      <th>三级部位</th>
+                      <th>状态</th>
+                      <th>摆位编码</th>
+                      <th>摆位</th>
+                      <th>创建时间</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="footer-bar">
+              <div class="footer-bar__records" id="recordText"></div>
+              <div class="pagination" id="pagination"></div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </section>
+
+  <div class="modal-backdrop" id="detailModal" hidden>
+    <div class="modal-panel modal-panel--detail">
+      <div class="modal-header">
+        <div>
+          <span class="modal-kicker">平台项目详情</span>
+          <h3>检查项目使用详情</h3>
+        </div>
+        <button class="icon-btn" id="closeDetailButton" type="button" aria-label="关闭详情">✕</button>
+      </div>
+
+      <div class="detail-summary" id="detailSummary"></div>
+
+      <div class="detail-tabs" id="detailTabs"></div>
+
+      <div class="detail-body">
+        <div class="detail-card">
+          <div class="detail-card__label" id="detailSectionLabel"></div>
+          <div class="detail-card__title" id="detailSectionTitle"></div>
+          <div class="detail-card__content" id="detailSectionContent"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toastStack"></div>
+
+  <script src="./cms-item-manage-replica.js"></script>
+</body>
+</html>

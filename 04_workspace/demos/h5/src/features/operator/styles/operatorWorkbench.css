@@ -1,0 +1,430 @@
+.operator-replica-screen {
+  min-height: 100%;
+  padding: 14px 14px 18px;
+  background:
+    radial-gradient(circle at top right, rgba(172, 243, 217, 0.9), transparent 30%),
+    linear-gradient(180deg, #eef5f4 0%, #f5f5f3 100%);
+}
+
+.operator-replica-hero {
+  position: relative;
+}
+
+.operator-replica-hero::before {
+  position: absolute;
+  inset: 8px -14px auto;
+  height: 96px;
+  background:
+    linear-gradient(135deg, rgba(189, 232, 250, 0.28) 0%, transparent 40%),
+    linear-gradient(225deg, rgba(164, 242, 216, 0.4) 0%, transparent 42%);
+  content: '';
+  pointer-events: none;
+}
+
+.operator-replica-hero-card {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 144px;
+  gap: 12px;
+  padding: 18px 14px;
+  border: 1px solid #dbe7e6;
+  border-radius: 14px;
+  background: rgba(242, 249, 247, 0.92);
+  box-shadow: 0 12px 28px rgba(65, 115, 88, 0.05);
+}
+
+.operator-replica-user,
+.operator-replica-order-card {
+  border: 1px solid #dfefe6;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(65, 115, 88, 0.06);
+}
+
+.operator-replica-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 12px;
+  background: linear-gradient(135deg, #f8fcfb 0%, #eef6f4 100%);
+}
+
+.operator-replica-avatar {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fff6da 0%, #e5faf0 100%);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(206, 224, 212, 0.9);
+}
+
+.operator-replica-avatar-head,
+.operator-replica-avatar-body {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.operator-replica-avatar-head {
+  top: 8px;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #304f79;
+  box-shadow: 0 0 0 4px #ffc96f inset;
+}
+
+.operator-replica-avatar-body {
+  bottom: 6px;
+  width: 24px;
+  height: 18px;
+  border-radius: 12px 12px 9px 9px;
+  background: linear-gradient(180deg, #5bd59a 0%, #22b86e 100%);
+}
+
+.operator-replica-user-copy {
+  min-width: 0;
+}
+
+.operator-replica-user-name {
+  color: #203128;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.operator-replica-user-role {
+  margin-top: 4px;
+  color: #7f9186;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.operator-replica-doctor-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 14px 12px;
+  border: 2px solid rgba(175, 223, 232, 0.85);
+  border-radius: 14px;
+  text-align: left;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(150, 243, 220, 0.45), transparent 46%),
+    linear-gradient(135deg, #eef8f6 0%, #e2f7ee 100%);
+  color: #1f7a5b;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.operator-replica-doctor-label {
+  color: #8aa79a;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.operator-replica-doctor-value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.operator-replica-doctor-card strong {
+  color: #23835f;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.operator-replica-doctor-value .anticon {
+  color: #58a585;
+  font-size: 12px;
+}
+
+.operator-replica-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-top: 12px;
+  height: 50px;
+  padding: 0 14px;
+  border: 1px solid #e6e7e4;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 4px 12px rgba(58, 101, 74, 0.04);
+}
+
+.operator-replica-filter-divider {
+  width: 1px;
+  height: 18px;
+  margin: 0 12px;
+  background: #d8ddda;
+}
+
+.operator-replica-select {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.operator-replica-select select {
+  width: 100%;
+  height: 100%;
+  padding: 0 22px 0 0;
+  border: none;
+  background: transparent;
+  color: #335042;
+  font-size: 12px;
+  font-weight: 600;
+  appearance: none;
+  outline: none;
+}
+
+.operator-replica-select .anticon {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94aa9f;
+  font-size: 10px;
+  pointer-events: none;
+}
+
+.operator-replica-select--month select {
+  color: #189064;
+  font-weight: 700;
+}
+
+.operator-replica-select--doctor {
+  justify-content: flex-end;
+}
+
+.operator-replica-select--doctor select {
+  text-align: center;
+  color: #66756c;
+}
+
+.operator-replica-search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.operator-replica-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid #e1e5e2;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #9aae9f;
+  box-shadow: 0 6px 14px rgba(58, 101, 74, 0.04);
+}
+
+.operator-replica-search-box .anticon {
+  font-size: 16px;
+}
+
+.operator-replica-search-box input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #304f41;
+  font-size: 13px;
+  outline: none;
+}
+
+.operator-replica-search-box input::placeholder {
+  color: #a3b5ab;
+}
+
+.operator-replica-search-button {
+  height: 40px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #56c97e 0%, #25a95d 100%);
+  box-shadow: 0 10px 20px rgba(62, 191, 123, 0.2);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.operator-replica-status-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin-top: 12px;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.operator-replica-status-row::-webkit-scrollbar {
+  display: none;
+}
+
+.operator-replica-chip {
+  flex-shrink: 0;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid #d9dfda;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  color: #7d8f84;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.operator-replica-chip.active {
+  border-color: #4caf7b;
+  background: #eefaf3;
+  color: #2a9a65;
+}
+
+.operator-replica-order-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.operator-replica-order-card {
+  overflow: hidden;
+  border-radius: 12px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.operator-replica-order-head,
+.operator-replica-order-row,
+.operator-replica-order-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.operator-replica-order-head {
+  padding: 12px 14px;
+  border-bottom: 1px solid #d5d9d5;
+}
+
+.operator-replica-order-title {
+  min-width: 0;
+  color: #9a9d99;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.operator-replica-status {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 0 0 0 10px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.operator-replica-status::before {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: currentColor;
+  content: '';
+}
+
+.operator-replica-status--paid {
+  background: #fff4e7;
+  color: #ef9645;
+}
+
+.operator-replica-status--checked {
+  background: #eef7ff;
+  color: #4c88df;
+}
+
+.operator-replica-status--report {
+  background: #eefaf3;
+  color: #29a861;
+}
+
+.operator-replica-status--interpreted {
+  background: #eaf8ef;
+  color: #2f9d64;
+}
+
+.operator-replica-order-row {
+  margin-top: 10px;
+  padding: 0 14px;
+}
+
+.operator-replica-order-info,
+.operator-replica-order-note,
+.operator-replica-order-link {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  color: #72867a;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.operator-replica-order-info {
+  gap: 5px;
+}
+
+.operator-replica-order-info .anticon {
+  color: #37b772;
+  font-size: 11px;
+}
+
+.operator-replica-order-divider {
+  color: #b0bcb5;
+}
+
+.operator-replica-order-info--phone {
+  white-space: nowrap;
+}
+
+.operator-replica-order-price {
+  flex-shrink: 0;
+  color: #7f817d;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.operator-replica-order-foot {
+  margin: 12px 14px 14px;
+  padding: 11px 12px;
+  border-top: none;
+  border-radius: 8px;
+  background: #eef5f1;
+}
+
+.operator-replica-order-note {
+  color: #76857c;
+}
+
+.operator-replica-order-link {
+  gap: 3px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: #28a15d;
+  font-weight: 600;
+}
+
+.operator-replica-order-link .anticon {
+  font-size: 10px;
+}

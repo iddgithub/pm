@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>检查项目多对多对码后台原型</title>
+  <link rel="stylesheet" href="./project-mapping-prototype.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <span class="eyebrow">Project Mapping 1.0</span>
+        <h1>检查项目多对多对码</h1>
+        <p>围绕中心标准项目、上下游映射、组合匹配和异常处理形成后台闭环。</p>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="页面导航">
+        <button class="nav-item is-active" type="button" data-page="standard-library">
+          <span>01</span>
+          <strong>中心标准项目库</strong>
+          <small>主数据维护</small>
+        </button>
+        <button class="nav-item" type="button" data-page="upstream-mapping">
+          <span>02</span>
+          <strong>上游项目对码管理</strong>
+          <small>项目标准化解析</small>
+        </button>
+        <button class="nav-item" type="button" data-page="delivery-mapping">
+          <span>03</span>
+          <strong>交付中心项目对码管理</strong>
+          <small>套餐与加收配置</small>
+        </button>
+        <button class="nav-item" type="button" data-page="order-log">
+          <span>04</span>
+          <strong>订单匹配日志 / 异常处理</strong>
+          <small>结果追踪与补配</small>
+        </button>
+      </nav>
+
+      <section class="flow-card">
+        <h2>1.0 闭环</h2>
+        <ol>
+          <li>上游订单进入平台</li>
+          <li>解析为中心标准项目集合</li>
+          <li>匹配交付中心项目组合</li>
+          <li>成功下发或进入异常池</li>
+        </ol>
+      </section>
+
+      <section class="sidebar-note">
+        <h2>版本边界</h2>
+        <p>本期优先保证“能识别、能匹配、能下发、能拦截”，暂不引入复杂计费规则引擎。</p>
+      </section>
+    </aside>
+
+    <main class="workspace">
+      <header class="workspace-head">
+        <div>
+          <span class="head-kicker">后台原型</span>
+          <h2 id="page-title">中心标准项目库</h2>
+          <p id="page-desc">维护平台唯一的检查项目主数据，支撑上下游所有映射关系。</p>
+        </div>
+        <div class="head-actions">
+          <button type="button" class="ghost-btn">批量导入</button>
+          <button type="button" class="solid-btn">新增项目</button>
+        </div>
+      </header>
+
+      <section class="page is-active" data-page="standard-library">
+        <div class="summary-grid">
+          <article class="summary-card">
+            <span>标准项目总数</span>
+            <strong>428</strong>
+            <small>CT / MR / DR / US / PET-CT 全量维护</small>
+          </article>
+          <article class="summary-card">
+            <span>本周新增</span>
+            <strong>16</strong>
+            <small>以 CTA、增强、联合部位为主</small>
+          </article>
+          <article class="summary-card summary-card--warn">
+            <span>待复核项</span>
+            <strong>7</strong>
+            <small>命名颗粒度待统一</small>
+          </article>
+        </div>
+
+        <section class="panel">
+          <div class="toolbar">
+            <div class="chip-row">
+              <span class="chip chip--active">全部模态</span>
+              <span class="chip">CT</span>
+              <span class="chip">MR</span>
+              <span class="chip">US</span>
+              <span class="chip">增强</span>
+            </div>
+            <div class="toolbar-actions">
+              <label class="search-field">
+                <span>搜索</span>
+                <input type="text" value="" placeholder="项目编码 / 项目名称 / 部位" />
+              </label>
+              <button type="button" class="ghost-btn ghost-btn--small">导出结果</button>
+            </div>
+          </div>
+
+          <div class="content-grid">
+            <div class="table-card">
+              <table>
+                <thead>
+                  <tr>
+                    <th>标准项目编码</th>
+                    <th>标准项目名称</th>
+                    <th>模态</th>
+                    <th>部位</th>
+                    <th>检查方式</th>
+                    <th>状态</th>
+                    <th>更新时间</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="is-selected">
+                    <td>CT-HEAD-PLAIN</td>
+                    <td>CT-颅脑平扫</td>
+                    <td>CT</td>
+                    <td>颅脑</td>
+                    <td>平扫</td>
+                    <td><span class="status status--active">启用</span></td>
+                    <td>2026-06-10 10:12</td>
+                  </tr>
+                  <tr>
+                    <td>CT-CHEST-PLAIN</td>
+                    <td>CT-胸部平扫</td>
+                    <td>CT</td>
+                    <td>胸部</td>
+                    <td>平扫</td>
+                    <td><span class="status status--active">启用</span></td>
+                    <td>2026-06-08 18:20</td>
+                  </tr>
+                  <tr>
+                    <td>CT-ABDOMEN-PLAIN</td>
+                    <td>CT-腹部平扫</td>
+                    <td>CT</td>
+                    <td>腹部</td>
+                    <td>平扫</td>
+                    <td><span class="status status--active">启用</span></td>
+                    <td>2026-06-08 18:20</td>
+                  </tr>
+                  <tr>
+                    <td>CT-HEAD-ENHANCE</td>
+                    <td>CT-颅脑增强</td>
+                    <td>CT</td>
+                    <td>颅脑</td>
+                    <td>增强</td>
+                    <td><span class="status status--draft">待确认</span></td>
+                    <td>2026-06-07 15:03</td>
+                  </tr>
+                  <tr>
+                    <td>CT-CAROTID-CTA</td>
+                    <td>CT-颈动脉 CTA</td>
+                    <td>CT</td>
+                    <td>颈动脉</td>
+                    <td>CTA</td>
+                    <td><span class="status status--active">启用</span></td>
+                    <td>2026-06-05 09:44</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <aside class="detail-card">
+              <div class="detail-card-head">
+                <span class="detail-tag">当前选中</span>
+                <h3>CT-颅脑平扫</h3>
+              </div>
+              <dl class="field-list">
+                <div>
+                  <dt>标准项目编码</dt>
+                  <dd>CT-HEAD-PLAIN</dd>
+                </div>
+                <div>
+                  <dt>检查模态</dt>
+                  <dd>CT</dd>
+                </div>
+                <div>
+                  <dt>检查部位</dt>
+                  <dd>颅脑</dd>
+                </div>
+                <div>
+                  <dt>检查方式</dt>
+                  <dd>平扫</dd>
+                </div>
+                <div>
+                  <dt>状态</dt>
+                  <dd>启用</dd>
+                </div>
+              </dl>
+
+              <section class="note-box">
+                <h4>维护提醒</h4>
+                <ul>
+                  <li>标准项目命名需统一采用“模态 + 部位 + 检查方式”。</li>
+                  <li>增强类项目是否独立维护，需要和计费规则边界一起确认。</li>
+                  <li>停用后不应参与新订单匹配。</li>
+                </ul>
+              </section>
+            </aside>
+          </div>
+        </section>
+      </section>
+
+      <section class="page" data-page="upstream-mapping">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <span class="panel-kicker">互联网医院项目标准化</span>
+              <h3>一个上游项目映射多个中心标准项目</h3>
+            </div>
+            <div class="panel-pills">
+              <span class="mini-pill">未配置 14</span>
+              <span class="mini-pill mini-pill--good">已启用 263</span>
+            </div>
+          </div>
+
+          <div class="mapping-layout">
+            <div class="list-card">
+              <div class="list-card-head">
+                <h4>上游项目列表</h4>
+                <span>华西互联网医院</span>
+              </div>
+              <article class="mapping-item is-selected">
+                <strong>颅脑 CT + 胸部 CT + 腹部 CT + 增强</strong>
+                <span>项目编码：HX-CT-90012</span>
+                <small>当前状态：已映射 4 个标准项目</small>
+              </article>
+              <article class="mapping-item">
+                <strong>头颈 CTA 套餐</strong>
+                <span>项目编码：HX-CTA-30007</span>
+                <small>当前状态：待确认</small>
+              </article>
+              <article class="mapping-item">
+                <strong>腰椎 MR 平扫</strong>
+                <span>项目编码：HX-MR-10231</span>
+                <small>当前状态：已映射 1 个标准项目</small>
+              </article>
+            </div>
+
+            <div class="mapping-canvas">
+              <div class="canvas-block">
+                <h4>原始上游项目</h4>
+                <div class="source-card">
+                  <span class="source-org">华西互联网医院</span>
+                  <strong>颅脑 CT + 胸部 CT + 腹部 CT + 增强</strong>
+                  <p>系统需将该组合项目拆解为多个平台标准项目，作为后续匹配输入。</p>
+                </div>
+              </div>
+
+              <div class="canvas-block">
+                <h4>映射标准项目</h4>
+                <div class="tag-group">
+                  <span class="project-tag">CT-颅脑平扫</span>
+                  <span class="project-tag">CT-胸部平扫</span>
+                  <span class="project-tag">CT-腹部平扫</span>
+                  <span class="project-tag">CT-增强</span>
+                </div>
+              </div>
+
+              <div class="canvas-block">
+                <h4>保存规则</h4>
+                <div class="rule-list">
+                  <div class="rule-row">
+                    <span>映射状态</span>
+                    <strong>启用</strong>
+                  </div>
+                  <div class="rule-row">
+                    <span>生效时间</span>
+                    <strong>保存后立即生效</strong>
+                  </div>
+                  <div class="rule-row">
+                    <span>校验要求</span>
+                    <strong>至少选择 1 个中心标准项目</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="page" data-page="delivery-mapping">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <span class="panel-kicker">交付中心项目配置</span>
+              <h3>组合套餐优先，单项目和加收项补齐</h3>
+            </div>
+            <div class="panel-pills">
+              <span class="mini-pill">组合套餐 38</span>
+              <span class="mini-pill">加收项 12</span>
+              <span class="mini-pill mini-pill--good">单项目 186</span>
+            </div>
+          </div>
+
+          <div class="mapping-layout">
+            <div class="list-card">
+              <div class="list-card-head">
+                <h4>院内项目列表</h4>
+                <span>南昌一脉阳光交付中心</span>
+              </div>
+              <article class="mapping-item is-selected">
+                <strong>CT 三部位套餐</strong>
+                <span>项目编码：NC-CT-PKG-301</span>
+                <small>当前状态：覆盖 3 个标准项目</small>
+              </article>
+              <article class="mapping-item">
+                <strong>增强扫描加收</strong>
+                <span>项目编码：NC-CT-ADD-009</span>
+                <small>当前状态：覆盖 1 个标准项目</small>
+              </article>
+              <article class="mapping-item">
+                <strong>头颈联合 CTA 套餐</strong>
+                <span>项目编码：NC-CTA-PKG-108</span>
+                <small>当前状态：覆盖 3 个标准项目</small>
+              </article>
+            </div>
+
+            <div class="mapping-canvas">
+              <div class="type-grid">
+                <article class="type-card type-card--active">
+                  <span>项目类型</span>
+                  <strong>组合套餐</strong>
+                  <small>优先覆盖多个标准项目，减少下发条数</small>
+                </article>
+                <article class="type-card">
+                  <span>项目类型</span>
+                  <strong>单项目</strong>
+                  <small>用于无法被套餐覆盖的标准项目</small>
+                </article>
+                <article class="type-card">
+                  <span>项目类型</span>
+                  <strong>加收项</strong>
+                  <small>用于增强、第二部位等补齐场景</small>
+                </article>
+              </div>
+
+              <div class="canvas-block">
+                <h4>覆盖的中心标准项目</h4>
+                <div class="tag-group">
+                  <span class="project-tag">CT-颅脑平扫</span>
+                  <span class="project-tag">CT-胸部平扫</span>
+                  <span class="project-tag">CT-腹部平扫</span>
+                </div>
+              </div>
+
+              <div class="priority-card">
+                <div>
+                  <span>匹配优先级</span>
+                  <strong>P1</strong>
+                </div>
+                <p>当多个套餐都能覆盖同一组标准项目时，系统优先取优先级更高的院内项目。</p>
+              </div>
+
+              <div class="rule-list">
+                <div class="rule-row">
+                  <span>映射状态</span>
+                  <strong>启用</strong>
+                </div>
+                <div class="rule-row">
+                  <span>重复覆盖</span>
+                  <strong>允许，但需配置优先级</strong>
+                </div>
+                <div class="rule-row">
+                  <span>下发原则</span>
+                  <strong>套餐优先，单项目与加收项补齐</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="page" data-page="order-log">
+        <div class="summary-grid">
+          <article class="summary-card">
+            <span>今日订单</span>
+            <strong>126</strong>
+            <small>成功下发 112 笔</small>
+          </article>
+          <article class="summary-card summary-card--warn">
+            <span>异常订单</span>
+            <strong>14</strong>
+            <small>未对码 5 / 未匹配 7 / 冲突 2</small>
+          </article>
+          <article class="summary-card">
+            <span>平均匹配耗时</span>
+            <strong>2.8s</strong>
+            <small>以组合套餐优先匹配</small>
+          </article>
+        </div>
+
+        <section class="panel">
+          <div class="content-grid content-grid--log">
+            <div class="table-card">
+              <table>
+                <thead>
+                  <tr>
+                    <th>订单号</th>
+                    <th>上游机构</th>
+                    <th>解析后的标准项目</th>
+                    <th>目标交付中心</th>
+                    <th>匹配结果</th>
+                    <th>实际下发项目</th>
+                    <th>异常原因</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>OM202606100018</td>
+                    <td>华西互联网医院</td>
+                    <td>颅脑 / 胸部 / 腹部 / 增强</td>
+                    <td>南昌一脉阳光交付中心</td>
+                    <td><span class="status status--active">匹配成功</span></td>
+                    <td>CT 三部位套餐 + 增强扫描加收</td>
+                    <td>-</td>
+                  </tr>
+                  <tr class="is-selected">
+                    <td>OM202606100019</td>
+                    <td>华西互联网医院</td>
+                    <td>颅脑 CTA / 颅内动脉 CTA / 颈动脉 CTA</td>
+                    <td>南昌一脉阳光交付中心</td>
+                    <td><span class="status status--error">异常</span></td>
+                    <td>头颈联合 CTA 套餐</td>
+                    <td>套餐与单项目优先级冲突</td>
+                  </tr>
+                  <tr>
+                    <td>OM202606100020</td>
+                    <td>华西互联网医院</td>
+                    <td>胸部平扫 / 增强</td>
+                    <td>成都影像交付中心</td>
+                    <td><span class="status status--error">异常</span></td>
+                    <td>-</td>
+                    <td>增强项未配置</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <aside class="detail-card">
+              <div class="detail-card-head">
+                <span class="detail-tag detail-tag--warn">异常详情</span>
+                <h3>订单 OM202606100019</h3>
+              </div>
+
+              <div class="timeline">
+                <div class="timeline-item">
+                  <span></span>
+                  <div>
+                    <strong>原始上游项目</strong>
+                    <p>头颈 CTA 套餐</p>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <span></span>
+                  <div>
+                    <strong>解析标准项目</strong>
+                    <p>CT-颅脑 CTA / CT-颅内动脉 CTA / CT-颈动脉 CTA</p>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <span></span>
+                  <div>
+                    <strong>冲突说明</strong>
+                    <p>“头颈联合 CTA 套餐”和“单项 CTA 组合”同时命中，当前优先级配置存在重叠。</p>
+                  </div>
+                </div>
+              </div>
+
+              <section class="note-box note-box--warn">
+                <h4>推荐处理动作</h4>
+                <ul>
+                  <li>检查交付中心项目优先级配置。</li>
+                  <li>如需继续下发，先停用低优先级组合。</li>
+                  <li>补配完成后支持一键重新匹配。</li>
+                </ul>
+              </section>
+
+              <div class="action-row">
+                <button type="button" class="ghost-btn ghost-btn--small">查看处理记录</button>
+                <button type="button" class="solid-btn solid-btn--small">重新匹配</button>
+              </div>
+            </aside>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const navItems = Array.from(document.querySelectorAll(".nav-item"));
+    const pages = Array.from(document.querySelectorAll(".page"));
+    const pageTitle = document.getElementById("page-title");
+    const pageDesc = document.getElementById("page-desc");
+    const pageMeta = {
+      "standard-library": {
+        title: "中心标准项目库",
+        desc: "维护平台唯一的检查项目主数据，支撑上下游所有映射关系。"
+      },
+      "upstream-mapping": {
+        title: "上游项目对码管理",
+        desc: "把互联网医院项目解析为中心标准项目集合，作为订单匹配输入。"
+      },
+      "delivery-mapping": {
+        title: "交付中心项目对码管理",
+        desc: "配置院内项目、套餐、加收项与标准项目之间的覆盖关系。"
+      },
+      "order-log": {
+        title: "订单匹配日志 / 异常处理",
+        desc: "追踪匹配过程、记录异常原因，并支持补配后的重新匹配。"
+      }
+    };
+
+    navItems.forEach((item) => {
+      item.addEventListener("click", () => {
+        const target = item.dataset.page;
+
+        navItems.forEach((nav) => nav.classList.toggle("is-active", nav === item));
+        pages.forEach((page) => page.classList.toggle("is-active", page.dataset.page === target));
+
+        pageTitle.textContent = pageMeta[target].title;
+        pageDesc.textContent = pageMeta[target].desc;
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>一脉青藤页面总览</title>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --panel: #ffffff;
+      --text: #11203a;
+      --muted: #6c7a96;
+      --line: #d9e2f0;
+      --accent: #1f8f78;
+      --accent-soft: rgba(31, 143, 120, 0.12);
+      --shadow: 0 18px 48px rgba(17, 32, 58, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(31, 143, 120, 0.14), transparent 26%),
+        linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+
+    .overview-page {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 40px 24px 56px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 18px;
+      margin-bottom: 28px;
+      padding: 28px 30px;
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .hero-badge {
+      width: fit-content;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 46px);
+      line-height: 1.08;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 920px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .page-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .page-pill {
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(217, 226, 240, 0.9);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-head {
+      display: grid;
+      gap: 6px;
+    }
+
+    .card-head h2 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .card-meta {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .card-desc {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+      min-height: 48px;
+    }
+
+    .frame-shell {
+      overflow: hidden;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: #eaf0f7;
+      height: 820px;
+    }
+
+    .frame-shell iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #fff;
+    }
+
+    .card-foot {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 720px) {
+      .overview-page {
+        padding: 24px 16px 40px;
+      }
+
+      .hero {
+        padding: 22px 18px;
+        border-radius: 22px;
+      }
+
+      .card {
+        padding: 14px;
+        border-radius: 20px;
+      }
+
+      .frame-shell {
+        height: 720px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="overview-page">
+    <section class="hero">
+      <div class="hero-badge">一脉青藤 / 页面总览</div>
+      <h1>当前识别出的 4 个核心页面，已经整理到一个浏览器页面里。</h1>
+      <p>
+        这个总览页基于当前仓库中“医生合规开单”专题下已经落地的原型整理，
+        便于你在一个页面里同时看“我的任务 / 患者管理 / 患者详情 / 检查检验”四个核心界面。
+      </p>
+      <div class="page-list" aria-label="页面列表">
+        <span class="page-pill">01 我的任务</span>
+        <span class="page-pill">02 患者管理</span>
+        <span class="page-pill">03 患者详情</span>
+        <span class="page-pill">04 检查检验</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="card-head">
+          <div class="card-meta">Page 01</div>
+          <h2>我的任务</h2>
+        </div>
+        <p class="card-desc">医生查看待解读与已解读任务，包含搜索、筛选、服务费总览和任务卡片。</p>
+        <div class="frame-shell">
+          <iframe src="./02-医生合规开单高保真原型.html?view=tasks" title="我的任务"></iframe>
+        </div>
+        <div class="card-foot">适合看首页信息密度、任务状态切换和医生工作台入口。</div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="card-meta">Page 02</div>
+          <h2>患者管理</h2>
+        </div>
+        <p class="card-desc">医生按时间和关键词筛选患者，查看最近检查、随访状态和累计报告数据。</p>
+        <div class="frame-shell">
+          <iframe src="./02-医生合规开单高保真原型.html?view=patients" title="患者管理"></iframe>
+        </div>
+        <div class="card-foot">适合快速确认患者列表结构、状态标签和历史查看入口。</div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="card-meta">Page 03</div>
+          <h2>患者详情</h2>
+        </div>
+        <p class="card-desc">从患者卡片进入详情页，集中查看患者基本信息和多份影像报告历史。</p>
+        <div class="frame-shell">
+          <iframe src="./02-医生合规开单高保真原型.html?view=patients&detail=liudafu" title="患者详情"></iframe>
+        </div>
+        <div class="card-foot">这里默认打开刘大福的详情，方便直接看二级页结构。</div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="card-meta">Page 04</div>
+          <h2>检查检验</h2>
+        </div>
+        <p class="card-desc">医生录入主诉、预约时间和检查项目，进入查询机构的开单动作。</p>
+        <div class="frame-shell">
+          <iframe src="./02-医生合规开单高保真原型.html?view=exam" title="检查检验"></iframe>
+        </div>
+        <div class="card-foot">适合一起看录入区、AI 推荐入口和“查询机构”主操作按钮。</div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

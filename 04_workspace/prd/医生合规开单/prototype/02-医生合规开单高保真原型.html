@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>医生合规开单高保真原型</title>
+  <link rel="stylesheet" href="./compliance-ordering-prototype.css" />
+</head>
+<body>
+  <main class="prototype-page">
+    <section class="phone-shell">
+      <div class="phone-screen">
+        <header class="top-status">
+          <div class="status-left">
+            <span class="signal-dots">●●●●●</span>
+            <span class="wechat-label">WeChat</span>
+            <span class="wifi-icon">◜◝</span>
+          </div>
+          <div class="status-time">1:21 AM</div>
+          <div class="status-right">
+            <span>100%</span>
+            <span class="battery-icon"><i></i></span>
+          </div>
+        </header>
+
+        <div class="brand-header">
+          <button class="close-button" type="button" aria-label="关闭">×</button>
+          <h1>一脉青藤</h1>
+          <div class="brand-header-space"></div>
+        </div>
+
+        <nav class="primary-tabs" aria-label="一级导航">
+          <button type="button" data-target="exam">检查检验</button>
+          <button type="button" data-target="tasks" class="is-active">我的任务</button>
+          <button type="button" data-target="patients">患者管理</button>
+        </nav>
+
+        <section class="view-layer view-layer--active" data-view="tasks">
+          <div class="canvas-area">
+            <div class="pattern-layer"></div>
+
+            <section class="doctor-summary-card">
+              <div class="doctor-profile">
+                <div class="avatar-circle">
+                  <div class="avatar-illustration">
+                    <span class="avatar-hair"></span>
+                    <span class="avatar-face"></span>
+                    <span class="avatar-body"></span>
+                  </div>
+                </div>
+                <div class="doctor-copy">
+                  <h2>刘医生</h2>
+                  <span>医生人员</span>
+                </div>
+              </div>
+
+              <button class="fee-card" type="button">
+                <span class="fee-label">总解读服务费</span>
+                <strong>¥788</strong>
+                <span class="fee-arrow">›</span>
+              </button>
+            </section>
+
+            <section class="search-section">
+              <label class="search-bar">
+                <span class="search-icon"></span>
+                <input type="text" value="" placeholder="搜索患者 / 检查项目" />
+              </label>
+              <button class="search-button" type="button">搜索</button>
+            </section>
+
+            <section class="filter-chips">
+              <button type="button" class="chip chip--active">全部</button>
+              <button type="button" class="chip">待解读</button>
+              <button type="button" class="chip">已解读</button>
+            </section>
+
+            <section class="task-list">
+              <article class="task-card">
+                <span class="corner-tag tag-pending">◉ 待解读</span>
+                <h3>刘大福·CT颅脑影像报告</h3>
+                <div class="divider"></div>
+                <div class="task-meta-row">
+                  <span class="meta-user">刘大福 <i>|</i> 58岁</span>
+                  <span class="meta-phone">134****0750</span>
+                </div>
+                <div class="task-meta-row">
+                  <span class="meta-time">2026-05-10 12:10:16</span>
+                  <span class="meta-price">¥80</span>
+                </div>
+              </article>
+
+              <article class="task-card">
+                <span class="corner-tag tag-done">◉ 已解读</span>
+                <h3>刘大福·CT颅脑影像报告</h3>
+                <div class="divider"></div>
+                <div class="task-meta-row">
+                  <span class="meta-user">刘大福 <i>|</i> 58岁</span>
+                  <span class="meta-phone">134****0750</span>
+                </div>
+                <div class="task-meta-row">
+                  <span class="meta-time">2026-05-10 12:10:16</span>
+                  <span class="meta-price">¥80</span>
+                </div>
+              </article>
+            </section>
+          </div>
+        </section>
+
+        <section class="view-layer" data-view="patients">
+          <div class="canvas-area canvas-area--patients">
+            <section class="patient-toolbar">
+              <div class="toolbar-row">
+                <button class="toolbar-select" type="button">2026年05月 ▾</button>
+                <button class="toolbar-select" type="button">近30天 ▾</button>
+              </div>
+
+              <div class="search-section search-section--patients">
+                <label class="search-bar">
+                  <span class="search-icon"></span>
+                  <input type="text" value="" placeholder="搜索患者姓名 / 手机号" />
+                </label>
+                <button class="search-button" type="button">搜索</button>
+              </div>
+            </section>
+
+            <section class="patient-count-card">
+              <div>
+                <span>当前患者管理</span>
+                <strong>28人</strong>
+              </div>
+              <div class="patient-count-side">
+                <span>待随访 6</span>
+                <span>已出报告 18</span>
+              </div>
+            </section>
+
+            <section class="patient-list">
+              <button type="button" class="patient-card" data-open-detail="liudafu">
+                <div class="patient-card-head">
+                  <div>
+                    <strong>刘大福</strong>
+                    <span>男 · 58岁 · 134****0750</span>
+                  </div>
+                  <span class="patient-state">已出报告</span>
+                </div>
+                <div class="patient-card-body">
+                  <span>最近检查：CT颅脑影像报告</span>
+                  <span>最近时间：2026-05-10</span>
+                </div>
+                <div class="patient-card-foot">
+                  <span>累计报告 3 份</span>
+                  <span>查看历史 ›</span>
+                </div>
+              </button>
+
+              <button type="button" class="patient-card" data-open-detail="chenxia">
+                <div class="patient-card-head">
+                  <div>
+                    <strong>陈霞</strong>
+                    <span>女 · 46岁 · 136****3021</span>
+                  </div>
+                  <span class="patient-state patient-state--follow">待随访</span>
+                </div>
+                <div class="patient-card-body">
+                  <span>最近检查：胸部CT平扫</span>
+                  <span>最近时间：2026-05-14</span>
+                </div>
+                <div class="patient-card-foot">
+                  <span>累计报告 2 份</span>
+                  <span>查看历史 ›</span>
+                </div>
+              </button>
+            </section>
+          </div>
+        </section>
+
+        <section class="view-layer" data-view="exam">
+          <div class="canvas-area canvas-area--exam">
+            <section class="exam-panel">
+              <div class="field-block">
+                <label>主诉描述</label>
+                <div class="field-box field-box--large">请输入患者主诉病史和检查目的</div>
+              </div>
+
+              <div class="field-block">
+                <label>预约时间</label>
+                <div class="chip-inline-row">
+                  <span class="micro-chip micro-chip--active">明天</span>
+                  <span class="micro-chip">后天</span>
+                </div>
+                <div class="field-box field-box--inline">
+                  <span>2026年05月23号</span>
+                  <span>今天 ›</span>
+                </div>
+              </div>
+
+              <div class="field-block">
+                <label>检查项目</label>
+                <div class="choice-grid">
+                  <div class="choice-box choice-box--outline">＋<span>添加项目</span></div>
+                  <div class="choice-box choice-box--mint">AI<span>AI项目推荐</span></div>
+                  <div class="choice-box choice-box--disabled">♡<span>专家咨询</span></div>
+                </div>
+                <div class="selected-item">CT颅脑(平扫)</div>
+              </div>
+            </section>
+
+            <div class="exam-submit">查询机构</div>
+          </div>
+        </section>
+
+        <section class="detail-layer" id="patient-detail-layer" aria-hidden="true">
+          <div class="detail-screen">
+            <header class="detail-header">
+              <button type="button" class="detail-back" id="detail-back-button">‹</button>
+              <h2>患者详情</h2>
+              <div class="detail-header-space"></div>
+            </header>
+
+            <section class="detail-profile">
+              <div>
+                <strong id="detail-name">刘大福</strong>
+                <span id="detail-basic">男 · 58岁 · 134****0750</span>
+              </div>
+              <span class="detail-profile-tag">影像报告历史</span>
+            </section>
+
+            <section class="history-timeline">
+              <article class="history-card">
+                <div class="history-card-head">
+                  <strong>CT颅脑影像报告</strong>
+                  <span class="history-state">已解读</span>
+                </div>
+                <div class="history-card-body">
+                  <p>检查时间：2026-05-10 12:10:16</p>
+                  <p>报告医生：刘医生</p>
+                  <p>报告结论：轻度脑白质缺血性改变，建议结合临床随访。</p>
+                </div>
+              </article>
+
+              <article class="history-card">
+                <div class="history-card-head">
+                  <strong>胸部CT平扫</strong>
+                  <span class="history-state history-state--pending">待复核</span>
+                </div>
+                <div class="history-card-body">
+                  <p>检查时间：2026-04-22 09:42:08</p>
+                  <p>报告医生：王医生</p>
+                  <p>报告结论：双肺纹理稍增多，未见明确占位，建议半年复查。</p>
+                </div>
+              </article>
+
+              <article class="history-card">
+                <div class="history-card-head">
+                  <strong>颈椎MRI</strong>
+                  <span class="history-state">已归档</span>
+                </div>
+                <div class="history-card-body">
+                  <p>检查时间：2026-03-16 15:20:51</p>
+                  <p>报告医生：陈医生</p>
+                  <p>报告结论：颈4/5、颈5/6椎间盘轻度膨出，建议康复理疗与姿势干预。</p>
+                </div>
+              </article>
+            </section>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const tabs = document.querySelectorAll('.primary-tabs button')
+    const views = document.querySelectorAll('.view-layer')
+    const detailLayer = document.getElementById('patient-detail-layer')
+    const detailBackButton = document.getElementById('detail-back-button')
+    const detailName = document.getElementById('detail-name')
+    const detailBasic = document.getElementById('detail-basic')
+    const url = new URL(window.location.href)
+    const allowedViews = new Set(['exam', 'tasks', 'patients'])
+
+    const patientMap = {
+      liudafu: {
+        name: '刘大福',
+        basic: '男 · 58岁 · 134****0750',
+      },
+      chenxia: {
+        name: '陈霞',
+        basic: '女 · 46岁 · 136****3021',
+      },
+    }
+
+    function getInitialView() {
+      const requestedView = url.searchParams.get('view')
+      if (allowedViews.has(requestedView)) return requestedView
+      return 'tasks'
+    }
+
+    function updateUrl(view, detailKey = '') {
+      const nextUrl = new URL(window.location.href)
+      nextUrl.searchParams.set('view', view)
+
+      if (detailKey) {
+        nextUrl.searchParams.set('detail', detailKey)
+      } else {
+        nextUrl.searchParams.delete('detail')
+      }
+
+      window.history.replaceState({}, '', nextUrl)
+    }
+
+    function setActiveView(target, detailKey = '') {
+      tabs.forEach((item) => item.classList.toggle('is-active', item.dataset.target === target))
+      views.forEach((view) => view.classList.toggle('view-layer--active', view.dataset.view === target))
+
+      if (!detailKey) {
+        detailLayer.classList.remove('detail-layer--active')
+        detailLayer.setAttribute('aria-hidden', 'true')
+      }
+
+      updateUrl(target, detailKey)
+    }
+
+    function openDetail(key) {
+      const patient = patientMap[key]
+
+      if (patient) {
+        detailName.textContent = patient.name
+        detailBasic.textContent = patient.basic
+      }
+
+      setActiveView('patients', key)
+      detailLayer.classList.add('detail-layer--active')
+      detailLayer.setAttribute('aria-hidden', 'false')
+    }
+
+    function closeDetail() {
+      detailLayer.classList.remove('detail-layer--active')
+      detailLayer.setAttribute('aria-hidden', 'true')
+      updateUrl('patients')
+    }
+
+    const initialDetail = url.searchParams.get('detail')
+    const initialView = initialDetail && patientMap[initialDetail] ? 'patients' : getInitialView()
+
+    setActiveView(initialView)
+
+    if (initialDetail && patientMap[initialDetail]) {
+      openDetail(initialDetail)
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        setActiveView(tab.dataset.target)
+      })
+    })
+
+    document.querySelectorAll('[data-open-detail]').forEach((button) => {
+      button.addEventListener('click', () => {
+        openDetail(button.dataset.openDetail)
+      })
+    })
+
+    detailBackButton.addEventListener('click', closeDetail)
+  </script>
+</body>
+</html>

@@ -75,7 +75,7 @@ export default function SideMenu() {
       <Menu
         mode="inline"
         selectedKeys={[location.pathname === '/' ? '/home' : location.pathname]}
-        defaultOpenKeys={['compliance-v1', 'commerce', 'sales', 'compliance-order', 'product-features']}
+        defaultOpenKeys={['compliance-v1', 'commerce', 'sales', 'compliance-order', 'product-features', 'multi-code-mapping']}
         style={{ height: 'calc(100vh - 56px - 60px)', borderRight: 0, flex: 1 }}
         items={menuItems}
         onClick={handleMenuClick}

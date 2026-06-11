@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef, useEffect } from 'react'
 import {
   ConfigProvider,
   Button,
@@ -26,8 +26,10 @@ import {
   EyeOutlined,
   PlusOutlined,
   StopOutlined,
+  CloseOutlined,
 } from '@ant-design/icons'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { createPortal } from 'react-dom'
 import dayjs from 'dayjs'
 import {
   ACTIVITY_MANAGEMENT_BASE_PATH,
@@ -36,38 +38,278 @@ import {
 import './ActivityManagement.css'
 
 const { Paragraph, Text } = Typography
+
+// 标注数据
+const ANNOTATIONS = [
+  {
+    id: 1,
+    title: '需求描述：活动列表页',
+    content: `**功能描述**：展示活动管理总览，支持查看活动基础信息并执行查看、编辑、上架/下架、删除操作。
+
+**页面模块**：
+- 页面标题：活动管理
+- 页面副标题：统一由示例运营账号创建；一个活动可绑定同一渠道下多个机构，每个机构独立维护项目活动价。
+- 顶部操作：新建活动按钮
+- 表格字段：序号、活动名称、所属渠道、所属机构、机构数、活动项目数、活动时间、状态、创建人、更新时间、操作
+
+**交互行为**：
+- 点击"新建活动"进入新建页
+- 点击"查看"进入详情页
+- 点击"编辑"进入编辑页
+- 点击"下架"弹出确认框，确认后将活动状态更新为"已下架"
+- 点击"上架"弹出确认框，确认后将活动状态更新为"已上架"
+- 点击"删除"弹出危险确认框，确认后删除活动且不可恢复
+
+**状态规则**：
+- 已下架：手动下架，或活动结束时间早于当前时间
+- 已上架：活动未开始但已保存上架，开始时间晚于当前时间
+- 进行中：当前时间处于活动开始和结束时间之间，且未手动下架`
+  },
+  {
+    id: 2,
+    title: '需求描述：基础信息表单',
+    content: `**基础信息表单**：
+- 字段：
+  - 活动名称：输入框，必填，最大长度 30
+  - 所属渠道：单选下拉，必填
+  - 所属机构：多选下拉，必填，需先选择所属渠道后可选
+  - 活动时间：起止时间范围选择，必填
+  - 活动说明：多行文本，必填，最大长度 120
+
+**保存校验规则**：
+- 活动名称不能为空
+- 活动说明不能为空
+- 所属渠道不能为空
+- 所属机构至少选择 1 个
+- 活动开始和结束时间必须完整选择
+- 结束时间必须晚于开始时间
+- 每个已选机构至少添加 1 个检查项目
+- 每个已选机构的每个检查项目都必须填写活动价
+- 同一渠道下，同一机构的同一检查项目在相同时间内只能存在一个活动价`
+  },
+  {
+    id: 3,
+    title: '需求描述：机构项目活动价模块',
+    content: `**机构项目活动价模块**：
+- 模块目标：按机构分别维护活动项目和活动价
+- 模块说明：当前渠道下，每个机构独立配置项目和活动价；活动价只作用在该渠道下的当前机构
+- 机构切换：当所属机构有多个时，以切换按钮形式展示已选机构
+- 表格字段：项目名称、编码、原价、活动价、操作
+- 操作说明：点击"添加检查项目"打开一级平台项目库弹窗；在已选项目表格中可编辑活动价；在已选项目表格中可点击"移除"移除项目`
+  },
+  {
+    id: 4,
+    title: '需求描述：一级平台项目库弹窗',
+    content: `**一级平台项目库弹窗**：
+- 功能描述：从标准检查项目库中为当前机构选择活动项目
+- 标题：一级平台项目库
+- 冲突提示：同渠道下，当前机构在所选活动时间内已被其他活动占用的项目将禁止选择，避免活动价格冲突
+- 查询区字段：检查类型、编码/名称关键字
+- 行选择规则：
+  - 已添加到当前机构的项目禁选
+  - 当前机构未选中时全部禁选
+  - 与其他活动冲突的项目禁选，并显示冲突活动名称与时间提示`
+  },
+  {
+    id: 5,
+    title: '需求描述：活动详情页',
+    content: `**活动详情页**：
+- 功能描述：查看活动的基础信息、机构范围和每个机构下的项目活动价，并可从详情页返回、编辑或下架活动
+
+**基础信息区域**：
+- 展示字段：活动名称、所属渠道、活动状态、活动时间、创建人、更新时间、所属机构、机构数、活动项目数、活动说明
+- 状态展示：使用标签展示"已上架 / 进行中 / 已下架"
+
+**机构活动项目价格区域**：
+- 机构切换：展示该活动下全部机构按钮，点击切换当前查看机构
+- 表格字段：项目名称、所属分类、编码、检查类型、原价、活动价、价格变化`
+  }
+]
+
+// 可标注的容器组件
+function Annotatable({ id, children }) {
+  const containerRef = useRef(null)
+  const [showTooltip, setShowTooltip] = useState(false)
+  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const annotation = ANNOTATIONS.find(a => a.id === id)
+
+  const handleMouseEnter = (e) => {
+    setShowTooltip(true)
+    const rect = e.currentTarget.getBoundingClientRect()
+    setTooltipPosition({
+      top: rect.bottom + window.scrollY + 8,
+      left: rect.left + window.scrollX
+    })
+  }
+
+  const handleTooltipMouseDown = (e) => {
+    if (e.target.closest('.tooltip-close')) return
+    setIsDragging(true)
+    setDragOffset({
+      x: e.clientX - tooltipPosition.left,
+      y: e.clientY - tooltipPosition.top
+    })
+  }
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (isDragging) {
+        setTooltipPosition({
+          top: e.clientY - dragOffset.y,
+          left: e.clientX - dragOffset.x
+        })
+      }
+    }
+
+    const handleMouseUp = () => {
+      setIsDragging(false)
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isDragging, dragOffset])
+
+  const renderMarkdown = (content) => {
+    return content.split('\n').map((line, idx) => {
+      let processedLine = line
+      processedLine = processedLine.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      processedLine = processedLine.replace(/\*(.*?)\*/g, '<em>$1</em>')
+      processedLine = processedLine.replace(/^- /, '&bull; ')
+
+      return <p key={idx} dangerouslySetInnerHTML={{ __html: processedLine }} />
+    })
+  }
+
+  return (
+    <div ref={containerRef} style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
+      {children}
+      {annotation && (
+        <>
+          <div
+            className="annotation-badge"
+            style={{
+              position: 'absolute',
+              top: -8,
+              right: -4,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'rgb(250, 173, 20)',
+              color: '#fff',
+              fontSize: '10px',
+              fontWeight: 'bold',
+              lineHeight: '14px',
+              padding: '0 4px',
+              borderRadius: '2px',
+              border: '0',
+              cursor: 'pointer',
+              zIndex: 1000
+            }}
+            onMouseEnter={handleMouseEnter}
+          >
+            {id}
+          </div>
+          {showTooltip && typeof document !== 'undefined' && createPortal(
+            <div
+              className="annotation-tooltip"
+              style={{
+                position: 'fixed',
+                top: tooltipPosition.top,
+                left: tooltipPosition.left,
+                background: '#f0efef',
+                borderRadius: '4px',
+                width: '450px',
+                maxHeight: '80vh',
+                overflow: 'auto',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                zIndex: 9999,
+                cursor: 'move'
+              }}
+              onMouseDown={handleTooltipMouseDown}
+            >
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '12px 16px',
+                borderBottom: '1px solid #ddd',
+                position: 'sticky',
+                top: 0,
+                background: '#f0efef',
+                zIndex: 1
+              }}>
+                <span style={{ fontWeight: 600, color: '#333', fontSize: '14px' }}>
+                  [{id}] {annotation.title}
+                </span>
+                <button
+                  className="tooltip-close"
+                  onClick={() => setShowTooltip(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    color: '#666',
+                    padding: 0,
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                >
+                  <CloseOutlined />
+                </button>
+              </div>
+              <div style={{ padding: '16px', lineHeight: '1.6' }}>
+                {renderMarkdown(annotation.content)}
+              </div>
+            </div>,
+            document.body
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
 const { RangePicker } = DatePicker
 
 const DATE_TIME_FORMAT = 'YYYY-MM-DD HH:mm'
 
-const STORAGE_KEY_BACKSTAGE = 'pm-agent-activity-management-v3'
-const STORAGE_KEY_SHARE = 'pm-agent-activity-management-share-v1'
+const STORAGE_KEY_BACKSTAGE = 'pm-agent-activity-management-v6'
+const STORAGE_KEY_SHARE = 'pm-agent-activity-management-share-v4'
+const DEMO_OPERATOR_NAME = '运营账号A'
 
 const channels = [
-  { label: '一脉青藤', value: 'channel-qt' },
-  { label: '蚂蚁好大夫', value: 'channel-ant' },
-  { label: '平安好医生', value: 'channel-pa' },
+  { label: '渠道A', value: 'channel-qt' },
+  { label: '渠道B', value: 'channel-ant' },
+  { label: '渠道C', value: 'channel-pa' },
 ]
 
 const institutionsByChannel = {
   'channel-qt': [
-    { label: '长沙一脉阳光医学诊断中心', value: 'org-qt-001' },
-    { label: '株洲一脉阳光医学影像中心', value: 'org-qt-002' },
-    { label: '湘潭仁康医学影像中心', value: 'org-qt-003' },
-    { label: '岳阳云影医学诊断中心', value: 'org-qt-004' },
+    { label: '机构A-01', value: 'org-qt-001' },
+    { label: '机构A-02', value: 'org-qt-002' },
+    { label: '机构A-03', value: 'org-qt-003' },
+    { label: '机构A-04', value: 'org-qt-004' },
   ],
   'channel-ant': [
-    { label: '杭州蚂蚁协作医学中心', value: 'org-ant-001' },
-    { label: '南京蚂蚁好大夫影像中心', value: 'org-ant-002' },
-    { label: '苏州蚂蚁联合诊断中心', value: 'org-ant-003' },
-    { label: '合肥蚂蚁健康影像中心', value: 'org-ant-004' },
+    { label: '机构B-01', value: 'org-ant-001' },
+    { label: '机构B-02', value: 'org-ant-002' },
+    { label: '机构B-03', value: 'org-ant-003' },
+    { label: '机构B-04', value: 'org-ant-004' },
   ],
   'channel-pa': [
-    { label: '深圳平安好医生影像中心', value: 'org-pa-001' },
-    { label: '广州平安互联网医院影像中心', value: 'org-pa-002' },
-    { label: '佛山平安合作医学中心', value: 'org-pa-003' },
-    { label: '东莞平安门诊影像中心', value: 'org-pa-004' },
-    { label: '珠海平安健康检测中心', value: 'org-pa-005' },
+    { label: '机构C-01', value: 'org-pa-001' },
+    { label: '机构C-02', value: 'org-pa-002' },
+    { label: '机构C-03', value: 'org-pa-003' },
+    { label: '机构C-04', value: 'org-pa-004' },
+    { label: '机构C-05', value: 'org-pa-005' },
   ],
 }
 
@@ -87,14 +329,14 @@ const defaultActivityPriceMap = {
 const seedActivities = [
   {
     id: 'act-001',
-    name: '长沙中心影像检查活动价',
-    description: '与长沙一脉阳光医学诊断中心沟通后配置的阶段性活动价格。',
+    name: '示例活动01',
+    description: '示例活动说明，用于演示阶段性活动价格配置。',
     channelId: 'channel-qt',
     institutionIds: ['org-qt-001', 'org-qt-002'],
     startAt: '2026-05-01 00:00',
     endAt: '2026-06-10 23:59',
     status: 'listed',
-    creator: '平台运营负责人',
+    creator: DEMO_OPERATOR_NAME,
     updatedAt: '2026-05-08 14:20',
     institutionConfigs: {
       'org-qt-001': [
@@ -107,8 +349,8 @@ const seedActivities = [
       ],
     },
     logs: [
-      { action: '创建活动', operator: '平台运营负责人', at: '2026-05-08 13:50', detail: '创建渠道活动，绑定一脉青藤下 2 个机构' },
-      { action: '上架活动', operator: '平台运营负责人', at: '2026-05-08 14:20', detail: '活动项目价格开始对 C 端、医生端、机构后台和运营后台展示' },
+      { action: '创建活动', operator: DEMO_OPERATOR_NAME, at: '2026-05-08 13:50', detail: '创建示例活动并完成基础配置' },
+      { action: '上架活动', operator: DEMO_OPERATOR_NAME, at: '2026-05-08 14:20', detail: '上架示例活动并展示活动价格' },
     ],
   },
   {
@@ -120,7 +362,7 @@ const seedActivities = [
     startAt: '2026-05-18 00:00',
     endAt: '2026-05-31 23:59',
     status: 'listed',
-    creator: '平台运营负责人',
+    creator: DEMO_OPERATOR_NAME,
     updatedAt: '2026-05-07 18:10',
     institutionConfigs: {
       'org-ant-002': [
@@ -128,19 +370,19 @@ const seedActivities = [
       ],
     },
     logs: [
-      { action: '创建并上架活动', operator: '平台运营负责人', at: '2026-05-07 18:10', detail: '配置株洲机构肺结节项目活动价' },
+      { action: '创建并上架活动', operator: DEMO_OPERATOR_NAME, at: '2026-05-07 18:10', detail: '创建示例活动并直接上架' },
     ],
   },
   {
     id: 'act-003',
     name: '骨密度检查五月活动',
-    description: '面向湘潭仁康医学影像中心配置骨密度检查活动价格。',
+    description: '示例活动说明，用于演示骨密度检查活动价格配置。',
     channelId: 'channel-pa',
     institutionIds: ['org-pa-001', 'org-pa-003'],
     startAt: '2026-05-06 00:00',
     endAt: '2026-05-20 23:59',
     status: 'listed',
-    creator: '平台运营负责人',
+    creator: DEMO_OPERATOR_NAME,
     updatedAt: '2026-05-06 09:42',
     institutionConfigs: {
       'org-pa-001': [
@@ -152,19 +394,19 @@ const seedActivities = [
       ],
     },
     logs: [
-      { action: '创建并上架活动', operator: '平台运营负责人', at: '2026-05-06 09:42', detail: '添加骨密度和骨龄项目活动价' },
+      { action: '创建并上架活动', operator: DEMO_OPERATOR_NAME, at: '2026-05-06 09:42', detail: '创建示例活动并直接上架' },
     ],
   },
   {
     id: 'act-004',
-    name: '岳阳中心癌筛活动价',
+    name: '示例活动04',
     description: '因机构侧活动暂停，运营已手动下架。',
     channelId: 'channel-qt',
     institutionIds: ['org-qt-004'],
     startAt: '2026-04-20 00:00',
     endAt: '2026-05-25 23:59',
     status: 'offline',
-    creator: '平台运营负责人',
+    creator: DEMO_OPERATOR_NAME,
     updatedAt: '2026-05-04 16:35',
     institutionConfigs: {
       'org-qt-004': [
@@ -172,20 +414,20 @@ const seedActivities = [
       ],
     },
     logs: [
-      { action: '创建并上架活动', operator: '平台运营负责人', at: '2026-04-20 10:00', detail: '配置癌症筛查影像分析活动价' },
-      { action: '下架活动', operator: '平台运营负责人', at: '2026-05-04 16:35', detail: '机构活动暂停，手动下架并恢复机构原价格' },
+      { action: '创建并上架活动', operator: DEMO_OPERATOR_NAME, at: '2026-04-20 10:00', detail: '创建示例活动并直接上架' },
+      { action: '下架活动', operator: DEMO_OPERATOR_NAME, at: '2026-05-04 16:35', detail: '下架示例活动并恢复默认价格' },
     ],
   },
   {
     id: 'act-005',
     name: '头颅MRI专项活动',
-    description: '为长沙一脉阳光医学诊断中心设置头颅 MRI 阶段性活动价。',
+    description: '示例活动说明，用于演示头颅 MRI 阶段性活动价配置。',
     channelId: 'channel-pa',
     institutionIds: ['org-pa-002'],
     startAt: '2026-06-15 00:00',
     endAt: '2026-06-30 23:59',
     status: 'listed',
-    creator: '平台运营负责人',
+    creator: DEMO_OPERATOR_NAME,
     updatedAt: '2026-05-08 10:30',
     institutionConfigs: {
       'org-pa-002': [
@@ -193,7 +435,7 @@ const seedActivities = [
       ],
     },
     logs: [
-      { action: '创建并上架活动', operator: '平台运营负责人', at: '2026-05-08 10:30', detail: '配置头颅 MRI 平扫项目活动价' },
+      { action: '创建并上架活动', operator: DEMO_OPERATOR_NAME, at: '2026-05-08 10:30', detail: '创建示例活动并直接上架' },
     ],
   },
 ]
@@ -232,8 +474,40 @@ function isDetailPath(pathname, basePath) {
   return new RegExp(`^${escapeRegExp(basePath)}/[^/]+$`).test(pathname)
 }
 
+function getDemoActivityCode(activityId, index) {
+  const digits = String(activityId || '').replace(/\D/g, '')
+  return digits ? digits.slice(-2).padStart(2, '0') : String(index + 1).padStart(2, '0')
+}
+
+function getDemoActivityName(activityId, index) {
+  return `示例活动${getDemoActivityCode(activityId, index)}`
+}
+
+function getDemoLogDetail(action) {
+  if (action.includes('创建') && action.includes('上架')) return '创建示例活动并直接上架'
+  if (action.includes('创建')) return '创建示例活动并完成基础配置'
+  if (action.includes('编辑')) return '更新示例活动配置'
+  if (action.includes('上架')) return '上架示例活动并展示活动价格'
+  if (action.includes('下架')) return '下架示例活动并恢复默认价格'
+  return '更新示例活动配置'
+}
+
+function sanitizeActivitiesForDemo(activities = []) {
+  return activities.map((activity, index) => ({
+    ...activity,
+    name: getDemoActivityName(activity.id, index),
+    description: '示例活动说明，用于直播演示后台活动配置与价格维护流程。',
+    creator: DEMO_OPERATOR_NAME,
+    logs: (activity.logs || []).map((log) => ({
+      ...log,
+      operator: DEMO_OPERATOR_NAME,
+      detail: getDemoLogDetail(log.action || ''),
+    })),
+  }))
+}
+
 function cloneSeedActivities() {
-  return JSON.parse(JSON.stringify(seedActivities))
+  return sanitizeActivitiesForDemo(JSON.parse(JSON.stringify(seedActivities)))
 }
 
 function loadActivities(storageKey) {
@@ -241,7 +515,7 @@ function loadActivities(storageKey) {
   const saved = window.localStorage.getItem(storageKey)
   if (!saved) return cloneSeedActivities()
   try {
-    return JSON.parse(saved)
+    return sanitizeActivitiesForDemo(JSON.parse(saved))
   } catch {
     return cloneSeedActivities()
   }
@@ -249,7 +523,7 @@ function loadActivities(storageKey) {
 
 function saveActivities(storageKey, activities) {
   if (typeof window === 'undefined') return
-  window.localStorage.setItem(storageKey, JSON.stringify(activities))
+  window.localStorage.setItem(storageKey, JSON.stringify(sanitizeActivitiesForDemo(activities)))
 }
 
 function now() {
@@ -425,7 +699,7 @@ function ActivityListPage({ activities, commit, basePath, standalone }) {
               ...(item.logs || []),
               {
                 action: label,
-                operator: '平台运营负责人',
+                operator: DEMO_OPERATOR_NAME,
                 at: actionAt,
                 detail: nextStatus === 'listed' ? '手动上架活动价格' : '手动下架并恢复机构原价格',
               },
@@ -524,25 +798,27 @@ function ActivityListPage({ activities, commit, basePath, standalone }) {
   ]
 
   return (
-    <ActivityFrame
-      title="活动管理"
-      subtitle="统一由平台运营负责人创建；一个活动可绑定同一渠道下多个机构，每个机构独立维护项目活动价。"
-      extra={(
-        <Button className="activity-green-btn" icon={<PlusOutlined />} onClick={() => navigate(`${basePath}/create`)}>
-          新建活动
-        </Button>
-      )}
-      standalone={standalone}
-    >
-      <Table
-        className="activity-table"
-        rowKey="id"
-        columns={columns}
-        dataSource={rows}
-        pagination={{ pageSize: 10, showTotal: (total) => `共${total}条记录  当前显示${total}条记录` }}
-        scroll={{ x: 1500 }}
-      />
-    </ActivityFrame>
+    <Annotatable id={1}>
+      <ActivityFrame
+        title="活动管理"
+      subtitle="统一由示例运营账号创建；一个活动可绑定同一渠道下多个机构，每个机构独立维护项目活动价。"
+        extra={(
+          <Button className="activity-green-btn" icon={<PlusOutlined />} onClick={() => navigate(`${basePath}/create`)}>
+            新建活动
+          </Button>
+        )}
+        standalone={standalone}
+      >
+        <Table
+          className="activity-table"
+          rowKey="id"
+          columns={columns}
+          dataSource={rows}
+          pagination={{ pageSize: 10, showTotal: (total) => `共${total}条记录  当前显示${total}条记录` }}
+          scroll={{ x: 1500 }}
+        />
+      </ActivityFrame>
+    </Annotatable>
   )
 }
 
@@ -772,19 +1048,19 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
       startAt: values.timeRange[0].format(DATE_TIME_FORMAT),
       endAt: values.timeRange[1].format(DATE_TIME_FORMAT),
       status: 'listed',
-      creator: editingActivity?.creator || '平台运营负责人',
+      creator: editingActivity?.creator || DEMO_OPERATOR_NAME,
       updatedAt: actionAt,
       institutionConfigs: toInstitutionConfigs(institutionProjectMap, values.institutionIds),
       logs: [
         ...(editingActivity?.logs || []),
         {
           action: isEdit ? '编辑活动' : '创建活动',
-          operator: '平台运营负责人',
+          operator: DEMO_OPERATOR_NAME,
           at: actionAt,
           detail: `配置 ${values.institutionIds.length} 个机构的活动项目价格`,
         },
         ...(editingActivity?.status !== 'listed'
-          ? [{ action: '上架活动', operator: '平台运营负责人', at: actionAt, detail: '手动上架活动价格' }]
+          ? [{ action: '上架活动', operator: DEMO_OPERATOR_NAME, at: actionAt, detail: '手动上架活动价格' }]
           : []),
       ],
     }
@@ -809,167 +1085,173 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
       standalone={standalone}
     >
       <div className="activity-form-grid">
-        <Card className="activity-panel" title="基础信息">
-          <Form form={form} layout="vertical" initialValues={initialValues}>
-            <Form.Item name="name" label="活动名称" rules={[{ required: true, message: '请填写活动名称' }]}>
-              <Input placeholder="例如：长沙中心影像检查活动价" maxLength={30} showCount />
-            </Form.Item>
-            <Form.Item name="channelId" label="所属渠道" rules={[{ required: true, message: '请选择所属渠道' }]}>
-              <Select placeholder="请选择所属渠道" options={channels} onChange={handleChannelChange} />
-            </Form.Item>
-            <Form.Item name="institutionIds" label="所属机构" rules={[{ required: true, message: '请至少选择一个所属机构' }]}>
-              <Select
-                mode="multiple"
-                placeholder={channelId ? '请选择所属机构，可多选' : '请先选择所属渠道'}
-                options={availableInstitutions}
-                disabled={!channelId}
-                onChange={handleInstitutionChange}
-              />
-            </Form.Item>
-            <Form.Item name="timeRange" label="活动时间" rules={[{ required: true, message: '请选择活动开始和结束时间' }]}>
-              <RangePicker showTime format={DATE_TIME_FORMAT} style={{ width: '100%' }} />
-            </Form.Item>
-            <Form.Item name="description" label="活动说明" rules={[{ required: true, message: '请填写活动说明' }]}>
-              <Input.TextArea rows={5} placeholder="填写活动背景、机构沟通结论或展示说明" maxLength={120} showCount />
-            </Form.Item>
-          </Form>
-        </Card>
+        <Annotatable id={2}>
+          <Card className="activity-panel" title="基础信息">
+            <Form form={form} layout="vertical" initialValues={initialValues}>
+              <Form.Item name="name" label="活动名称" rules={[{ required: true, message: '请填写活动名称' }]}>
+              <Input placeholder="例如：示例活动01" maxLength={30} showCount />
+              </Form.Item>
+              <Form.Item name="channelId" label="所属渠道" rules={[{ required: true, message: '请选择所属渠道' }]}>
+                <Select placeholder="请选择所属渠道" options={channels} onChange={handleChannelChange} />
+              </Form.Item>
+              <Form.Item name="institutionIds" label="所属机构" rules={[{ required: true, message: '请至少选择一个所属机构' }]}>
+                <Select
+                  mode="multiple"
+                  placeholder={channelId ? '请选择所属机构，可多选' : '请先选择所属渠道'}
+                  options={availableInstitutions}
+                  disabled={!channelId}
+                  onChange={handleInstitutionChange}
+                />
+              </Form.Item>
+              <Form.Item name="timeRange" label="活动时间" rules={[{ required: true, message: '请选择活动开始和结束时间' }]}>
+                <RangePicker showTime format={DATE_TIME_FORMAT} style={{ width: '100%' }} />
+              </Form.Item>
+              <Form.Item name="description" label="活动说明" rules={[{ required: true, message: '请填写活动说明' }]}>
+                <Input.TextArea rows={5} placeholder="填写活动背景、机构沟通结论或展示说明" maxLength={120} showCount />
+              </Form.Item>
+            </Form>
+          </Card>
+        </Annotatable>
 
         <div className="activity-project-flow">
-          <Card
-            className="activity-panel"
-            title="机构项目活动价"
-            extra={(
-              <Button icon={<PlusOutlined />} disabled={!activeInstitutionId} onClick={() => setProjectModalOpen(true)}>
-                添加检查项目
-              </Button>
-            )}
-          >
-            <div className="activity-project-hint">
-              <div>
-                <Text strong>当前渠道下，每个机构独立配置项目和活动价</Text>
-                <Paragraph type="secondary">
-                  先选择所属渠道和机构，再切换到当前机构维护检查项目，活动价只作用在该渠道下的当前机构。
-                </Paragraph>
-              </div>
-              <Tag color="green">
-                {activeInstitutionId ? `${activeInstitutionName} 已添加 ${selectedProjectRows.length} 项` : '未选择机构'}
-              </Tag>
-            </div>
-            <div className="activity-institution-switcher">
-              {selectedInstitutionIds.length ? selectedInstitutionIds.map((institutionId) => (
-                <button
-                  key={institutionId}
-                  type="button"
-                  className={`activity-institution-chip${institutionId === activeInstitutionId ? ' activity-institution-chip--active' : ''}`}
-                  onClick={() => setActiveInstitutionId(institutionId)}
-                >
-                  {getInstitutionName(institutionId)}
-                </button>
-              )) : null}
-            </div>
-            <Table
-              className="activity-table"
-              rowKey="id"
-              columns={selectedProjectColumns}
-              dataSource={selectedProjectRows}
-              pagination={false}
-              locale={{
-                emptyText: (
-                  <Empty
-                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                    description={false}
-                    className="activity-table-empty"
-                  />
-                ),
-              }}
-              scroll={{ x: 680 }}
-            />
-          </Card>
-        </div>
-        <Modal
-          title="一级平台项目库"
-          open={projectModalOpen}
-          width={980}
-          okText="确认添加"
-          cancelText="取消"
-          okButtonProps={{ disabled: !activeInstitutionId }}
-          onOk={handleAddProjects}
-          onCancel={() => {
-            setProjectModalOpen(false)
-            setLibrarySelectedIds([])
-            setProjectKeywordInput('')
-            setProjectKeyword('')
-            setProjectTypeInput(undefined)
-            setProjectType(undefined)
-          }}
-        >
-          <Paragraph type="secondary">
-            {activeInstitutionId
-              ? `当前为“${activeInstitutionName}”添加平台标准检查项目。已添加项目和与其他活动冲突的项目会自动禁选。`
-              : '请先选择所属机构。'}
-          </Paragraph>
-          {activeInstitutionId ? (
-            <div className="activity-project-conflict-tip">
-              同渠道下，当前机构在所选活动时间内已被其他活动占用的项目将禁止选择，避免活动价格冲突。
-            </div>
-          ) : null}
-          <div className="activity-project-search-bar">
-            <span className="activity-project-search-label">检查类型：</span>
-            <ConfigProvider
-              theme={{
-                token: {
-                  colorPrimary: '#159269',
-                },
-              }}
+          <Annotatable id={3}>
+            <Card
+              className="activity-panel"
+              title="机构项目活动价"
+              extra={(
+                <Button icon={<PlusOutlined />} disabled={!activeInstitutionId} onClick={() => setProjectModalOpen(true)}>
+                  添加检查项目
+                </Button>
+              )}
             >
-              <Select
-                className="activity-project-search-select"
-                allowClear
-                placeholder="检查类型"
-                options={projectTypeOptions}
-                value={projectTypeInput}
-                onChange={setProjectTypeInput}
+              <div className="activity-project-hint">
+                <div>
+                  <Text strong>当前渠道下，每个机构独立配置项目和活动价</Text>
+                  <Paragraph type="secondary">
+                    先选择所属渠道和机构，再切换到当前机构维护检查项目，活动价只作用在该渠道下的当前机构。
+                  </Paragraph>
+                </div>
+                <Tag color="green">
+                  {activeInstitutionId ? `${activeInstitutionName} 已添加 ${selectedProjectRows.length} 项` : '未选择机构'}
+                </Tag>
+              </div>
+              <div className="activity-institution-switcher">
+                {selectedInstitutionIds.length ? selectedInstitutionIds.map((institutionId) => (
+                  <button
+                    key={institutionId}
+                    type="button"
+                    className={`activity-institution-chip${institutionId === activeInstitutionId ? ' activity-institution-chip--active' : ''}`}
+                    onClick={() => setActiveInstitutionId(institutionId)}
+                  >
+                    {getInstitutionName(institutionId)}
+                  </button>
+                )) : null}
+              </div>
+              <Table
+                className="activity-table"
+                rowKey="id"
+                columns={selectedProjectColumns}
+                dataSource={selectedProjectRows}
+                pagination={false}
+                locale={{
+                  emptyText: (
+                    <Empty
+                      image={Empty.PRESENTED_IMAGE_SIMPLE}
+                      description={false}
+                      className="activity-table-empty"
+                    />
+                  ),
+                }}
+                scroll={{ x: 680 }}
               />
-            </ConfigProvider>
-            <span className="activity-project-search-label">编码/名称关键字：</span>
-            <Input
-              className="activity-project-search-input"
-              placeholder="编码/名称关键字"
-              value={projectKeywordInput}
-              onChange={(event) => setProjectKeywordInput(event.target.value)}
-              onPressEnter={handleProjectSearch}
-            />
-            <Button className="activity-green-btn" onClick={handleProjectSearch}>
-              查询
-            </Button>
-          </div>
-            <Table
-              className="activity-table"
-              rowKey="id"
-              columns={projectLibraryColumns}
-              dataSource={filteredStandardProjects}
-              pagination={false}
-              rowSelection={{
-                selectedRowKeys: librarySelectedIds,
-                onChange: (keys) => setLibrarySelectedIds(keys),
-                getCheckboxProps: (record) => {
-                  const conflict = conflictProjectMap[record.id]
-                  return {
-                    disabled: selectedProjectIds.includes(record.id) || !activeInstitutionId || Boolean(conflict),
-                    title: conflict
-                      ? `与活动“${conflict.activityName}”冲突，时间：${conflict.period}`
-                      : selectedProjectIds.includes(record.id)
-                        ? '当前机构已添加该项目'
-                        : !activeInstitutionId
-                          ? '请先选择所属机构'
-                          : '',
-                  }
-                },
-              }}
-              scroll={{ x: 760 }}
-            />
-        </Modal>
+            </Card>
+          </Annotatable>
+        </div>
+        <Annotatable id={4}>
+          <Modal
+            title="一级平台项目库"
+            open={projectModalOpen}
+            width={980}
+            okText="确认添加"
+            cancelText="取消"
+            okButtonProps={{ disabled: !activeInstitutionId }}
+            onOk={handleAddProjects}
+            onCancel={() => {
+              setProjectModalOpen(false)
+              setLibrarySelectedIds([])
+              setProjectKeywordInput('')
+              setProjectKeyword('')
+              setProjectTypeInput(undefined)
+              setProjectType(undefined)
+            }}
+          >
+            <Paragraph type="secondary">
+              {activeInstitutionId
+                ? `当前为“${activeInstitutionName}”添加平台标准检查项目。已添加项目和与其他活动冲突的项目会自动禁选。`
+                : '请先选择所属机构。'}
+            </Paragraph>
+            {activeInstitutionId ? (
+              <div className="activity-project-conflict-tip">
+                同渠道下，当前机构在所选活动时间内已被其他活动占用的项目将禁止选择，避免活动价格冲突。
+              </div>
+            ) : null}
+            <div className="activity-project-search-bar">
+              <span className="activity-project-search-label">检查类型：</span>
+              <ConfigProvider
+                theme={{
+                  token: {
+                    colorPrimary: '#159269',
+                  },
+                }}
+              >
+                <Select
+                  className="activity-project-search-select"
+                  allowClear
+                  placeholder="检查类型"
+                  options={projectTypeOptions}
+                  value={projectTypeInput}
+                  onChange={setProjectTypeInput}
+                />
+              </ConfigProvider>
+              <span className="activity-project-search-label">编码/名称关键字：</span>
+              <Input
+                className="activity-project-search-input"
+                placeholder="编码/名称关键字"
+                value={projectKeywordInput}
+                onChange={(event) => setProjectKeywordInput(event.target.value)}
+                onPressEnter={handleProjectSearch}
+              />
+              <Button className="activity-green-btn" onClick={handleProjectSearch}>
+                查询
+              </Button>
+            </div>
+              <Table
+                className="activity-table"
+                rowKey="id"
+                columns={projectLibraryColumns}
+                dataSource={filteredStandardProjects}
+                pagination={false}
+                rowSelection={{
+                  selectedRowKeys: librarySelectedIds,
+                  onChange: (keys) => setLibrarySelectedIds(keys),
+                  getCheckboxProps: (record) => {
+                    const conflict = conflictProjectMap[record.id]
+                    return {
+                      disabled: selectedProjectIds.includes(record.id) || !activeInstitutionId || Boolean(conflict),
+                      title: conflict
+                        ? `与活动“${conflict.activityName}”冲突，时间：${conflict.period}`
+                        : selectedProjectIds.includes(record.id)
+                          ? '当前机构已添加该项目'
+                          : !activeInstitutionId
+                            ? '请先选择所属机构'
+                            : '',
+                    }
+                  },
+                }}
+                scroll={{ x: 760 }}
+              />
+          </Modal>
+        </Annotatable>
       </div>
     </ActivityFrame>
   )
@@ -1016,7 +1298,7 @@ function ActivityDetailPage({ activities, commit, basePath, standalone }) {
           updatedAt: actionAt,
           logs: [
             ...(item.logs || []),
-            { action: '下架活动', operator: '平台运营负责人', at: actionAt, detail: '手动下架并恢复机构原价格' },
+            { action: '下架活动', operator: DEMO_OPERATOR_NAME, at: actionAt, detail: '手动下架并恢复机构原价格' },
           ],
         } : item))
         message.success('活动已下架')
@@ -1040,60 +1322,62 @@ function ActivityDetailPage({ activities, commit, basePath, standalone }) {
   ]
 
   return (
-    <ActivityFrame
-      title="活动详情"
-      extra={(
-        <Space>
-          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(basePath)}>返回列表</Button>
-          <Button icon={<EditOutlined />} onClick={() => navigate(`${basePath}/edit/${activity.id}`)}>编辑活动</Button>
-          {row.status === 'running' || row.status === 'listed' ? <Button danger icon={<StopOutlined />} onClick={handleOffline}>下架活动</Button> : null}
-        </Space>
-      )}
-      standalone={standalone}
-    >
-      <Card className="activity-panel" title="基础信息">
-        <Descriptions column={3} bordered size="middle">
-          <Descriptions.Item label="活动名称">{activity.name}</Descriptions.Item>
-          <Descriptions.Item label="所属渠道">{row.channelName}</Descriptions.Item>
-          <Descriptions.Item label="活动状态">
-            <Tag color={statusMeta[row.status]?.tagColor}>{statusMeta[row.status]?.label}</Tag>
-          </Descriptions.Item>
-          <Descriptions.Item label="活动时间" span={2}>{activity.startAt} 至 {activity.endAt}</Descriptions.Item>
-          <Descriptions.Item label="创建人">{activity.creator}</Descriptions.Item>
-          <Descriptions.Item label="更新时间">{activity.updatedAt}</Descriptions.Item>
-          <Descriptions.Item label="所属机构" span={2}>{row.institutionSummary}</Descriptions.Item>
-          <Descriptions.Item label="机构数">{row.institutionCount}</Descriptions.Item>
-          <Descriptions.Item label="活动项目数">{row.projectCount}</Descriptions.Item>
-          <Descriptions.Item label="活动说明" span={3}>{activity.description}</Descriptions.Item>
-        </Descriptions>
-      </Card>
+    <Annotatable id={5}>
+      <ActivityFrame
+        title="活动详情"
+        extra={(
+          <Space>
+            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(basePath)}>返回列表</Button>
+            <Button icon={<EditOutlined />} onClick={() => navigate(`${basePath}/edit/${activity.id}`)}>编辑活动</Button>
+            {row.status === 'running' || row.status === 'listed' ? <Button danger icon={<StopOutlined />} onClick={handleOffline}>下架活动</Button> : null}
+          </Space>
+        )}
+        standalone={standalone}
+      >
+        <Card className="activity-panel" title="基础信息">
+          <Descriptions column={3} bordered size="middle">
+            <Descriptions.Item label="活动名称">{activity.name}</Descriptions.Item>
+            <Descriptions.Item label="所属渠道">{row.channelName}</Descriptions.Item>
+            <Descriptions.Item label="活动状态">
+              <Tag color={statusMeta[row.status]?.tagColor}>{statusMeta[row.status]?.label}</Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="活动时间" span={2}>{activity.startAt} 至 {activity.endAt}</Descriptions.Item>
+            <Descriptions.Item label="创建人">{activity.creator}</Descriptions.Item>
+            <Descriptions.Item label="更新时间">{activity.updatedAt}</Descriptions.Item>
+            <Descriptions.Item label="所属机构" span={2}>{row.institutionSummary}</Descriptions.Item>
+            <Descriptions.Item label="机构数">{row.institutionCount}</Descriptions.Item>
+            <Descriptions.Item label="活动项目数">{row.projectCount}</Descriptions.Item>
+            <Descriptions.Item label="活动说明" span={3}>{activity.description}</Descriptions.Item>
+          </Descriptions>
+        </Card>
 
-      <Card className="activity-panel activity-log" title="机构活动项目价格">
-        <div className="activity-institution-switcher">
-          {activity.institutionIds.map((institutionId) => (
-            <button
-              key={institutionId}
-              type="button"
-              className={`activity-institution-chip${institutionId === activeInstitutionId ? ' activity-institution-chip--active' : ''}`}
-              onClick={() => setActiveInstitutionId(institutionId)}
-            >
-              {getInstitutionName(institutionId)}
-            </button>
-          ))}
-        </div>
-        <Paragraph type="secondary">
-          当前查看机构：{getInstitutionName(activeInstitutionId)}。项目价格仅作用在该渠道下的当前机构。
-        </Paragraph>
-        <Table
-          className="activity-table"
-          rowKey="id"
-          columns={projectColumns}
-          dataSource={projectRows}
-          pagination={false}
-          scroll={{ x: 900 }}
-        />
-      </Card>
-    </ActivityFrame>
+        <Card className="activity-panel activity-log" title="机构活动项目价格">
+          <div className="activity-institution-switcher">
+            {activity.institutionIds.map((institutionId) => (
+              <button
+                key={institutionId}
+                type="button"
+                className={`activity-institution-chip${institutionId === activeInstitutionId ? ' activity-institution-chip--active' : ''}`}
+                onClick={() => setActiveInstitutionId(institutionId)}
+              >
+                {getInstitutionName(institutionId)}
+              </button>
+            ))}
+          </div>
+          <Paragraph type="secondary">
+            当前查看机构：{getInstitutionName(activeInstitutionId)}。项目价格仅作用在该渠道下的当前机构。
+          </Paragraph>
+          <Table
+            className="activity-table"
+            rowKey="id"
+            columns={projectColumns}
+            dataSource={projectRows}
+            pagination={false}
+            scroll={{ x: 900 }}
+          />
+        </Card>
+      </ActivityFrame>
+    </Annotatable>
   )
 }
 
