@@ -37,7 +37,7 @@
             <span class="menu-item__icon">⊞</span>
             <span class="menu-item__text">医院管理</span>
           </button>
-          <button class="menu-item is-active" type="button">
+          <button class="menu-item is-active" id="platformListMenuButton" type="button">
             <span class="menu-item__icon">☰</span>
             <span class="menu-item__text">平台项目列表</span>
           </button>
@@ -61,6 +61,86 @@
             <span class="menu-item__icon">⚑</span>
             <span class="menu-item__text">权限管理</span>
           </button>
+
+          <div class="menu-section" aria-label="合规开单模块">
+            <button class="menu-item menu-section__toggle" type="button" data-menu-toggle aria-expanded="false">
+              <span class="menu-item__icon">✓</span>
+              <span class="menu-item__text">合规开单</span>
+              <span class="menu-item__caret">▾</span>
+            </button>
+            <div class="menu-sublist">
+              <button class="menu-subitem" type="button" data-inline-view="doctor-review">
+                <span class="menu-subitem__dot"></span>
+                <span class="menu-subitem__text">医生审核</span>
+              </button>
+              <button class="menu-subitem" type="button" data-inline-view="operator-management">
+                <span class="menu-subitem__dot"></span>
+                <span class="menu-subitem__text">运营管理</span>
+              </button>
+              <button class="menu-subitem" type="button" data-inline-view="doctor-management">
+                <span class="menu-subitem__dot"></span>
+                <span class="menu-subitem__text">医生管理</span>
+              </button>
+              <button class="menu-subitem" type="button" data-inline-view="binding">
+                <span class="menu-subitem__dot"></span>
+                <span class="menu-subitem__text">绑定分佣</span>
+              </button>
+              <button class="menu-subitem" type="button" data-inline-view="order-association">
+                <span class="menu-subitem__dot"></span>
+                <span class="menu-subitem__text">订单关联</span>
+              </button>
+              <button class="menu-subitem" type="button" data-inline-view="interpretation-assignment">
+                <span class="menu-subitem__dot"></span>
+                <span class="menu-subitem__text">解读分配</span>
+              </button>
+              <button class="menu-subitem" type="button" data-inline-view="bonus-management">
+                <span class="menu-subitem__dot"></span>
+                <span class="menu-subitem__text">业务管理</span>
+              </button>
+              <button class="menu-subitem" type="button" data-inline-view="withdrawal">
+                <span class="menu-subitem__dot"></span>
+                <span class="menu-subitem__text">提现审核</span>
+              </button>
+              <button class="menu-subitem" type="button" data-inline-view="dashboard">
+                <span class="menu-subitem__dot"></span>
+                <span class="menu-subitem__text">业务总览</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="menu-section" aria-label="产品功能模块">
+            <button class="menu-item menu-section__toggle" type="button" data-menu-toggle aria-expanded="false">
+              <span class="menu-item__icon">◈</span>
+              <span class="menu-item__text">产品功能</span>
+              <span class="menu-item__caret">▾</span>
+            </button>
+            <div class="menu-sublist">
+              <button class="menu-subitem" type="button" data-inline-view="ai-report-upload">
+                <span class="menu-subitem__dot"></span>
+                <span class="menu-subitem__text">AI报告上传</span>
+              </button>
+              <button class="menu-subitem" type="button" data-inline-view="multi-code-standard">
+                <span class="menu-subitem__dot"></span>
+                <span class="menu-subitem__text">组合对码列表</span>
+              </button>
+              <button class="menu-subitem" type="button" data-inline-view="multi-code-upstream">
+                <span class="menu-subitem__dot"></span>
+                <span class="menu-subitem__text">平台标准项目库</span>
+              </button>
+              <button class="menu-subitem" type="button" data-inline-view="multi-code-delivery">
+                <span class="menu-subitem__dot"></span>
+                <span class="menu-subitem__text">交付中心院内项目库</span>
+              </button>
+              <button class="menu-subitem" type="button" data-inline-view="multi-code-logs">
+                <span class="menu-subitem__dot"></span>
+                <span class="menu-subitem__text">匹配日志 / 待人工对码</span>
+              </button>
+              <button class="menu-subitem" type="button" data-inline-view="activity-management">
+                <span class="menu-subitem__dot"></span>
+                <span class="menu-subitem__text">活动管理</span>
+              </button>
+            </div>
+          </div>
         </div>
       </aside>
 
@@ -87,7 +167,7 @@
         </header>
 
         <main class="content-shell">
-          <section class="page-panel">
+          <section class="page-panel" id="platformListPanel">
             <div class="page-panel__title">平台项目列表</div>
 
             <div class="toolbar-row toolbar-row--single">
@@ -138,6 +218,14 @@
               <div class="footer-bar__records" id="recordText"></div>
               <div class="pagination" id="pagination"></div>
             </div>
+          </section>
+
+          <section class="page-panel page-panel--embedded" id="moduleEmbedPanel" hidden>
+            <iframe
+              class="module-embed-frame"
+              id="moduleEmbedFrame"
+              title="平台功能迁移页面"
+            ></iframe>
           </section>
         </main>
       </div>

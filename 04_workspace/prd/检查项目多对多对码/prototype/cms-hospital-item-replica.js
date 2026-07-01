@@ -250,20 +250,119 @@ const baseRows = [
   },
 ];
 
+const comboRules = [
+  {
+    id: 501,
+    type: "多对多",
+    status: "enabled",
+    upstreamOrg: "成都青藤互联网医院",
+    upstreamItemCode: "30061102110000",
+    upstreamItemName: "MRI头部普通+血管扫描",
+    comboDisplayName: "颅脑MR平扫+头颅动脉MRA",
+    platformItems: [
+      { code: "P001", name: "颅脑MR平扫" },
+      { code: "P002", name: "头颅动脉MRA" },
+    ],
+    priceMode: "组合固定价",
+    priceValue: "¥746.66",
+    platformPriceSummary: "颅脑MR平扫 ¥520.00 + 头颅动脉MRA ¥226.66",
+    deliveryMode: "主项目+加收项",
+    deliveryHospital: "南昌一脉阳光医学诊断中心",
+    deliveryItems: [
+      { name: "头部MR平扫", role: "主执行项目", note: "与平台“颅脑MR平扫”绑定，下发 1 条执行明细" },
+      { name: "血管扫描加收项", role: "附加执行项目", note: "承接“头颅动脉MRA”能力，支持单独核价与结算追踪" },
+    ],
+    orderDisplayName: "颅脑MR平扫+头颅动脉MRA",
+    orderSourceName: "MRI头部普通+血管扫描",
+    orderDetails: ["颅脑MR平扫", "头颅动脉MRA"],
+    statusLabel: "已启用",
+    statusHint: "价格规则、执行项目与启用校验均已补齐，可自动下发。",
+    aiHint: "AI 识别关键词：MRI / 头部 / 血管扫描，建议拆解为“颅脑MR平扫 + 头颅动脉MRA”，需运营确认后保存。",
+    updatedAt: "2026-06-11 16:20",
+  },
+  {
+    id: 502,
+    type: "一对多",
+    status: "pending",
+    upstreamOrg: "华西互联网医院",
+    upstreamItemCode: "30061102110018",
+    upstreamItemName: "胸部CT+上腹部CT",
+    comboDisplayName: "胸部CT平扫+上腹部CT平扫",
+    platformItems: [
+      { code: "P021", name: "胸部CT平扫" },
+      { code: "P022", name: "上腹部CT平扫" },
+    ],
+    priceMode: "明细价格相加",
+    priceValue: "按明细汇总",
+    platformPriceSummary: "下单时汇总两个平台标准项目价格",
+    deliveryMode: "多个执行项目",
+    deliveryHospital: "江西一脉阳光影像中心",
+    deliveryItems: [
+      { name: "胸部CT平扫", role: "执行项目 1", note: "交付中心直接接收单项目" },
+      { name: "上腹部CT平扫", role: "执行项目 2", note: "与主订单保持拆分关系，独立回传报告" },
+    ],
+    orderDisplayName: "胸部CT平扫+上腹部CT平扫",
+    orderSourceName: "胸部CT+上腹部CT",
+    orderDetails: ["胸部CT平扫", "上腹部CT平扫"],
+    statusLabel: "待补配置",
+    statusHint: "价格规则已确认，但交付中心执行项目仍待最终核验。",
+    aiHint: "当前已命中两个 CT 标准项目，待交付中心确认是否接受拆成两条执行项目。",
+    updatedAt: "2026-06-11 15:04",
+  },
+  {
+    id: 503,
+    type: "多对一",
+    status: "draft",
+    upstreamOrg: "云杉互联网医院",
+    upstreamItemCode: "30061102110026",
+    upstreamItemName: "颅脑MR平扫+增强",
+    comboDisplayName: "颅脑MR平扫+增强加收项",
+    platformItems: [
+      { code: "P031", name: "颅脑MR平扫" },
+      { code: "P032", name: "增强加收项" },
+    ],
+    priceMode: "按交付中心价格",
+    priceValue: "待中心报价",
+    platformPriceSummary: "优先取交付中心套餐价，缺失时禁止启用",
+    deliveryMode: "中心组合项目",
+    deliveryHospital: "南昌一脉阳光医学诊断中心",
+    deliveryItems: [
+      { name: "头部MR平扫+增强套餐", role: "组合执行项目", note: "中心侧已有套餐项目，可一条下发" },
+    ],
+    orderDisplayName: "颅脑MR平扫+增强加收项",
+    orderSourceName: "颅脑MR平扫+增强",
+    orderDetails: ["颅脑MR平扫", "增强加收项"],
+    statusLabel: "待审核",
+    statusHint: "中心套餐价未回填，当前规则只保留草稿，不允许自动启用。",
+    aiHint: "AI 已建议拆解为“平扫 + 增强加收项”，但套餐价格仍需人工确认。",
+    updatedAt: "2026-06-11 11:38",
+  },
+];
+
 const state = {
   screen: "workspace",
   verifyCode: "",
+  activePage: "combo-mapping",
   sidebarCollapsed: false,
   selectedHospitalId: 301,
   filters: {
     modality: "",
     keyword: "",
   },
+  comboFilters: {
+    type: "",
+    status: "",
+    keyword: "",
+  },
   page: 1,
   pageSize: 10,
+  comboPage: 1,
+  comboPageSize: 10,
   mockTotalRecords: 986,
   hospitals,
   rows: baseRows.map((row) => ({ ...row })),
+  comboRules: comboRules.map((rule) => ({ ...rule })),
+  selectedComboRuleId: 501,
   hospitalModal: {
     open: false,
     type: "",
@@ -275,7 +374,17 @@ const state = {
     draft: null,
     analysis: "输入医院项目名称后，点击“AI 对码”生成建议平台项目。",
   },
+  comboModal: {
+    open: false,
+    mode: "create",
+    draft: null,
+    analysis: "输入上游项目名称后，点击“AI 拆解”生成组合拆解建议。",
+  },
   batchModal: {
+    open: false,
+    rows: [],
+  },
+  comboBatchModal: {
     open: false,
     rows: [],
   },
@@ -289,6 +398,8 @@ const refs = {
   loginCaptchaInput: document.getElementById("loginCaptchaInput"),
   refreshCaptcha: document.getElementById("refreshCaptcha"),
   loginButton: document.getElementById("loginButton"),
+  pageRoutes: Array.from(document.querySelectorAll("[data-page-id]")),
+  pageMenuButtons: Array.from(document.querySelectorAll("[data-page-target]")),
   appShell: document.getElementById("appShell"),
   collapseToggle: document.getElementById("collapseToggle"),
   hospitalSwitchButton: document.getElementById("hospitalSwitchButton"),
@@ -339,6 +450,60 @@ const refs = {
   batchTableBody: document.getElementById("batchTableBody"),
   batchAiButton: document.getElementById("batchAiButton"),
   batchSaveButton: document.getElementById("batchSaveButton"),
+  comboTotalCount: document.getElementById("comboTotalCount"),
+  comboReadyCount: document.getElementById("comboReadyCount"),
+  comboRiskCount: document.getElementById("comboRiskCount"),
+  comboTypeFilter: document.getElementById("comboTypeFilter"),
+  comboStatusFilter: document.getElementById("comboStatusFilter"),
+  comboKeywordFilter: document.getElementById("comboKeywordFilter"),
+  comboSearchButton: document.getElementById("comboSearchButton"),
+  comboResetButton: document.getElementById("comboResetButton"),
+  comboTableBody: document.getElementById("comboTableBody"),
+  comboDetailCard: document.getElementById("comboDetailCard"),
+  addComboRuleButton: document.getElementById("addComboRuleButton"),
+  comboTemplateButton: document.getElementById("comboTemplateButton"),
+  comboImportButton: document.getElementById("comboImportButton"),
+  comboExportButton: document.getElementById("comboExportButton"),
+  comboImportFileInput: document.getElementById("comboImportFileInput"),
+  comboListTypeFilter: document.getElementById("comboListTypeFilter"),
+  comboListKeywordFilter: document.getElementById("comboListKeywordFilter"),
+  comboListSearchButton: document.getElementById("comboListSearchButton"),
+  comboListAddButton: document.getElementById("comboListAddButton"),
+  comboListTemplateButton: document.getElementById("comboListTemplateButton"),
+  comboListImportButton: document.getElementById("comboListImportButton"),
+  comboListBatchButton: document.getElementById("comboListBatchButton"),
+  comboListExportButton: document.getElementById("comboListExportButton"),
+  comboListImportFileInput: document.getElementById("comboListImportFileInput"),
+  comboMainTableBody: document.getElementById("comboMainTableBody"),
+  comboRecordText: document.getElementById("comboRecordText"),
+  comboPagination: document.getElementById("comboPagination"),
+  comboRuleModal: document.getElementById("comboRuleModal"),
+  comboRuleModalModeLabel: document.getElementById("comboRuleModalModeLabel"),
+  comboRuleModalTitle: document.getElementById("comboRuleModalTitle"),
+  comboRuleBanner: document.getElementById("comboRuleBanner"),
+  comboUpstreamHospitalSelect: document.getElementById("comboUpstreamHospitalSelect"),
+  comboDeliveryHospitalSelect: document.getElementById("comboDeliveryHospitalSelect"),
+  comboUpstreamNameInput: document.getElementById("comboUpstreamNameInput"),
+  comboUpstreamCodeInput: document.getElementById("comboUpstreamCodeInput"),
+  comboMappingTypeSelect: document.getElementById("comboMappingTypeSelect"),
+  comboDisplayNameInput: document.getElementById("comboDisplayNameInput"),
+  comboOrderDisplayInput: document.getElementById("comboOrderDisplayInput"),
+  comboPlatformItemsInput: document.getElementById("comboPlatformItemsInput"),
+  comboDeliveryItemsInput: document.getElementById("comboDeliveryItemsInput"),
+  comboPriceModeSelect: document.getElementById("comboPriceModeSelect"),
+  comboPriceValueInput: document.getElementById("comboPriceValueInput"),
+  comboAiSplitButton: document.getElementById("comboAiSplitButton"),
+  comboAiResultBox: document.getElementById("comboAiResultBox"),
+  comboPlatformCountPreview: document.getElementById("comboPlatformCountPreview"),
+  comboDeliveryCountPreview: document.getElementById("comboDeliveryCountPreview"),
+  comboExampleSource: document.getElementById("comboExampleSource"),
+  comboExamplePlatform: document.getElementById("comboExamplePlatform"),
+  comboExampleDelivery: document.getElementById("comboExampleDelivery"),
+  comboSaveRuleButton: document.getElementById("comboSaveRuleButton"),
+  comboBatchModal: document.getElementById("comboBatchModal"),
+  comboBatchTableBody: document.getElementById("comboBatchTableBody"),
+  comboBatchAiButton: document.getElementById("comboBatchAiButton"),
+  comboBatchSaveButton: document.getElementById("comboBatchSaveButton"),
   toastStack: document.getElementById("toastStack"),
 };
 
@@ -365,6 +530,10 @@ function getPlatformItemById(itemId) {
   return platformItems.find((item) => item.id === itemId) || null;
 }
 
+function getExecutionHospitals() {
+  return state.hospitals.filter((hospital) => hospital.type === 2);
+}
+
 function getEligibleDevices(hospitalId = state.selectedHospitalId) {
   return devices.filter((device) => device.hospitalIds.includes(hospitalId));
 }
@@ -379,6 +548,16 @@ function getRowDeviceText(row) {
 function formatAmount(value) {
   const numeric = Number(value || 0);
   return numeric.toFixed(2).replace(/\.?0+$/, "");
+}
+
+function formatDateTime(value = new Date()) {
+  const date = value instanceof Date ? value : new Date(value);
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  const hours = `${date.getHours()}`.padStart(2, "0");
+  const minutes = `${date.getMinutes()}`.padStart(2, "0");
+  return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
 function getEffectiveRatio(value, fallback) {
@@ -454,6 +633,7 @@ function createVerifyCode() {
 }
 
 function showToast(title, body, type = "success") {
+  if (!refs.toastStack) return;
   const toast = document.createElement("div");
   toast.className = `toast toast--${type}`;
   toast.innerHTML = `<strong>${escapeHtml(title)}</strong><span>${escapeHtml(body)}</span>`;
@@ -462,24 +642,29 @@ function showToast(title, body, type = "success") {
 }
 
 function renderTopBar() {
+  if (!refs.hospitalSwitchButton) return;
   const hospital = getCurrentHospital();
   refs.hospitalSwitchButton.textContent = `${hospital.name} - ${hospital.typeLabel}`;
 }
 
 function renderFilterOptions() {
-  refs.modalityFilter.innerHTML = [
-    '<option value="">检查类型</option>',
-    ...modalityOptions.map((modality) => `<option value="${modality}">${modality}</option>`),
-  ].join("");
-  refs.modalityFilter.value = state.filters.modality;
+  if (refs.modalityFilter) {
+    refs.modalityFilter.innerHTML = [
+      '<option value="">检查类型</option>',
+      ...modalityOptions.map((modality) => `<option value="${modality}">${modality}</option>`),
+    ].join("");
+    refs.modalityFilter.value = state.filters.modality;
+  }
 
-  refs.hospitalTypeFilter.innerHTML = [
-    '<option value="">全部类型</option>',
-    '<option value="1">互联网医院</option>',
-    '<option value="2">执行机构</option>',
-    '<option value="3">报告机构</option>',
-  ].join("");
-  refs.hospitalTypeFilter.value = state.hospitalModal.type;
+  if (refs.hospitalTypeFilter) {
+    refs.hospitalTypeFilter.innerHTML = [
+      '<option value="">全部类型</option>',
+      '<option value="1">互联网医院</option>',
+      '<option value="2">执行机构</option>',
+      '<option value="3">报告机构</option>',
+    ].join("");
+    refs.hospitalTypeFilter.value = state.hospitalModal.type;
+  }
 }
 
 function getRatioCellText(row, fieldName, priceFieldName) {
@@ -498,7 +683,789 @@ function getRatioCellText(row, fieldName, priceFieldName) {
   return String(getEffectiveRatio(row[fieldName], fallbackMap[fieldName]));
 }
 
+function renderActivePage() {
+  refs.pageRoutes.forEach((page) => {
+    page.hidden = page.dataset.pageId !== state.activePage;
+  });
+
+  refs.pageMenuButtons.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.pageTarget === state.activePage);
+  });
+}
+
+function getDisplayedComboListRules() {
+  const keyword = state.comboFilters.keyword.trim();
+  return state.comboRules.filter((rule) => {
+    if (state.comboFilters.type && rule.type !== state.comboFilters.type) return false;
+    if (!keyword) return true;
+    return [
+      rule.upstreamOrg,
+      rule.upstreamItemCode,
+      rule.upstreamItemName,
+      rule.comboDisplayName,
+      rule.orderDisplayName,
+      rule.platformItems.map((item) => item.name).join(" "),
+      rule.deliveryHospital,
+      rule.deliveryItems.map((item) => item.name).join(" "),
+    ].some((value) => String(value || "").includes(keyword));
+  });
+}
+
+function getComboVisibleTotal() {
+  return getDisplayedComboListRules().length;
+}
+
+function getComboTotalPages() {
+  return Math.max(1, Math.ceil(getComboVisibleTotal() / state.comboPageSize));
+}
+
+function getPagedComboRules() {
+  const rules = getDisplayedComboListRules();
+  const totalPages = getComboTotalPages();
+  state.comboPage = Math.min(state.comboPage, totalPages);
+  const start = (state.comboPage - 1) * state.comboPageSize;
+  return rules.slice(start, start + state.comboPageSize);
+}
+
+function getComboPlatformNames(rule) {
+  return rule.platformItems.map((item) => item.name).join(" + ") || "待配置";
+}
+
+function getComboDeliveryNames(rule) {
+  return rule.deliveryItems.map((item) => item.name).join(" + ") || "待配置";
+}
+
+function getComboOptionList(values) {
+  return Array.from(new Set(values.filter(Boolean)));
+}
+
+function renderComboSelectOptions(selectRef, values, currentValue) {
+  if (!selectRef) return;
+  selectRef.innerHTML = values.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join("");
+  selectRef.value = currentValue;
+}
+
+function createBlankComboDraft() {
+  return {
+    id: null,
+    type: "多对多",
+    status: "draft",
+    upstreamOrg: "成都青藤互联网医院",
+    upstreamItemCode: "",
+    upstreamItemName: "",
+    comboDisplayName: "",
+    platformItems: [],
+    priceMode: "组合固定价",
+    priceValue: "",
+    platformPriceSummary: "",
+    deliveryMode: "多个执行项目",
+    deliveryHospital: "南昌一脉阳光医学诊断中心",
+    deliveryItems: [],
+    orderDisplayName: "",
+    orderSourceName: "",
+    orderDetails: [],
+    statusLabel: "待审核",
+    statusHint: "组合规则已创建，待补全拆解与下发信息。",
+    aiHint: "输入上游项目名称后，点击“AI 拆解”生成组合拆解建议。",
+    updatedAt: formatDateTime(),
+  };
+}
+
+function inferDeliveryModeFromItems(items) {
+  if (!items.length) return "待配置";
+  if (items.length === 1) {
+    return items[0].name.includes("套餐") ? "中心组合项目" : "单执行项目";
+  }
+  return items.some((item) => item.name.includes("加收")) ? "主项目+加收项" : "多个执行项目";
+}
+
+function getComboStatusMeta(draft) {
+  const hasPlatformItems = draft.platformItems.length > 0;
+  const hasDeliveryItems = draft.deliveryItems.length > 0;
+  const trimmedPriceValue = String(draft.priceValue || "").trim();
+  const hasPriceValue = draft.priceMode === "明细价格相加" || (trimmedPriceValue && !trimmedPriceValue.includes("待"));
+
+  if (hasPlatformItems && hasDeliveryItems && hasPriceValue) {
+    return {
+      status: "enabled",
+      statusLabel: "已启用",
+      statusHint: "命中后可直接拆解平台项目并下发执行机构。",
+    };
+  }
+
+  if (hasPlatformItems || hasDeliveryItems) {
+    return {
+      status: "pending",
+      statusLabel: "待补配置",
+      statusHint: "组合拆解已建立，但价格或执行映射仍需补齐。",
+    };
+  }
+
+  return {
+    status: "draft",
+    statusLabel: "待审核",
+    statusHint: "当前仅保存基础信息，尚未形成可用的组合规则。",
+  };
+}
+
+function getComboAiSuggestion(name) {
+  const keyword = String(name || "").replace(/\s+/g, "");
+
+  if (keyword.includes("MRI") && keyword.includes("头") && keyword.includes("血管")) {
+    return {
+      type: "多对多",
+      comboDisplayName: "颅脑MR平扫+头颅动脉MRA",
+      orderDisplayName: "颅脑MR平扫+头颅动脉MRA",
+      platformItems: [
+        { code: "P001", name: "颅脑MR平扫" },
+        { code: "P002", name: "头颅动脉MRA" },
+      ],
+      deliveryHospital: "南昌一脉阳光医学诊断中心",
+      deliveryItems: [
+        { name: "头部MR平扫", role: "主执行项目", note: "映射平台平扫项目" },
+        { name: "血管扫描加收项", role: "附加执行项目", note: "映射血管扫描能力" },
+      ],
+      priceMode: "组合固定价",
+      priceValue: "746.66",
+      analysis: "建议拆解为 “颅脑MR平扫 + 头颅动脉MRA”，交付中心按 “头部MR平扫 + 血管扫描加收项” 下发；未命中组合规则时仍走原检查项目对码。",
+    };
+  }
+
+  if (keyword.includes("胸部") && keyword.includes("上腹部")) {
+    return {
+      type: "一对多",
+      comboDisplayName: "胸部CT平扫+上腹部CT平扫",
+      orderDisplayName: "胸部CT平扫+上腹部CT平扫",
+      platformItems: [
+        { code: "P021", name: "胸部CT平扫" },
+        { code: "P022", name: "上腹部CT平扫" },
+      ],
+      deliveryHospital: "江西一脉阳光影像中心",
+      deliveryItems: [
+        { name: "胸部CT平扫", role: "执行项目 1", note: "拆分执行" },
+        { name: "上腹部CT平扫", role: "执行项目 2", note: "拆分执行" },
+      ],
+      priceMode: "明细价格相加",
+      priceValue: "按明细汇总",
+      analysis: "建议拆成两个平台标准项目并分别下发执行，适合兼容当前交付中心逐项接单模式。",
+    };
+  }
+
+  if (keyword.includes("增强") && (keyword.includes("颅脑") || keyword.includes("MR"))) {
+    return {
+      type: "多对一",
+      comboDisplayName: "颅脑MR平扫+增强加收项",
+      orderDisplayName: "颅脑MR平扫+增强加收项",
+      platformItems: [
+        { code: "P031", name: "颅脑MR平扫" },
+        { code: "P032", name: "增强加收项" },
+      ],
+      deliveryHospital: "南昌一脉阳光医学诊断中心",
+      deliveryItems: [
+        { name: "头部MR平扫+增强套餐", role: "组合执行项目", note: "中心侧已存在套餐能力" },
+      ],
+      priceMode: "按交付中心价格",
+      priceValue: "待中心报价",
+      analysis: "建议先拆平台标准项目，再按中心套餐项目一条下发，兼容已有套餐执行模式。",
+    };
+  }
+
+  return null;
+}
+
+function applyComboSuggestion(draft, suggestion) {
+  if (!suggestion) return;
+  draft.type = suggestion.type;
+  draft.comboDisplayName = suggestion.comboDisplayName;
+  draft.orderDisplayName = suggestion.orderDisplayName;
+  draft.platformItems = suggestion.platformItems.map((item) => ({ ...item }));
+  draft.deliveryHospital = suggestion.deliveryHospital;
+  draft.deliveryItems = suggestion.deliveryItems.map((item) => ({ ...item }));
+  draft.priceMode = suggestion.priceMode;
+  draft.priceValue = suggestion.priceValue;
+  draft.aiHint = suggestion.analysis;
+}
+
+function renderComboHospitalOptions(draft) {
+  const upstreamOptions = getComboOptionList([
+    ...state.hospitals.filter((hospital) => hospital.type === 1).map((hospital) => hospital.name),
+    ...state.comboRules.map((rule) => rule.upstreamOrg),
+    draft.upstreamOrg,
+  ]);
+  const deliveryOptions = getComboOptionList([
+    ...getExecutionHospitals().map((hospital) => hospital.name),
+    ...state.comboRules.map((rule) => rule.deliveryHospital),
+    draft.deliveryHospital,
+  ]);
+
+  renderComboSelectOptions(refs.comboUpstreamHospitalSelect, upstreamOptions, draft.upstreamOrg);
+  renderComboSelectOptions(refs.comboDeliveryHospitalSelect, deliveryOptions, draft.deliveryHospital);
+}
+
+function getComboPlatformText(draft) {
+  return draft.platformItems.map((item) => item.name).join("\n");
+}
+
+function getComboDeliveryText(draft) {
+  return draft.deliveryItems.map((item) => item.name).join("\n");
+}
+
+function renderComboExampleBlock(target, items, emptyText) {
+  if (!target) return;
+  if (!items.length) {
+    target.textContent = emptyText;
+    return;
+  }
+  target.innerHTML = `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+}
+
+function syncComboModalSummary() {
+  const draft = state.comboModal.draft;
+  if (!draft) return;
+
+  if (refs.comboPlatformCountPreview) {
+    refs.comboPlatformCountPreview.textContent = String(draft.platformItems.length);
+  }
+
+  if (refs.comboDeliveryCountPreview) {
+    refs.comboDeliveryCountPreview.textContent = String(draft.deliveryItems.length);
+  }
+
+  if (refs.comboExampleSource) {
+    refs.comboExampleSource.innerHTML = `${escapeHtml(draft.upstreamOrg || "待选择开单机构")}<br/>${escapeHtml(draft.upstreamItemName || "待输入上游项目名称")}`;
+  }
+
+  renderComboExampleBlock(
+    refs.comboExamplePlatform,
+    draft.platformItems.map((item) => item.name),
+    "待配置平台标准项目",
+  );
+
+  renderComboExampleBlock(
+    refs.comboExampleDelivery,
+    draft.deliveryItems.map((item) => item.name),
+    "待配置执行项目",
+  );
+}
+
+function renderComboRuleModal() {
+  const draft = state.comboModal.draft;
+  if (!draft) return;
+
+  renderComboHospitalOptions(draft);
+  refs.comboRuleModalModeLabel.textContent = state.comboModal.mode === "create" ? "新增规则" : "编辑规则";
+  refs.comboRuleModalTitle.textContent = state.comboModal.mode === "create" ? "新增组合规则" : "编辑组合规则";
+  refs.comboRuleBanner.textContent = "命中组合规则后，先拆平台标准项目，再映射执行机构项目；未命中时仍走原检查项目对码。";
+  refs.comboUpstreamNameInput.value = draft.upstreamItemName;
+  refs.comboUpstreamCodeInput.value = draft.upstreamItemCode;
+  refs.comboMappingTypeSelect.value = draft.type;
+  refs.comboDisplayNameInput.value = draft.comboDisplayName;
+  refs.comboOrderDisplayInput.value = draft.orderDisplayName;
+  refs.comboPlatformItemsInput.value = getComboPlatformText(draft);
+  refs.comboDeliveryItemsInput.value = getComboDeliveryText(draft);
+  refs.comboPriceModeSelect.value = draft.priceMode;
+  refs.comboPriceValueInput.value = draft.priceValue;
+  refs.comboAiResultBox.innerHTML = draft.aiHint || state.comboModal.analysis;
+  syncComboModalSummary();
+}
+
+function parseComboLines(text) {
+  return String(text || "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+function syncComboDraftFromInputs() {
+  const draft = state.comboModal.draft;
+  if (!draft) return;
+
+  draft.upstreamOrg = refs.comboUpstreamHospitalSelect?.value || draft.upstreamOrg;
+  draft.deliveryHospital = refs.comboDeliveryHospitalSelect?.value || draft.deliveryHospital;
+  draft.upstreamItemName = refs.comboUpstreamNameInput?.value || "";
+  draft.upstreamItemCode = refs.comboUpstreamCodeInput?.value || "";
+  draft.type = refs.comboMappingTypeSelect?.value || draft.type;
+  draft.comboDisplayName = refs.comboDisplayNameInput?.value || "";
+  draft.orderDisplayName = refs.comboOrderDisplayInput?.value || draft.comboDisplayName;
+  draft.platformItems = parseComboLines(refs.comboPlatformItemsInput?.value).map((name, index) => ({
+    code: `AUTO${index + 1}`,
+    name,
+  }));
+  draft.deliveryItems = parseComboLines(refs.comboDeliveryItemsInput?.value).map((name, index) => ({
+    name,
+    role: draft.deliveryItems[index]?.role || `执行项目 ${index + 1}`,
+    note: draft.deliveryItems[index]?.note || "由组合对码规则拆解生成",
+  }));
+  draft.priceMode = refs.comboPriceModeSelect?.value || draft.priceMode;
+  draft.priceValue = refs.comboPriceValueInput?.value || "";
+  draft.orderSourceName = draft.upstreamItemName;
+  draft.orderDetails = draft.platformItems.map((item) => item.name);
+  draft.deliveryMode = inferDeliveryModeFromItems(draft.deliveryItems);
+  draft.platformPriceSummary = draft.priceMode === "明细价格相加"
+    ? "按平台标准项目明细汇总"
+    : draft.priceValue || "待补价格";
+
+  const statusMeta = getComboStatusMeta(draft);
+  draft.status = statusMeta.status;
+  draft.statusLabel = statusMeta.statusLabel;
+  draft.statusHint = statusMeta.statusHint;
+  syncComboModalSummary();
+}
+
+function openComboRuleModal(mode, ruleId = null) {
+  state.comboModal.mode = mode;
+
+  if (mode === "edit") {
+    const target = state.comboRules.find((rule) => rule.id === ruleId);
+    if (!target) return;
+    state.comboModal.draft = JSON.parse(JSON.stringify(target));
+  } else {
+    state.comboModal.draft = createBlankComboDraft();
+  }
+
+  refs.comboRuleModal.hidden = false;
+  renderComboRuleModal();
+}
+
+function saveComboRule() {
+  const draft = state.comboModal.draft;
+  if (!draft) return;
+  syncComboDraftFromInputs();
+
+  if (!draft.upstreamItemName.trim()) {
+    showToast("保存失败", "请输入上游项目名称", "warning");
+    return;
+  }
+  if (!draft.upstreamItemCode.trim()) {
+    showToast("保存失败", "请输入上游项目编码", "warning");
+    return;
+  }
+  if (!draft.comboDisplayName.trim()) {
+    showToast("保存失败", "请输入平台展示项目", "warning");
+    return;
+  }
+  if (!draft.platformItems.length) {
+    showToast("保存失败", "请至少配置一个平台标准项目", "warning");
+    return;
+  }
+  if (!draft.deliveryItems.length) {
+    showToast("保存失败", "请至少配置一个执行项目", "warning");
+    return;
+  }
+
+  draft.updatedAt = formatDateTime();
+  draft.orderDisplayName = draft.orderDisplayName || draft.comboDisplayName;
+  draft.aiHint = refs.comboAiResultBox?.innerHTML || draft.aiHint;
+
+  if (state.comboModal.mode === "edit") {
+    state.comboRules = state.comboRules.map((rule) => rule.id === draft.id ? { ...draft } : rule);
+    showToast("保存成功", "组合规则已更新。");
+  } else {
+    draft.id = Math.max(0, ...state.comboRules.map((rule) => rule.id)) + 1;
+    state.comboRules.unshift({ ...draft });
+    showToast("新增成功", "组合规则已加入当前列表。");
+  }
+
+  state.comboPage = 1;
+  closeModal("comboRuleModal");
+  renderWorkspace();
+}
+
+function deleteComboRule(ruleId) {
+  const target = state.comboRules.find((rule) => rule.id === ruleId);
+  if (!target) return;
+  const shouldDelete = window.confirm(`确定删除组合规则“${target.upstreamItemName}”吗？`);
+  if (!shouldDelete) return;
+  state.comboRules = state.comboRules.filter((rule) => rule.id !== ruleId);
+  renderWorkspace();
+  showToast("删除成功", "组合规则已从当前列表移除。");
+}
+
+function renderComboListTable() {
+  if (!refs.comboMainTableBody) return;
+  const rules = getPagedComboRules();
+  if (!rules.length) {
+    refs.comboMainTableBody.innerHTML = '<tr><td colspan="13"><div class="empty-state">当前筛选条件下暂无组合规则</div></td></tr>';
+    return;
+  }
+
+  refs.comboMainTableBody.innerHTML = rules.map((rule) => `
+    <tr>
+      <td class="combo-cell-text">${escapeHtml(rule.upstreamOrg)}</td>
+      <td class="cell-ellipsis">${escapeHtml(rule.upstreamItemCode)}</td>
+      <td class="combo-cell-text">${escapeHtml(rule.upstreamItemName)}</td>
+      <td><span class="combo-tag">${escapeHtml(rule.type)}</span></td>
+      <td class="combo-cell-text">${escapeHtml(rule.comboDisplayName)}</td>
+      <td class="combo-cell-text">${escapeHtml(getComboPlatformNames(rule))}</td>
+      <td class="combo-cell-text">${escapeHtml(rule.deliveryHospital)}</td>
+      <td class="combo-cell-text">${escapeHtml(getComboDeliveryNames(rule))}</td>
+      <td>
+        <strong>${escapeHtml(rule.priceMode)}</strong>
+        <span class="combo-table-meta">${escapeHtml(rule.priceValue)}</span>
+      </td>
+      <td class="combo-cell-text">${escapeHtml(rule.orderDisplayName)}</td>
+      <td>
+        <span class="status-chip status-chip--${getComboStatusClass(rule.status)}">${escapeHtml(rule.statusLabel)}</span>
+        <span class="combo-table-hint">${escapeHtml(rule.statusHint)}</span>
+      </td>
+      <td>${escapeHtml(rule.updatedAt)}</td>
+      <td>
+        <div class="cell-action">
+          <button class="btn-link" type="button" data-combo-list-action="edit" data-combo-rule-id="${rule.id}">编辑</button>
+          <button class="btn-link btn-link--danger" type="button" data-combo-list-action="delete" data-combo-rule-id="${rule.id}">删除</button>
+        </div>
+      </td>
+    </tr>
+  `).join("");
+}
+
+function renderComboPagination() {
+  if (!refs.comboRecordText || !refs.comboPagination) return;
+  const totalRecords = getComboVisibleTotal();
+  const totalPages = getComboTotalPages();
+  state.comboPage = Math.min(state.comboPage, totalPages);
+
+  const start = totalRecords === 0 ? 0 : (state.comboPage - 1) * state.comboPageSize + 1;
+  const end = Math.min(totalRecords, state.comboPage * state.comboPageSize);
+  refs.comboRecordText.textContent = `共${totalRecords}条记录 当前显示${start}-${end}条记录`;
+
+  const tokens = getVisiblePageTokens(totalPages, state.comboPage);
+  const html = [];
+
+  html.push(`
+    <button
+      class="pagination__page ${state.comboPage === 1 ? "is-disabled" : ""}"
+      type="button"
+      data-combo-page="${Math.max(1, state.comboPage - 1)}"
+    >‹</button>
+  `);
+
+  tokens.forEach((token) => {
+    if (token === "ellipsis") {
+      html.push('<span class="pagination__ellipsis">…</span>');
+      return;
+    }
+    html.push(`
+      <button
+        class="pagination__page ${token === state.comboPage ? "is-active" : ""}"
+        type="button"
+        data-combo-page="${token}"
+      >${token}</button>
+    `);
+  });
+
+  html.push(`
+    <button
+      class="pagination__page ${state.comboPage === totalPages ? "is-disabled" : ""}"
+      type="button"
+      data-combo-page="${Math.min(totalPages, state.comboPage + 1)}"
+    >›</button>
+  `);
+
+  html.push(`
+    <select class="pagination__select" id="comboPageSizeSelect" aria-label="每页条数">
+      ${[10, 20, 30, 50].map((size) => `<option value="${size}" ${size === state.comboPageSize ? "selected" : ""}>${size}条/页</option>`).join("")}
+    </select>
+  `);
+
+  html.push(`
+    <label class="pagination__goto">
+      <span>前往</span>
+      <input class="pagination__goto-input" id="comboGotoPageInput" type="number" min="1" max="${totalPages}" value="${state.comboPage}" />
+      <span>页</span>
+    </label>
+  `);
+
+  refs.comboPagination.innerHTML = html.join("");
+}
+
+function renderComboCopyPage() {
+  if (!refs.comboMainTableBody) return;
+  refs.comboListTypeFilter.value = state.comboFilters.type;
+  refs.comboListKeywordFilter.value = state.comboFilters.keyword;
+  renderComboListTable();
+  renderComboPagination();
+}
+
+function renderComboBatchTable() {
+  if (!refs.comboBatchTableBody) return;
+  if (!state.comboBatchModal.rows.length) {
+    refs.comboBatchTableBody.innerHTML = '<tr><td colspan="5"><div class="empty-state">当前筛选条件下暂无可批量处理组合规则</div></td></tr>';
+    return;
+  }
+
+  refs.comboBatchTableBody.innerHTML = state.comboBatchModal.rows.map((rule) => `
+    <tr>
+      <td>${escapeHtml(rule.upstreamItemName)}</td>
+      <td><div class="batch-row-note">${escapeHtml(rule.batchNote || "尚未执行 AI 拆解")}</div></td>
+      <td class="combo-cell-text">${escapeHtml(getComboPlatformNames(rule))}</td>
+      <td class="combo-cell-text">${escapeHtml(getComboDeliveryNames(rule))}</td>
+      <td><span class="status-chip status-chip--${getComboStatusClass(rule.status)}">${escapeHtml(rule.statusLabel)}</span></td>
+    </tr>
+  `).join("");
+}
+
+function openComboBatchModal() {
+  state.comboBatchModal.rows = getDisplayedComboListRules().map((rule) => ({
+    ...JSON.parse(JSON.stringify(rule)),
+    batchNote: rule.aiHint || "当前规则已存在，可重新执行 AI 拆解覆盖建议。",
+  }));
+  refs.comboBatchModal.hidden = false;
+  renderComboBatchTable();
+}
+
+function runComboBatchAi() {
+  state.comboBatchModal.rows = state.comboBatchModal.rows.map((rule) => {
+    const suggestion = getComboAiSuggestion(rule.upstreamItemName);
+    if (!suggestion) {
+      return {
+        ...rule,
+        status: "pending",
+        statusLabel: "待补配置",
+        batchNote: "AI 未命中明确组合规则，请人工补充拆解。",
+      };
+    }
+
+    const nextRule = JSON.parse(JSON.stringify(rule));
+    applyComboSuggestion(nextRule, suggestion);
+    const statusMeta = getComboStatusMeta(nextRule);
+    nextRule.status = statusMeta.status;
+    nextRule.statusLabel = statusMeta.statusLabel;
+    nextRule.statusHint = statusMeta.statusHint;
+    nextRule.deliveryMode = inferDeliveryModeFromItems(nextRule.deliveryItems);
+    nextRule.platformPriceSummary = nextRule.priceMode === "明细价格相加"
+      ? "按平台标准项目明细汇总"
+      : nextRule.priceValue || "待补价格";
+    nextRule.batchNote = suggestion.analysis;
+    return nextRule;
+  });
+
+  renderComboBatchTable();
+  showToast("AI 批量拆解完成", `已处理 ${state.comboBatchModal.rows.length} 条组合规则。`);
+}
+
+function saveComboBatch() {
+  const updated = new Map(state.comboBatchModal.rows.map((rule) => [rule.id, rule]));
+  state.comboRules = state.comboRules.map((rule) => updated.get(rule.id) ? { ...updated.get(rule.id) } : rule);
+  closeModal("comboBatchModal");
+  renderWorkspace();
+  showToast("批量保存成功", "组合对码批量处理结果已同步到列表。");
+}
+
+function getDisplayedComboRules() {
+  const keyword = state.comboFilters.keyword.trim();
+  return state.comboRules.filter((rule) => {
+    if (state.comboFilters.type && rule.type !== state.comboFilters.type) return false;
+    if (state.comboFilters.status && rule.status !== state.comboFilters.status) return false;
+    if (!keyword) return true;
+    const haystacks = [
+      rule.upstreamOrg,
+      rule.upstreamItemCode,
+      rule.upstreamItemName,
+      rule.comboDisplayName,
+      rule.platformItems.map((item) => item.name).join(" "),
+      rule.deliveryHospital,
+    ];
+    return haystacks.some((value) => String(value || "").includes(keyword));
+  });
+}
+
+function getComboStatusClass(status) {
+  if (status === "enabled") return "matched";
+  if (status === "pending") return "pending";
+  return "draft";
+}
+
+function getSelectedComboRule() {
+  const visibleRules = getDisplayedComboRules();
+  const selected = visibleRules.find((rule) => rule.id === state.selectedComboRuleId);
+  if (selected) return selected;
+  return visibleRules[0] || state.comboRules[0] || null;
+}
+
+function ensureSelectedComboRule() {
+  const visibleRules = getDisplayedComboRules();
+  if (!visibleRules.length) return;
+  if (!visibleRules.some((rule) => rule.id === state.selectedComboRuleId)) {
+    state.selectedComboRuleId = visibleRules[0].id;
+  }
+}
+
+function renderComboOverview() {
+  if (!refs.comboTotalCount || !refs.comboReadyCount || !refs.comboRiskCount) return;
+  const visibleRules = getDisplayedComboRules();
+  const readyCount = visibleRules.filter((rule) => rule.status === "enabled").length;
+  const riskCount = visibleRules.filter((rule) => rule.status !== "enabled").length;
+
+  refs.comboTotalCount.textContent = String(visibleRules.length);
+  refs.comboReadyCount.textContent = String(readyCount);
+  refs.comboRiskCount.textContent = String(riskCount);
+}
+
+function renderComboTable() {
+  if (!refs.comboTableBody) return;
+  const visibleRules = getDisplayedComboRules();
+  if (!visibleRules.length) {
+    refs.comboTableBody.innerHTML = '<tr><td colspan="9"><div class="empty-state">当前筛选条件下暂无组合规则</div></td></tr>';
+    return;
+  }
+
+  refs.comboTableBody.innerHTML = visibleRules.map((rule) => `
+    <tr class="${rule.id === state.selectedComboRuleId ? "is-selected" : ""}" data-combo-rule-id="${rule.id}">
+      <td>
+        <div class="combo-origin">
+          <strong>${escapeHtml(rule.upstreamItemName)}</strong>
+          <span>${escapeHtml(rule.upstreamOrg)}</span>
+          <small>编码：${escapeHtml(rule.upstreamItemCode)}</small>
+        </div>
+      </td>
+      <td><span class="combo-tag">${escapeHtml(rule.type)}</span></td>
+      <td>
+        <strong>${escapeHtml(rule.comboDisplayName)}</strong>
+        <span class="combo-table-meta">订单主表展示组合名，保留原医嘱名用于追溯</span>
+      </td>
+      <td>
+        <div class="combo-stack">
+          ${rule.platformItems.map((item) => `<span class="combo-chip">${escapeHtml(item.name)}</span>`).join("")}
+        </div>
+      </td>
+      <td>
+        <strong>${escapeHtml(rule.priceMode)}</strong>
+        <span class="combo-table-meta">${escapeHtml(rule.priceValue)}</span>
+      </td>
+      <td>
+        <strong>${escapeHtml(rule.deliveryMode)}</strong>
+        <span class="combo-table-meta">${escapeHtml(rule.deliveryHospital)}</span>
+      </td>
+      <td>
+        <span class="status-chip status-chip--${getComboStatusClass(rule.status)}">${escapeHtml(rule.statusLabel)}</span>
+        <span class="combo-table-hint">${escapeHtml(rule.statusHint)}</span>
+      </td>
+      <td>${escapeHtml(rule.updatedAt)}</td>
+      <td>
+        <div class="cell-action">
+          <button class="btn-link" type="button" data-combo-action="view" data-combo-rule-id="${rule.id}">查看示例</button>
+        </div>
+      </td>
+    </tr>
+  `).join("");
+}
+
+function renderComboDetail() {
+  if (!refs.comboDetailCard) return;
+  const rule = getSelectedComboRule();
+  if (!rule) {
+    refs.comboDetailCard.innerHTML = '<div class="empty-state">暂无可展示的组合规则详情</div>';
+    return;
+  }
+
+  state.selectedComboRuleId = rule.id;
+
+  refs.comboDetailCard.innerHTML = `
+    <div class="combo-detail-card__head">
+      <span class="detail-tag">示例规则</span>
+      <h3>${escapeHtml(rule.upstreamItemName)}</h3>
+      <p>${escapeHtml(rule.comboDisplayName)}</p>
+    </div>
+
+    <dl class="combo-meta-grid">
+      <div>
+        <dt>对码类型</dt>
+        <dd>${escapeHtml(rule.type)}</dd>
+      </div>
+      <div>
+        <dt>规则状态</dt>
+        <dd>${escapeHtml(rule.statusLabel)}</dd>
+      </div>
+      <div>
+        <dt>组合展示名</dt>
+        <dd>${escapeHtml(rule.comboDisplayName)}</dd>
+      </div>
+      <div>
+        <dt>价格方式</dt>
+        <dd>${escapeHtml(rule.priceMode)}</dd>
+      </div>
+    </dl>
+
+    <section class="combo-section">
+      <h4 class="combo-section__title">平台标准项目</h4>
+      <div class="combo-chip-list">
+        ${rule.platformItems.map((item) => `<span class="combo-chip">${escapeHtml(item.code)} · ${escapeHtml(item.name)}</span>`).join("")}
+      </div>
+    </section>
+
+    <section class="combo-section">
+      <h4 class="combo-section__title">交付中心执行项目</h4>
+      <div class="combo-delivery-list">
+        ${rule.deliveryItems.map((item) => `
+          <div class="combo-delivery-item">
+            <strong>${escapeHtml(item.name)}</strong>
+            <span>${escapeHtml(item.role)}</span>
+            <small>${escapeHtml(item.note)}</small>
+          </div>
+        `).join("")}
+      </div>
+    </section>
+
+    <section class="combo-section">
+      <h4 class="combo-section__title">价格与下发示例</h4>
+      <div class="combo-price-grid">
+        <article class="combo-price-card">
+          <span>价格方式</span>
+          <strong>${escapeHtml(rule.priceMode)}</strong>
+          <p>${escapeHtml(rule.priceValue)}</p>
+        </article>
+        <article class="combo-price-card">
+          <span>平台明细</span>
+          <strong>${escapeHtml(rule.platformPriceSummary)}</strong>
+          <p>${escapeHtml(`${rule.upstreamOrg} · 编码 ${rule.upstreamItemCode}`)}</p>
+        </article>
+        <article class="combo-price-card">
+          <span>交付中心下发</span>
+          <strong>${escapeHtml(rule.deliveryMode)}</strong>
+          <p>${escapeHtml(rule.deliveryHospital)}</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="combo-section">
+      <h4 class="combo-section__title">订单展示效果</h4>
+      <div class="combo-demo-grid">
+        <article class="combo-demo-card">
+          <span>患者侧展示</span>
+          <strong>${escapeHtml(rule.orderDisplayName)}</strong>
+          <p>原医嘱名：${escapeHtml(rule.orderSourceName)}<br/>支付金额：${escapeHtml(rule.priceValue)}</p>
+        </article>
+        <article class="combo-demo-card">
+          <span>订单主表</span>
+          <strong>对码类型：${escapeHtml(rule.type)}</strong>
+          <p>主订单仅展示组合项目名，保留原医嘱编码与原医嘱名称用于追溯。</p>
+        </article>
+        <article class="combo-demo-card">
+          <span>订单明细</span>
+          <strong>拆分后的平台项目</strong>
+          <ul>
+            ${rule.orderDetails.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+          </ul>
+        </article>
+      </div>
+    </section>
+  `;
+}
+
+function renderComboModule() {
+  if (!refs.comboTableBody || !refs.comboDetailCard) return;
+  refs.comboTypeFilter.value = state.comboFilters.type;
+  refs.comboStatusFilter.value = state.comboFilters.status;
+  refs.comboKeywordFilter.value = state.comboFilters.keyword;
+  ensureSelectedComboRule();
+  renderComboOverview();
+  renderComboTable();
+  renderComboDetail();
+}
+
 function renderTable() {
+  if (!refs.tableBody) return;
   const rows = getPagedRows();
   if (!rows.length) {
     refs.tableBody.innerHTML = '<tr><td colspan="14"><div class="empty-state">当前筛选条件下暂无项目</div></td></tr>';
@@ -550,6 +1517,7 @@ function getVisiblePageTokens(totalPages, currentPage) {
 }
 
 function renderPagination() {
+  if (!refs.recordText || !refs.pagination) return;
   const totalRecords = getVisibleTotal();
   const totalPages = getTotalPages();
   state.page = Math.min(state.page, totalPages);
@@ -932,10 +1900,59 @@ function downloadTemplate() {
   URL.revokeObjectURL(link.href);
 }
 
+function downloadComboTemplate() {
+  const rows = [
+    ["外部项目编码", "外部项目名称", "对码类型", "平台项目编码", "平台项目名称", "组合展示名", "价格方式", "固定价格", "交付中心执行方式"],
+    ["30061102110000", "MRI头部普通+血管扫描", "多对多", "P001|P002", "颅脑MR平扫|头颅动脉MRA", "颅脑MR平扫+头颅动脉MRA", "组合固定价", "746.66", "主项目+加收项"],
+  ];
+  const blob = new Blob([rows.map((line) => line.join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "组合对码模版.csv";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(link.href);
+}
+
+function downloadComboRulesCsv() {
+  const header = ["外部项目编码", "外部项目名称", "对码类型", "平台组合展示名", "平台标准项目", "价格方式", "价格值", "交付中心执行", "规则状态", "更新时间"];
+  const sourceRules = refs.comboMainTableBody ? getDisplayedComboListRules() : getDisplayedComboRules();
+  const rows = sourceRules.map((rule) => [
+    rule.upstreamItemCode,
+    rule.upstreamItemName,
+    rule.type,
+    rule.comboDisplayName,
+    rule.platformItems.map((item) => item.name).join(" + "),
+    rule.priceMode,
+    rule.priceValue,
+    `${rule.deliveryHospital} / ${rule.deliveryMode}`,
+    rule.statusLabel,
+    rule.updatedAt,
+  ]);
+  const blob = new Blob([[header, ...rows].map((line) => line.join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "组合对码规则导出.csv";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(link.href);
+}
+
 function renderWorkspace() {
+  renderActivePage();
   renderTopBar();
-  renderTable();
-  renderPagination();
+  if (refs.tableBody) {
+    renderTable();
+    renderPagination();
+  }
+  if (refs.comboMainTableBody) {
+    renderComboCopyPage();
+  }
+  if (refs.comboTableBody && refs.comboDetailCard) {
+    renderComboModule();
+  }
 }
 
 function handleLogin() {
@@ -957,7 +1974,7 @@ function handleLogin() {
   refs.loginScreen.hidden = true;
   refs.workspaceScreen.hidden = false;
   renderWorkspace();
-  showToast("登录成功", "已进入院内检查项目对码页面。");
+  showToast("登录成功", (refs.comboTableBody || refs.comboMainTableBody) ? "已进入组合对码页面。" : "已进入院内检查项目对码页面。");
 }
 
 function deleteRow(rowId) {
@@ -992,50 +2009,75 @@ function syncDraftFromInputs() {
 }
 
 function bindEvents() {
-  refs.refreshCaptcha.addEventListener("click", createVerifyCode);
-  refs.loginButton.addEventListener("click", handleLogin);
+  if (refs.refreshCaptcha) {
+    refs.refreshCaptcha.addEventListener("click", createVerifyCode);
+  }
+  if (refs.loginButton) {
+    refs.loginButton.addEventListener("click", handleLogin);
+  }
 
-  refs.collapseToggle.addEventListener("click", () => {
-    state.sidebarCollapsed = !state.sidebarCollapsed;
-    refs.appShell.classList.toggle("is-collapsed", state.sidebarCollapsed);
+  refs.pageMenuButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      state.activePage = button.dataset.pageTarget;
+      renderWorkspace();
+    });
   });
 
-  refs.hospitalSwitchButton.addEventListener("click", () => {
-    refs.hospitalModal.hidden = false;
-    renderHospitalModal();
-  });
+  if (refs.collapseToggle && refs.appShell) {
+    refs.collapseToggle.addEventListener("click", () => {
+      state.sidebarCollapsed = !state.sidebarCollapsed;
+      refs.appShell.classList.toggle("is-collapsed", state.sidebarCollapsed);
+    });
+  }
 
-  refs.switchHospitalQuickButton.addEventListener("click", () => {
-    refs.userMenu.hidden = true;
-    refs.hospitalModal.hidden = false;
-    renderHospitalModal();
-  });
+  if (refs.hospitalSwitchButton && refs.hospitalModal) {
+    refs.hospitalSwitchButton.addEventListener("click", () => {
+      refs.hospitalModal.hidden = false;
+      renderHospitalModal();
+    });
+  }
 
-  refs.userMenuButton.addEventListener("click", () => {
-    refs.userMenu.hidden = !refs.userMenu.hidden;
-  });
+  if (refs.switchHospitalQuickButton && refs.userMenu && refs.hospitalModal) {
+    refs.switchHospitalQuickButton.addEventListener("click", () => {
+      refs.userMenu.hidden = true;
+      refs.hospitalModal.hidden = false;
+      renderHospitalModal();
+    });
+  }
 
-  refs.logoutButton.addEventListener("click", () => {
-    refs.userMenu.hidden = true;
-    state.screen = "login";
-    refs.workspaceScreen.hidden = true;
-    refs.loginScreen.hidden = false;
-    createVerifyCode();
-    refs.loginCaptchaInput.value = "";
-    showToast("已退出登录", "返回登录页，可继续查看原型。");
-  });
+  if (refs.userMenuButton && refs.userMenu) {
+    refs.userMenuButton.addEventListener("click", () => {
+      refs.userMenu.hidden = !refs.userMenu.hidden;
+    });
+  }
 
-  refs.changePasswordButton.addEventListener("click", () => {
-    refs.userMenu.hidden = true;
-    showToast("交互保留", "密码修改入口已保留，当前原型未接真实提交流程。");
-  });
+  if (refs.logoutButton && refs.userMenu && refs.workspaceScreen && refs.loginScreen && refs.loginCaptchaInput) {
+    refs.logoutButton.addEventListener("click", () => {
+      refs.userMenu.hidden = true;
+      state.screen = "login";
+      refs.workspaceScreen.hidden = true;
+      refs.loginScreen.hidden = false;
+      createVerifyCode();
+      refs.loginCaptchaInput.value = "";
+      showToast("已退出登录", "返回登录页，可继续查看原型。");
+    });
+  }
 
-  refs.searchButton.addEventListener("click", () => {
-    state.filters.modality = refs.modalityFilter.value;
-    state.filters.keyword = refs.keywordFilter.value;
-    state.page = 1;
-    renderWorkspace();
-  });
+  if (refs.changePasswordButton && refs.userMenu) {
+    refs.changePasswordButton.addEventListener("click", () => {
+      refs.userMenu.hidden = true;
+      showToast("交互保留", "密码修改入口已保留，当前原型未接真实提交流程。");
+    });
+  }
+
+  if (refs.searchButton && refs.modalityFilter && refs.keywordFilter) {
+    refs.searchButton.addEventListener("click", () => {
+      state.filters.modality = refs.modalityFilter.value;
+      state.filters.keyword = refs.keywordFilter.value;
+      state.page = 1;
+      renderWorkspace();
+    });
+  }
 
   if (refs.resetButton) {
     refs.resetButton.addEventListener("click", () => {
@@ -1048,108 +2090,259 @@ function bindEvents() {
     });
   }
 
-  refs.addItemButton.addEventListener("click", () => openItemModal("create"));
-  refs.batchButton.addEventListener("click", openBatchModal);
-  refs.batchAiButton.addEventListener("click", runBatchAi);
-  refs.batchSaveButton.addEventListener("click", saveBatch);
+  if (refs.addItemButton) refs.addItemButton.addEventListener("click", () => openItemModal("create"));
+  if (refs.batchButton) refs.batchButton.addEventListener("click", openBatchModal);
+  if (refs.batchAiButton) refs.batchAiButton.addEventListener("click", runBatchAi);
+  if (refs.batchSaveButton) refs.batchSaveButton.addEventListener("click", saveBatch);
 
-  refs.templateButton.addEventListener("click", () => {
-    downloadTemplate();
-    showToast("模版已导出", "已生成可用于批量导入的项目模版。");
-  });
-
-  refs.exportButton.addEventListener("click", () => {
-    downloadCsv("院内检查项目对码导出.csv", getDisplayedRows());
-    showToast("导出成功", "当前医院项目列表已导出为 CSV。");
-  });
-
-  refs.importButton.addEventListener("click", () => refs.importFileInput.click());
-  refs.importFileInput.addEventListener("change", (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    showToast("导入成功", `已接收文件“${file.name}”，演示环境仅保留交互反馈。`);
-    refs.importFileInput.value = "";
-  });
-
-  refs.tableBody.addEventListener("click", (event) => {
-    const actionButton = event.target.closest("[data-action]");
-    if (!actionButton) return;
-    const rowId = Number(actionButton.dataset.rowId);
-    if (actionButton.dataset.action === "edit") {
-      openItemModal("edit", rowId);
-      return;
-    }
-    if (actionButton.dataset.action === "delete") {
-      deleteRow(rowId);
-    }
-  });
-
-  refs.pagination.addEventListener("click", (event) => {
-    const pageButton = event.target.closest("[data-page]");
-    if (!pageButton || pageButton.classList.contains("is-disabled")) return;
-    state.page = Number(pageButton.dataset.page);
-    renderWorkspace();
-  });
-
-  refs.pagination.addEventListener("change", (event) => {
-    if (event.target.id === "pageSizeSelect") {
-      state.pageSize = Number(event.target.value);
-      state.page = 1;
+  if (refs.comboListSearchButton && refs.comboListTypeFilter && refs.comboListKeywordFilter) {
+    refs.comboListSearchButton.addEventListener("click", () => {
+      state.comboFilters.type = refs.comboListTypeFilter.value;
+      state.comboFilters.keyword = refs.comboListKeywordFilter.value;
+      state.comboPage = 1;
       renderWorkspace();
-    }
-  });
+    });
+  }
 
-  refs.pagination.addEventListener("keydown", (event) => {
-    if (event.target.id !== "gotoPageInput" || event.key !== "Enter") return;
-    const totalPages = getTotalPages();
-    const nextPage = Math.max(1, Math.min(totalPages, Number(event.target.value || 1)));
-    state.page = nextPage;
-    renderWorkspace();
-  });
+  if (refs.comboListAddButton) refs.comboListAddButton.addEventListener("click", () => openComboRuleModal("create"));
+  if (refs.comboListBatchButton) refs.comboListBatchButton.addEventListener("click", openComboBatchModal);
 
-  refs.hospitalTypeFilter.addEventListener("change", (event) => {
-    state.hospitalModal.type = event.target.value;
-    renderHospitalModal();
-  });
+  if (refs.comboListTemplateButton) {
+    refs.comboListTemplateButton.addEventListener("click", () => {
+      downloadComboTemplate();
+      showToast("模版已导出", "已生成组合对码批量维护模版。");
+    });
+  }
 
-  refs.hospitalKeywordFilter.addEventListener("input", (event) => {
-    state.hospitalModal.keyword = event.target.value;
-    renderHospitalModal();
-  });
+  if (refs.comboListExportButton) {
+    refs.comboListExportButton.addEventListener("click", () => {
+      downloadComboRulesCsv();
+      showToast("导出成功", "当前组合规则已导出为 CSV。");
+    });
+  }
 
-  refs.hospitalGrid.addEventListener("click", (event) => {
-    const card = event.target.closest("[data-hospital-id]");
-    if (!card) return;
-    state.selectedHospitalId = Number(card.dataset.hospitalId);
-    state.page = 1;
-    closeModal("hospitalModal");
-    renderWorkspace();
-    showToast("切换成功", `当前上下文已切换到 ${getCurrentHospital().name}。`);
-  });
+  if (refs.comboListImportButton && refs.comboListImportFileInput) {
+    refs.comboListImportButton.addEventListener("click", () => refs.comboListImportFileInput.click());
+    refs.comboListImportFileInput.addEventListener("change", (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      showToast("导入成功", `已接收组合规则文件“${file.name}”，当前原型仅保留交互反馈。`);
+      refs.comboListImportFileInput.value = "";
+    });
+  }
+
+  if (refs.comboMainTableBody) {
+    refs.comboMainTableBody.addEventListener("click", (event) => {
+      const actionButton = event.target.closest("[data-combo-list-action]");
+      if (!actionButton) return;
+      const ruleId = Number(actionButton.dataset.comboRuleId);
+      if (actionButton.dataset.comboListAction === "edit") {
+        openComboRuleModal("edit", ruleId);
+        return;
+      }
+      if (actionButton.dataset.comboListAction === "delete") {
+        deleteComboRule(ruleId);
+      }
+    });
+  }
+
+  if (refs.comboPagination) {
+    refs.comboPagination.addEventListener("click", (event) => {
+      const pageButton = event.target.closest("[data-combo-page]");
+      if (!pageButton || pageButton.classList.contains("is-disabled")) return;
+      state.comboPage = Number(pageButton.dataset.comboPage);
+      renderWorkspace();
+    });
+
+    refs.comboPagination.addEventListener("change", (event) => {
+      if (event.target.id === "comboPageSizeSelect") {
+        state.comboPageSize = Number(event.target.value);
+        state.comboPage = 1;
+        renderWorkspace();
+      }
+    });
+
+    refs.comboPagination.addEventListener("keydown", (event) => {
+      if (event.target.id !== "comboGotoPageInput" || event.key !== "Enter") return;
+      const totalPages = getComboTotalPages();
+      const nextPage = Math.max(1, Math.min(totalPages, Number(event.target.value || 1)));
+      state.comboPage = nextPage;
+      renderWorkspace();
+    });
+  }
+
+  if (refs.comboSearchButton && refs.comboTypeFilter && refs.comboStatusFilter && refs.comboKeywordFilter) {
+    refs.comboSearchButton.addEventListener("click", () => {
+      state.comboFilters.type = refs.comboTypeFilter.value;
+      state.comboFilters.status = refs.comboStatusFilter.value;
+      state.comboFilters.keyword = refs.comboKeywordFilter.value;
+      renderComboModule();
+    });
+  }
+
+  if (refs.comboResetButton) {
+    refs.comboResetButton.addEventListener("click", () => {
+      state.comboFilters.type = "";
+      state.comboFilters.status = "";
+      state.comboFilters.keyword = "";
+      renderComboModule();
+    });
+  }
+
+  if (refs.comboTableBody) {
+    refs.comboTableBody.addEventListener("click", (event) => {
+      const row = event.target.closest("[data-combo-rule-id]");
+      if (!row) return;
+      state.selectedComboRuleId = Number(row.dataset.comboRuleId);
+      renderComboModule();
+    });
+  }
+
+  if (refs.addComboRuleButton) {
+    refs.addComboRuleButton.addEventListener("click", () => {
+      showToast("入口已保留", "当前原型重点演示组合规则列表与示例展示。");
+    });
+  }
+
+  if (refs.comboTemplateButton) {
+    refs.comboTemplateButton.addEventListener("click", () => {
+      downloadComboTemplate();
+      showToast("模版已导出", "已生成组合对码批量维护模版。");
+    });
+  }
+
+  if (refs.comboExportButton) {
+    refs.comboExportButton.addEventListener("click", () => {
+      downloadComboRulesCsv();
+      showToast("导出成功", "当前组合规则已导出为 CSV。");
+    });
+  }
+
+  if (refs.comboImportButton && refs.comboImportFileInput) {
+    refs.comboImportButton.addEventListener("click", () => refs.comboImportFileInput.click());
+    refs.comboImportFileInput.addEventListener("change", (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      showToast("导入成功", `已接收组合规则文件“${file.name}”，当前原型仅保留交互反馈。`);
+      refs.comboImportFileInput.value = "";
+    });
+  }
+
+  if (refs.templateButton) {
+    refs.templateButton.addEventListener("click", () => {
+      downloadTemplate();
+      showToast("模版已导出", "已生成可用于批量导入的项目模版。");
+    });
+  }
+
+  if (refs.exportButton) {
+    refs.exportButton.addEventListener("click", () => {
+      downloadCsv("院内检查项目对码导出.csv", getDisplayedRows());
+      showToast("导出成功", "当前医院项目列表已导出为 CSV。");
+    });
+  }
+
+  if (refs.importButton && refs.importFileInput) {
+    refs.importButton.addEventListener("click", () => refs.importFileInput.click());
+    refs.importFileInput.addEventListener("change", (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      showToast("导入成功", `已接收文件“${file.name}”，演示环境仅保留交互反馈。`);
+      refs.importFileInput.value = "";
+    });
+  }
+
+  if (refs.tableBody) {
+    refs.tableBody.addEventListener("click", (event) => {
+      const actionButton = event.target.closest("[data-action]");
+      if (!actionButton) return;
+      const rowId = Number(actionButton.dataset.rowId);
+      if (actionButton.dataset.action === "edit") {
+        openItemModal("edit", rowId);
+        return;
+      }
+      if (actionButton.dataset.action === "delete") {
+        deleteRow(rowId);
+      }
+    });
+  }
+
+  if (refs.pagination) {
+    refs.pagination.addEventListener("click", (event) => {
+      const pageButton = event.target.closest("[data-page]");
+      if (!pageButton || pageButton.classList.contains("is-disabled")) return;
+      state.page = Number(pageButton.dataset.page);
+      renderWorkspace();
+    });
+
+    refs.pagination.addEventListener("change", (event) => {
+      if (event.target.id === "pageSizeSelect") {
+        state.pageSize = Number(event.target.value);
+        state.page = 1;
+        renderWorkspace();
+      }
+    });
+
+    refs.pagination.addEventListener("keydown", (event) => {
+      if (event.target.id !== "gotoPageInput" || event.key !== "Enter") return;
+      const totalPages = getTotalPages();
+      const nextPage = Math.max(1, Math.min(totalPages, Number(event.target.value || 1)));
+      state.page = nextPage;
+      renderWorkspace();
+    });
+  }
+
+  if (refs.hospitalTypeFilter) {
+    refs.hospitalTypeFilter.addEventListener("change", (event) => {
+      state.hospitalModal.type = event.target.value;
+      renderHospitalModal();
+    });
+  }
+
+  if (refs.hospitalKeywordFilter) {
+    refs.hospitalKeywordFilter.addEventListener("input", (event) => {
+      state.hospitalModal.keyword = event.target.value;
+      renderHospitalModal();
+    });
+  }
+
+  if (refs.hospitalGrid) {
+    refs.hospitalGrid.addEventListener("click", (event) => {
+      const card = event.target.closest("[data-hospital-id]");
+      if (!card) return;
+      state.selectedHospitalId = Number(card.dataset.hospitalId);
+      state.page = 1;
+      closeModal("hospitalModal");
+      renderWorkspace();
+      showToast("切换成功", `当前上下文已切换到 ${getCurrentHospital().name}。`);
+    });
+  }
 
   document.querySelectorAll("[data-close]").forEach((button) => {
     button.addEventListener("click", () => closeModal(button.dataset.close));
   });
 
-  refs.aiMatchButton.addEventListener("click", () => {
-    const draft = state.itemModal.draft;
-    if (!draft || !draft.itemName.trim()) {
-      showToast("AI 对码失败", "请先输入医院项目名称", "warning");
-      return;
-    }
-    const suggestion = getAiSuggestion(draft.itemName);
-    state.itemModal.analysis = suggestion.analysis;
-    refs.aiResultBox.innerHTML = suggestion.analysis;
-    if (suggestion.platformId) {
-      draft.platformItemId = suggestion.platformId;
-      draft.modality = getPlatformItemById(suggestion.platformId)?.modality || draft.modality;
-      renderPlatformOptions(draft.platformItemId);
-      showToast("AI 对码完成", `已为“${draft.itemName}”回填平台项目。`);
-    } else {
-      showToast("AI 未命中", "未找到明确匹配项，请手动选择平台项目。", "warning");
-    }
-    syncItemModalSummary();
-  });
+  if (refs.aiMatchButton && refs.aiResultBox) {
+    refs.aiMatchButton.addEventListener("click", () => {
+      const draft = state.itemModal.draft;
+      if (!draft || !draft.itemName.trim()) {
+        showToast("AI 对码失败", "请先输入医院项目名称", "warning");
+        return;
+      }
+      const suggestion = getAiSuggestion(draft.itemName);
+      state.itemModal.analysis = suggestion.analysis;
+      refs.aiResultBox.innerHTML = suggestion.analysis;
+      if (suggestion.platformId) {
+        draft.platformItemId = suggestion.platformId;
+        draft.modality = getPlatformItemById(suggestion.platformId)?.modality || draft.modality;
+        renderPlatformOptions(draft.platformItemId);
+        showToast("AI 对码完成", `已为“${draft.itemName}”回填平台项目。`);
+      } else {
+        showToast("AI 未命中", "未找到明确匹配项，请手动选择平台项目。", "warning");
+      }
+      syncItemModalSummary();
+    });
+  }
 
   [
     refs.itemNameInput,
@@ -1161,39 +2354,95 @@ function bindEvents() {
     refs.drugPriceInput,
     refs.drugRatioInput,
     refs.outItemIdInput,
-  ].forEach((input) => {
+  ].filter(Boolean).forEach((input) => {
     input.addEventListener("input", syncDraftFromInputs);
   });
 
-  refs.platformItemSelect.addEventListener("change", (event) => {
-    applyPlatformSelection(event.target.value);
+  [
+    refs.comboUpstreamHospitalSelect,
+    refs.comboDeliveryHospitalSelect,
+    refs.comboUpstreamNameInput,
+    refs.comboUpstreamCodeInput,
+    refs.comboMappingTypeSelect,
+    refs.comboDisplayNameInput,
+    refs.comboOrderDisplayInput,
+    refs.comboPlatformItemsInput,
+    refs.comboDeliveryItemsInput,
+    refs.comboPriceModeSelect,
+    refs.comboPriceValueInput,
+  ].filter(Boolean).forEach((input) => {
+    input.addEventListener(input.tagName === "SELECT" ? "change" : "input", syncComboDraftFromInputs);
   });
 
-  refs.deviceChipList.addEventListener("click", (event) => {
-    const chip = event.target.closest("[data-device-id]");
-    if (!chip || !state.itemModal.draft) return;
-    const deviceId = Number(chip.dataset.deviceId);
-    if (state.itemModal.draft.deviceIds.includes(deviceId)) {
-      state.itemModal.draft.deviceIds = state.itemModal.draft.deviceIds.filter((id) => id !== deviceId);
-    } else {
-      state.itemModal.draft.deviceIds = [...state.itemModal.draft.deviceIds, deviceId];
-    }
-    renderDeviceChips();
-  });
+  if (refs.platformItemSelect) {
+    refs.platformItemSelect.addEventListener("change", (event) => {
+      applyPlatformSelection(event.target.value);
+    });
+  }
 
-  refs.saveItemButton.addEventListener("click", saveDraft);
+  if (refs.comboAiSplitButton && refs.comboAiResultBox) {
+    refs.comboAiSplitButton.addEventListener("click", () => {
+      const draft = state.comboModal.draft;
+      if (!draft || !draft.upstreamItemName.trim()) {
+        showToast("AI 拆解失败", "请先输入上游项目名称", "warning");
+        return;
+      }
+      const suggestion = getComboAiSuggestion(draft.upstreamItemName);
+      if (!suggestion) {
+        refs.comboAiResultBox.innerHTML = "未命中明确组合拆解规则，请人工补充平台标准项目与执行项目。";
+        showToast("AI 未命中", "未找到明确组合规则，请手动补充。", "warning");
+        return;
+      }
+      applyComboSuggestion(draft, suggestion);
+      refs.comboAiResultBox.innerHTML = suggestion.analysis;
+      renderComboRuleModal();
+      showToast("AI 拆解完成", `已为“${draft.upstreamItemName}”回填组合拆解建议。`);
+    });
+  }
 
-  refs.batchTableBody.addEventListener("change", (event) => {
-    if (!event.target.matches(".batch-platform-select")) return;
-    const rowId = Number(event.target.dataset.batchRow);
-    const value = Number(event.target.value);
-    state.batchModal.rows = state.batchModal.rows.map((row) => row.id === rowId ? {
-      ...row,
-      platformItemId: value || null,
-      status: value ? "matched" : "pending",
-      batchNote: value ? "已手动选择平台项目，待保存。" : "已清空平台项目，待重新匹配。",
-    } : row);
-  });
+  if (refs.deviceChipList) {
+    refs.deviceChipList.addEventListener("click", (event) => {
+      const chip = event.target.closest("[data-device-id]");
+      if (!chip || !state.itemModal.draft) return;
+      const deviceId = Number(chip.dataset.deviceId);
+      if (state.itemModal.draft.deviceIds.includes(deviceId)) {
+        state.itemModal.draft.deviceIds = state.itemModal.draft.deviceIds.filter((id) => id !== deviceId);
+      } else {
+        state.itemModal.draft.deviceIds = [...state.itemModal.draft.deviceIds, deviceId];
+      }
+      renderDeviceChips();
+    });
+  }
+
+  if (refs.saveItemButton) {
+    refs.saveItemButton.addEventListener("click", saveDraft);
+  }
+
+  if (refs.comboSaveRuleButton) {
+    refs.comboSaveRuleButton.addEventListener("click", saveComboRule);
+  }
+
+  if (refs.batchTableBody) {
+    refs.batchTableBody.addEventListener("change", (event) => {
+      if (!event.target.matches(".batch-platform-select")) return;
+      const rowId = Number(event.target.dataset.batchRow);
+      const value = Number(event.target.value);
+      state.batchModal.rows = state.batchModal.rows.map((row) => row.id === rowId ? {
+        ...row,
+        platformItemId: value || null,
+        status: value ? "matched" : "pending",
+        batchNote: value ? "已手动选择平台项目，待保存。" : "已清空平台项目，待重新匹配。",
+      } : row);
+    });
+  }
+
+  if (refs.comboBatchAiButton) {
+    refs.comboBatchAiButton.addEventListener("click", runComboBatchAi);
+  }
+
+  if (refs.comboBatchSaveButton) {
+    refs.comboBatchSaveButton.addEventListener("click", saveComboBatch);
+  }
 
   document.querySelectorAll("[data-route]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -1201,20 +2450,30 @@ function bindEvents() {
     });
   });
 
-  document.addEventListener("click", (event) => {
-    if (!refs.userMenuButton.contains(event.target) && !refs.userMenu.contains(event.target)) {
-      refs.userMenu.hidden = true;
-    }
-  });
+  if (refs.userMenuButton && refs.userMenu) {
+    document.addEventListener("click", (event) => {
+      if (!refs.userMenuButton.contains(event.target) && !refs.userMenu.contains(event.target)) {
+        refs.userMenu.hidden = true;
+      }
+    });
+  }
 }
 
 function init() {
   createVerifyCode();
   renderFilterOptions();
-  refs.keywordFilter.value = state.filters.keyword;
-  refs.hospitalKeywordFilter.value = state.hospitalModal.keyword;
-  refs.loginScreen.hidden = state.screen !== "login";
-  refs.workspaceScreen.hidden = state.screen !== "workspace";
+  if (refs.keywordFilter) {
+    refs.keywordFilter.value = state.filters.keyword;
+  }
+  if (refs.hospitalKeywordFilter) {
+    refs.hospitalKeywordFilter.value = state.hospitalModal.keyword;
+  }
+  if (refs.loginScreen) {
+    refs.loginScreen.hidden = state.screen !== "login";
+  }
+  if (refs.workspaceScreen) {
+    refs.workspaceScreen.hidden = state.screen !== "workspace";
+  }
   bindEvents();
   renderWorkspace();
 }

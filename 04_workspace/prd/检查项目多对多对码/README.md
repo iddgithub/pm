@@ -27,6 +27,7 @@
 - `prototype/project-mapping-prototype.css`：原型样式文件
 - `prototype/03-cms院内检查项目对码高保真原型.html`：院内检查项目对码高保真交互原型
 - `prototype/05-cms平台项目列表高保真原型.html`：平台项目列表高保真交互原型
+- `prototype/07-cms组合对码高保真原型.html`：从检查项目对码页复制出的独立组合对码方案页
 - `prototype/04-URL还原基线.md`：院内检查项目对码 URL 基线说明
 - `prototype/06-cms平台项目列表URL基线.md`：平台项目列表 URL 基线说明
 - `prd/01-PRD.md`：正式 PRD

@@ -15,6 +15,7 @@
 - `cms-item-manage-replica.css` — 平台项目列表专属补充样式
 - `cms-item-manage-replica.js` — 平台项目列表交互逻辑
 - `06-cms平台项目列表URL基线.md` — 平台项目列表的 URL 来源和详情态边界说明
+- `07-cms组合对码高保真原型.html` — 从检查项目对码页复制出的独立组合对码方案页
 
 ## 维护规则
 

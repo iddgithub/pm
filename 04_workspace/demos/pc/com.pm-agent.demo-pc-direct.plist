@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.pm-agent.demo-pc-direct</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>-c</string>
+        <string>cd /Users/hugaopeng/Desktop/pm_agent/04_workspace/demos/pc && exec /Users/hugaopeng/.bun/bin/bun run dev -- --host 127.0.0.1 --port 3002</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>ThrottleInterval</key>
+    <integer>5</integer>
+</dict>
+</PLIST>
+
+launchctl bootstrap gui/501 /Users/hugaopeng/Desktop/pm_agent/04_workspace/demos/pc/com.pm-agent.demo-pc-direct.plist
+echo "Bootstrapped"

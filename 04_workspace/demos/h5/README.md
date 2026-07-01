@@ -15,6 +15,23 @@ H5 demo 使用 React + Ant Design + Vite，固定本地访问地址为：
 - `src/pages/`：较轻的页面级入口
 - `public/`：静态资源
 
+## 当前演示入口
+
+- `/qingteng-doctor-promo-video`：青藤医生入驻推广视频工程，包含 70 秒竖版时间轴、8 个 scene、中文字幕、素材清单和可预览页面。
+
+## 视频导出
+
+青藤医生入驻推广视频可用以下命令重新导出为主流手机竖屏 MP4：
+
+```bash
+/Users/hugaopeng/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/export-qingteng-promo-video.py
+```
+
+导出文件：
+
+- `public/qingteng-video-assets/qingteng-doctor-promo-vertical.mp4`
+- 规格：1080 × 1920，70 秒，H.264 MP4
+
 ## 推荐用法
 
 不要长期手工 `bun run dev` 常驻，优先统一使用 [`04_workspace/demos/demosctl.sh`](../demosctl.sh)：

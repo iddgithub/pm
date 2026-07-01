@@ -140,6 +140,12 @@
   font-weight: 600;
 }
 
+.activity-rule-note {
+  margin-top: 4px;
+  border-color: #d9efe7;
+  background: #f6fbf8;
+}
+
 .activity-price-cell {
   display: flex;
   align-items: center;

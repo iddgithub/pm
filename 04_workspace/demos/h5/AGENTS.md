@@ -22,8 +22,10 @@
 - `src/features/doctor-ordering/` — 医生开单与患者分享页
 - `src/features/operator/` — 运营端工作台
 - `src/features/patient/` — 患者端相关页面与模拟数据
+- `src/features/qingteng-doctor-promo/` — 青藤医生入驻推广视频工程、scene 时间轴与清单
 - `src/shared/` — H5 通用组件与样式
 - `public/` — 静态资源
+- `scripts/export-qingteng-promo-video.py` — 将青藤医生推广视频分镜导出为 1080×1920 竖屏 MP4
 
 ## 忽略项
 

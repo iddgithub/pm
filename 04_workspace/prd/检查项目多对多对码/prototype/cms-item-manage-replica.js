@@ -226,9 +226,35 @@ const detailSections = [
   { key: "other", label: "其他", title: "其他" },
 ];
 
+const INLINE_HOME_VIEW = "platform-project-list";
+
+const inlineViewRouteMap = {
+  "doctor-review": "./08-cms平台功能迁移高保真原型.html?embed=1#doctor-review",
+  "operator-management": "./08-cms平台功能迁移高保真原型.html?embed=1#operator-management",
+  "doctor-management": "./08-cms平台功能迁移高保真原型.html?embed=1#doctor-management",
+  binding: "./08-cms平台功能迁移高保真原型.html?embed=1#binding",
+  "order-association": "./08-cms平台功能迁移高保真原型.html?embed=1#order-association",
+  "interpretation-assignment": "./08-cms平台功能迁移高保真原型.html?embed=1#interpretation-assignment",
+  "bonus-management": "./08-cms平台功能迁移高保真原型.html?embed=1#bonus-management",
+  withdrawal: "./08-cms平台功能迁移高保真原型.html?embed=1#withdrawal",
+  dashboard: "./08-cms平台功能迁移高保真原型.html?embed=1#dashboard",
+  "ai-report-upload": "./08-cms平台功能迁移高保真原型.html?embed=1#ai-report-upload",
+  "multi-code-standard": "./08-cms平台功能迁移高保真原型.html?embed=1#multi-code-standard",
+  "multi-code-upstream": "./08-cms平台功能迁移高保真原型.html?embed=1#multi-code-upstream",
+  "multi-code-delivery": "./08-cms平台功能迁移高保真原型.html?embed=1#multi-code-delivery",
+  "multi-code-logs": "./08-cms平台功能迁移高保真原型.html?embed=1#multi-code-logs",
+  "activity-management": "./08-cms平台功能迁移高保真原型.html?embed=1#activity-management",
+};
+
+function resolveInlineViewFromHash() {
+  const hash = window.location.hash.replace(/^#/, "");
+  return inlineViewRouteMap[hash] ? hash : INLINE_HOME_VIEW;
+}
+
 const state = {
   sidebarCollapsed: false,
   selectedHospitalId: 301,
+  activeInlineView: resolveInlineViewFromHash(),
   filters: {
     modality: "",
     keyword: "",
@@ -246,6 +272,7 @@ const state = {
 const refs = {
   appShell: document.getElementById("appShell"),
   collapseToggle: document.getElementById("collapseToggle"),
+  platformListMenuButton: document.getElementById("platformListMenuButton"),
   hospitalSwitchButton: document.getElementById("hospitalSwitchButton"),
   userMenuButton: document.getElementById("userMenuButton"),
   userMenu: document.getElementById("userMenu"),
@@ -255,6 +282,9 @@ const refs = {
   modalityFilter: document.getElementById("modalityFilter"),
   keywordFilter: document.getElementById("keywordFilter"),
   searchButton: document.getElementById("searchButton"),
+  platformListPanel: document.getElementById("platformListPanel"),
+  moduleEmbedPanel: document.getElementById("moduleEmbedPanel"),
+  moduleEmbedFrame: document.getElementById("moduleEmbedFrame"),
   tableBody: document.getElementById("tableBody"),
   recordText: document.getElementById("recordText"),
   pagination: document.getElementById("pagination"),
@@ -516,12 +546,89 @@ function renderDetailModal() {
   refs.detailModal.hidden = false;
 }
 
+function syncMenuActiveState() {
+  const isHome = state.activeInlineView === INLINE_HOME_VIEW;
+  if (refs.platformListMenuButton) {
+    refs.platformListMenuButton.classList.toggle("is-active", isHome);
+  }
+
+  document.querySelectorAll(".menu-section__toggle").forEach((button) => {
+    button.classList.remove("is-active");
+  });
+
+  document.querySelectorAll("[data-inline-view]").forEach((button) => {
+    const isActive = button.dataset.inlineView === state.activeInlineView;
+    button.classList.toggle("is-active", isActive);
+    if (!isActive) {
+      return;
+    }
+    const section = button.closest(".menu-section");
+    const toggle = section?.querySelector(".menu-section__toggle");
+    if (!section || !toggle) {
+      return;
+    }
+    section.classList.add("is-expanded");
+    toggle.classList.add("is-active");
+    toggle.setAttribute("aria-expanded", "true");
+  });
+}
+
+function renderInlineView() {
+  const isHome = state.activeInlineView === INLINE_HOME_VIEW;
+
+  if (refs.platformListPanel) {
+    refs.platformListPanel.hidden = !isHome;
+  }
+
+  if (refs.moduleEmbedPanel) {
+    refs.moduleEmbedPanel.hidden = isHome;
+  }
+
+  if (!isHome && refs.moduleEmbedFrame) {
+    const nextSrc = inlineViewRouteMap[state.activeInlineView];
+    if (refs.moduleEmbedFrame.dataset.currentSrc !== nextSrc) {
+      refs.moduleEmbedFrame.src = nextSrc;
+      refs.moduleEmbedFrame.dataset.currentSrc = nextSrc;
+    }
+  }
+
+  if (isHome && refs.moduleEmbedFrame) {
+    refs.moduleEmbedFrame.removeAttribute("src");
+    delete refs.moduleEmbedFrame.dataset.currentSrc;
+  }
+
+  if (!isHome) {
+    state.detailModal.open = false;
+    state.detailModal.row = null;
+    refs.detailModal.hidden = true;
+  }
+
+  syncMenuActiveState();
+}
+
 function renderAll() {
   renderTopBar();
   renderFilters();
   renderTable();
   renderPagination();
   renderDetailModal();
+  renderInlineView();
+}
+
+function applyInlineView(viewKey, syncHash = true) {
+  state.activeInlineView = inlineViewRouteMap[viewKey] ? viewKey : INLINE_HOME_VIEW;
+  renderInlineView();
+
+  if (!syncHash) {
+    return;
+  }
+
+  if (state.activeInlineView === INLINE_HOME_VIEW) {
+    window.history.replaceState({}, "", `${window.location.pathname}${window.location.search}`);
+    return;
+  }
+
+  window.location.hash = state.activeInlineView;
 }
 
 function handleSearch() {
@@ -561,6 +668,12 @@ function bindEvents() {
     state.sidebarCollapsed = !state.sidebarCollapsed;
     refs.appShell.classList.toggle("is-collapsed", state.sidebarCollapsed);
   });
+
+  if (refs.platformListMenuButton) {
+    refs.platformListMenuButton.addEventListener("click", () => {
+      applyInlineView(INLINE_HOME_VIEW);
+    });
+  }
 
   refs.userMenuButton.addEventListener("click", () => {
     refs.userMenu.hidden = !refs.userMenu.hidden;
@@ -665,10 +778,28 @@ function bindEvents() {
     }
   });
 
+  document.querySelectorAll("[data-menu-toggle]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const section = button.closest(".menu-section");
+      const isExpanded = section.classList.toggle("is-expanded");
+      button.setAttribute("aria-expanded", String(isExpanded));
+    });
+  });
+
+  document.querySelectorAll("[data-inline-view]").forEach((button) => {
+    button.addEventListener("click", () => {
+      applyInlineView(button.dataset.inlineView);
+    });
+  });
+
   document.querySelectorAll("[data-route]").forEach((button) => {
     button.addEventListener("click", () => {
       window.location.href = button.dataset.route;
     });
+  });
+
+  window.addEventListener("hashchange", () => {
+    applyInlineView(resolveInlineViewFromHash(), false);
   });
 }
 

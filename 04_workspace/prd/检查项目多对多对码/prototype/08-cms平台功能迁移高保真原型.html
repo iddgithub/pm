@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CMS 平台功能迁移内容页</title>
+  <link rel="stylesheet" href="./cms-module-migration-replica.css" />
+</head>
+<body>
+  <section class="module-standalone">
+    <section class="page-panel migration-panel">
+      <div class="page-panel__head">
+        <div>
+          <span class="page-kicker" id="pageKicker"></span>
+          <div class="page-panel__title-row">
+            <div class="page-panel__title" id="pageTitle"></div>
+          </div>
+          <p class="page-panel__desc" id="pageDesc"></p>
+        </div>
+        <div class="migration-note" id="pageNote"></div>
+      </div>
+
+      <div class="combo-overview migration-metrics" id="metricsGrid"></div>
+
+      <div class="toolbar-row">
+        <div class="toolbar-row__filters" id="filtersBar"></div>
+        <div class="toolbar-row__actions" id="actionsBar"></div>
+      </div>
+
+      <div class="migration-highlight" id="highlightBanner"></div>
+
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table class="data-table" id="moduleTable">
+            <thead>
+              <tr id="tableHeadRow"></tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="footer-bar">
+        <div class="footer-bar__records" id="recordText"></div>
+        <div class="migration-footer-note" id="footerNote"></div>
+      </div>
+    </section>
+  </section>
+
+  <div class="modal-backdrop" id="detailModal" hidden>
+    <div class="modal-panel modal-panel--large">
+      <div class="modal-header">
+        <div>
+          <span class="modal-kicker" id="detailModalKicker"></span>
+          <h3 id="detailModalTitle"></h3>
+        </div>
+        <button class="icon-btn" id="closeDetailButton" type="button" aria-label="关闭详情">✕</button>
+      </div>
+      <div class="migration-modal-body">
+        <div class="migration-modal-summary" id="detailModalSummary"></div>
+        <div class="migration-detail-grid" id="detailModalGrid"></div>
+      </div>
+      <div class="migration-modal-actions" id="detailModalActions"></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="associateModal" hidden>
+    <div class="modal-panel modal-panel--large">
+      <div class="modal-header">
+        <div>
+          <span class="modal-kicker">订单关联</span>
+          <h3 id="associateModalTitle">关联医生</h3>
+        </div>
+        <button class="icon-btn" id="closeAssociateButton" type="button" aria-label="关闭关联弹窗">✕</button>
+      </div>
+      <div class="modal-toolbar">
+        <label class="field field--wide">
+          <span>搜索医生</span>
+          <input id="associateKeywordInput" type="text" placeholder="医生姓名 / 手机号 / 机构名称" />
+        </label>
+        <div class="migration-associate-meta">
+          <strong id="associateOrderNo"></strong>
+          <span id="associateOrderProject"></span>
+        </div>
+      </div>
+      <div class="migration-doctor-grid" id="associateDoctorGrid"></div>
+      <div class="migration-modal-actions">
+        <button class="btn btn-ghost" id="cancelAssociateButton" type="button">取消</button>
+        <button class="btn btn-primary" id="confirmAssociateButton" type="button">确认关联</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="qrModal" hidden>
+    <div class="modal-panel">
+      <div class="modal-header">
+        <div>
+          <span class="modal-kicker">医生管理</span>
+          <h3 id="qrModalTitle">二维码预览</h3>
+        </div>
+        <button class="icon-btn" id="closeQrButton" type="button" aria-label="关闭二维码弹窗">✕</button>
+      </div>
+      <div class="migration-modal-body">
+        <div class="migration-modal-summary" id="qrModalSummary"></div>
+        <div class="migration-qr-preview">
+          <div class="migration-qr-preview__code">QR</div>
+          <span>扫码进入医生工作台</span>
+        </div>
+      </div>
+      <div class="migration-modal-actions">
+        <button class="btn btn-primary" id="downloadQrButton" type="button">下载二维码</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toastStack"></div>
+
+  <script src="./cms-module-migration-replica.js"></script>
+</body>
+</html>

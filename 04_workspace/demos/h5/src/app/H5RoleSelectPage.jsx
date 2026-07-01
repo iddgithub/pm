@@ -3,15 +3,27 @@ import { useNavigate } from 'react-router-dom'
 
 const roleCards = [
   {
+    key: 'promo-video',
+    route: '/qingteng-doctor-promo-video',
+    label: '竖版视频工程',
+    title: '推广视频',
+    summary: '青藤医生入驻推广视频，70 秒竖版时间轴、字幕、动效与 scene 清单。',
+    pages: ['患者检查闭环', '医生入驻', '报告解读与提现'],
+    metrics: [
+      { label: '视频时长', value: '70秒' },
+      { label: 'Scene 数', value: '8段' },
+    ],
+  },
+  {
     key: 'doctor',
-    route: '/doctor',
+    route: '/doctor-reporting',
     label: '医生端 H5',
     title: '医生端',
-    summary: '签约申请、开单业务、报告解读费与患者维护。',
-    pages: ['我的管理', '医生报告解读费', '我的患者'],
+    summary: '检查检验、报告确认、服务费提现与提现记录。',
+    pages: ['我的管理', '确认报告', '提现记录'],
     metrics: [
-      { label: '报告解读费', value: '2000元' },
-      { label: '患者数', value: '80人' },
+      { label: '总解读服务费', value: '788元' },
+      { label: '待确认报告', value: '1份' },
     ],
   },
   {

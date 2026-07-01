@@ -1,5 +1,6 @@
 import { useMemo, useState, useRef, useEffect } from 'react'
 import {
+  Alert,
   ConfigProvider,
   Button,
   Card,
@@ -43,22 +44,22 @@ const { Paragraph, Text } = Typography
 const ANNOTATIONS = [
   {
     id: 1,
-    title: '需求描述：活动列表页',
-    content: `**功能描述**：展示活动管理总览，支持查看活动基础信息并执行查看、编辑、上架/下架、删除操作。
+    title: '需求描述：价格规则列表页',
+    content: `**功能描述**：展示互联网医院侧价格规则总览，支持查看、编辑、上架、下架和删除。
 
 **页面模块**：
 - 页面标题：活动管理
-- 页面副标题：统一由示例运营账号创建；一个活动可绑定同一渠道下多个机构，每个机构独立维护项目活动价。
-- 顶部操作：新建活动按钮
-- 表格字段：序号、活动名称、所属渠道、所属机构、机构数、活动项目数、活动时间、状态、创建人、更新时间、操作
+- 页面副标题：统一管理平台差异价、用户优惠券/折扣券、组套优惠和项目活动价。
+- 顶部操作：新建价格规则按钮
+- 表格字段：序号、价格规则名称、规则类型、业务通道、来源平台、适用签约中心、中心数、项目/组套数、生效时间、状态、优先级、更新时间、操作
 
 **交互行为**：
-- 点击"新建活动"进入新建页
+- 点击"新建价格规则"进入新建页
 - 点击"查看"进入详情页
 - 点击"编辑"进入编辑页
-- 点击"下架"弹出确认框，确认后将活动状态更新为"已下架"
-- 点击"上架"弹出确认框，确认后将活动状态更新为"已上架"
-- 点击"删除"弹出危险确认框，确认后删除活动且不可恢复
+- 点击"下架"弹出确认框，确认后将价格规则状态更新为"已下架"
+- 点击"上架"弹出确认框，确认后将价格规则状态更新为"已上架"
+- 点击"删除"弹出危险确认框，确认后删除价格规则且不可恢复
 
 **状态规则**：
 - 已下架：手动下架，或活动结束时间早于当前时间
@@ -70,59 +71,60 @@ const ANNOTATIONS = [
     title: '需求描述：基础信息表单',
     content: `**基础信息表单**：
 - 字段：
-  - 活动名称：输入框，必填，最大长度 30
-  - 所属渠道：单选下拉，必填
-  - 所属机构：多选下拉，必填，需先选择所属渠道后可选
-  - 活动时间：起止时间范围选择，必填
-  - 活动说明：多行文本，必填，最大长度 120
+  - 价格规则名称：输入框，必填，最大长度 30
+  - 价格规则类型：平台差异价、项目活动价、用户优惠券/折扣券、组套优惠
+  - 业务通道：当前重点为互联网医院
+  - 来源平台/合作平台：平安、青藤自营、一脉、全部平台等
+  - 适用签约交付中心：多选，表示规则适用范围，不是活动主体
+  - 生效时间：起止时间范围选择，必填
+  - 规则说明：多行文本，必填，最大长度 160
 
 **保存校验规则**：
-- 活动名称不能为空
-- 活动说明不能为空
-- 所属渠道不能为空
-- 所属机构至少选择 1 个
+- 价格规则名称不能为空
+- 规则类型、业务通道、来源平台不能为空
+- 至少选择 1 个适用签约交付中心
 - 活动开始和结束时间必须完整选择
 - 结束时间必须晚于开始时间
-- 每个已选机构至少添加 1 个检查项目
-- 每个已选机构的每个检查项目都必须填写活动价
-- 同一渠道下，同一机构的同一检查项目在相同时间内只能存在一个活动价`
+- 每个适用中心至少添加 1 个检查项目
+- 每个项目都必须填写规则价
+- 同一业务通道、来源平台、规则类型、签约中心、项目在重叠时间内只能存在一条有效规则`
   },
   {
     id: 3,
-    title: '需求描述：机构项目活动价模块',
-    content: `**机构项目活动价模块**：
-- 模块目标：按机构分别维护活动项目和活动价
-- 模块说明：当前渠道下，每个机构独立配置项目和活动价；活动价只作用在该渠道下的当前机构
-- 机构切换：当所属机构有多个时，以切换按钮形式展示已选机构
-- 表格字段：项目名称、编码、原价、活动价、操作
-- 操作说明：点击"添加检查项目"打开一级平台项目库弹窗；在已选项目表格中可编辑活动价；在已选项目表格中可点击"移除"移除项目`
+    title: '需求描述：适用项目与规则价格',
+    content: `**适用项目与规则价格模块**：
+- 模块目标：按签约交付中心维护适用项目和规则价
+- 模块说明：交付中心只是规则适用范围，价格规则主体是业务通道/来源平台
+- 中心切换：当适用中心有多个时，以切换按钮展示
+- 表格字段：项目名称、编码、门市价、规则价、操作
+- 操作说明：点击"添加检查项目"打开平台标准项目库；在已选项目表格中可编辑规则价；组套优惠可选择多个项目共同组成套餐`
   },
   {
     id: 4,
-    title: '需求描述：一级平台项目库弹窗',
-    content: `**一级平台项目库弹窗**：
-- 功能描述：从标准检查项目库中为当前机构选择活动项目
-- 标题：一级平台项目库
-- 冲突提示：同渠道下，当前机构在所选活动时间内已被其他活动占用的项目将禁止选择，避免活动价格冲突
+    title: '需求描述：平台标准项目库弹窗',
+    content: `**平台标准项目库弹窗**：
+- 功能描述：从标准检查项目库中为当前签约中心选择适用项目
+- 标题：平台标准项目库
+- 冲突提示：同一业务通道、来源平台、规则类型、签约中心、项目在重叠时间内只能存在一条有效价格规则
 - 查询区字段：检查类型、编码/名称关键字
 - 行选择规则：
-  - 已添加到当前机构的项目禁选
-  - 当前机构未选中时全部禁选
-  - 与其他活动冲突的项目禁选，并显示冲突活动名称与时间提示`
+  - 已添加到当前中心的项目禁选
+  - 当前中心未选中时全部禁选
+  - 与同类型价格规则冲突的项目禁选，并显示冲突规则名称与时间提示`
   },
   {
     id: 5,
-    title: '需求描述：活动详情页',
-    content: `**活动详情页**：
-- 功能描述：查看活动的基础信息、机构范围和每个机构下的项目活动价，并可从详情页返回、编辑或下架活动
+    title: '需求描述：价格规则详情页',
+    content: `**价格规则详情页**：
+- 功能描述：查看价格规则基础信息、适用范围和每个签约中心下的规则价格，并可从详情页返回、编辑或下架
 
 **基础信息区域**：
-- 展示字段：活动名称、所属渠道、活动状态、活动时间、创建人、更新时间、所属机构、机构数、活动项目数、活动说明
+- 展示字段：价格规则名称、规则类型、业务通道、来源平台、状态、生效时间、创建人、更新时间、适用签约中心、中心数、项目/组套数、规则说明
 - 状态展示：使用标签展示"已上架 / 进行中 / 已下架"
 
-**机构活动项目价格区域**：
-- 机构切换：展示该活动下全部机构按钮，点击切换当前查看机构
-- 表格字段：项目名称、所属分类、编码、检查类型、原价、活动价、价格变化`
+**规则价格区域**：
+- 签约中心切换：展示该规则下全部适用中心按钮
+- 表格字段：项目名称、所属分类、编码、检查类型、门市价、规则价、价格变化`
   }
 ]
 
@@ -281,35 +283,79 @@ const { RangePicker } = DatePicker
 
 const DATE_TIME_FORMAT = 'YYYY-MM-DD HH:mm'
 
-const STORAGE_KEY_BACKSTAGE = 'pm-agent-activity-management-v6'
-const STORAGE_KEY_SHARE = 'pm-agent-activity-management-share-v4'
+const STORAGE_KEY_BACKSTAGE = 'pm-agent-activity-management-v7'
+const STORAGE_KEY_SHARE = 'pm-agent-activity-management-share-v5'
 const DEMO_OPERATOR_NAME = '运营账号A'
 
 const channels = [
-  { label: '渠道A', value: 'channel-qt' },
-  { label: '渠道B', value: 'channel-ant' },
-  { label: '渠道C', value: 'channel-pa' },
+  { label: '互联网医院', value: 'internet-hospital' },
+  { label: '一脉中心', value: 'yimai-center' },
+  { label: '青藤自助开单', value: 'qingteng-self-order' },
+]
+
+const sourcePlatforms = [
+  { label: '全部平台', value: 'all' },
+  { label: '平安', value: 'pingan' },
+  { label: '青藤自营', value: 'qingteng' },
+  { label: '一脉', value: 'yimai' },
+  { label: '其他合作平台', value: 'partner-other' },
+]
+
+const priceRuleTypes = [
+  {
+    label: '不同平台不同价格',
+    value: 'platform-price',
+    tagColor: 'blue',
+    priority: 30,
+    formTitle: '互联网医院侧来源平台展示价',
+    priceColumnTitle: '平台展示价',
+    description: '用于平安等特定来源平台，在互联网医院业务通道下对同一项目展示不同价格。',
+  },
+  {
+    label: '项目活动价格',
+    value: 'project-activity',
+    tagColor: 'green',
+    priority: 20,
+    formTitle: '签约中心项目活动价',
+    priceColumnTitle: '活动价',
+    description: '用于在互联网医院业务通道下，为特定签约交付中心的特定项目设置阶段性活动价格。',
+  },
+  {
+    label: '用户优惠券/折扣券',
+    value: 'user-discount',
+    tagColor: 'purple',
+    priority: 40,
+    formTitle: '用户侧优惠后价格',
+    priceColumnTitle: '优惠后价',
+    description: '用于面向指定用户、人群或券码提供优惠，需要后续明确是否可与平台价、活动价和套餐价叠加。',
+  },
+  {
+    label: '组套优惠',
+    value: 'bundle-discount',
+    tagColor: 'orange',
+    priority: 50,
+    formTitle: '组套优惠价',
+    priceColumnTitle: '组套价',
+    description: '用于多个项目组合后的套餐优惠，需明确套餐展示、明细拆分和下发到交付中心的规则。',
+  },
 ]
 
 const institutionsByChannel = {
-  'channel-qt': [
-    { label: '机构A-01', value: 'org-qt-001' },
-    { label: '机构A-02', value: 'org-qt-002' },
-    { label: '机构A-03', value: 'org-qt-003' },
-    { label: '机构A-04', value: 'org-qt-004' },
+  'internet-hospital': [
+    { label: '成都高新影像交付中心', value: 'center-ih-001' },
+    { label: '南昌红谷滩影像交付中心', value: 'center-ih-002' },
+    { label: '南昌西湖影像交付中心', value: 'center-ih-003' },
+    { label: '杭州滨江影像交付中心', value: 'center-ih-004' },
   ],
-  'channel-ant': [
-    { label: '机构B-01', value: 'org-ant-001' },
-    { label: '机构B-02', value: 'org-ant-002' },
-    { label: '机构B-03', value: 'org-ant-003' },
-    { label: '机构B-04', value: 'org-ant-004' },
+  'yimai-center': [
+    { label: '一脉成都中心', value: 'center-yimai-001' },
+    { label: '一脉南昌中心', value: 'center-yimai-002' },
+    { label: '一脉杭州中心', value: 'center-yimai-003' },
   ],
-  'channel-pa': [
-    { label: '机构C-01', value: 'org-pa-001' },
-    { label: '机构C-02', value: 'org-pa-002' },
-    { label: '机构C-03', value: 'org-pa-003' },
-    { label: '机构C-04', value: 'org-pa-004' },
-    { label: '机构C-05', value: 'org-pa-005' },
+  'qingteng-self-order': [
+    { label: '青藤成都自助开单中心', value: 'center-qt-001' },
+    { label: '青藤南昌自助开单中心', value: 'center-qt-002' },
+    { label: '青藤杭州自助开单中心', value: 'center-qt-003' },
   ],
 }
 
@@ -329,113 +375,131 @@ const defaultActivityPriceMap = {
 const seedActivities = [
   {
     id: 'act-001',
-    name: '示例活动01',
-    description: '示例活动说明，用于演示阶段性活动价格配置。',
-    channelId: 'channel-qt',
-    institutionIds: ['org-qt-001', 'org-qt-002'],
-    startAt: '2026-05-01 00:00',
-    endAt: '2026-06-10 23:59',
+    name: '平安平台肺结节专项价',
+    description: '互联网医院侧来源平台差异价：平安平台访问时展示肺结节项目专项价格，交付中心只作为适用范围。',
+    ruleType: 'platform-price',
+    sourcePlatformId: 'pingan',
+    channelId: 'internet-hospital',
+    institutionIds: ['center-ih-001', 'center-ih-002'],
+    startAt: '2026-06-20 00:00',
+    endAt: '2026-08-31 23:59',
     status: 'listed',
     creator: DEMO_OPERATOR_NAME,
-    updatedAt: '2026-05-08 14:20',
+    updatedAt: '2026-06-27 10:20',
+    priority: 30,
     institutionConfigs: {
-      'org-qt-001': [
-        { projectId: 'p-001', activityPrice: 168 },
-        { projectId: 'p-002', activityPrice: 158 },
-      ],
-      'org-qt-002': [
-        { projectId: 'p-001', activityPrice: 169 },
+      'center-ih-001': [
         { projectId: 'p-006', activityPrice: 129 },
+      ],
+      'center-ih-002': [
+        { projectId: 'p-006', activityPrice: 135 },
       ],
     },
     logs: [
-      { action: '创建活动', operator: DEMO_OPERATOR_NAME, at: '2026-05-08 13:50', detail: '创建示例活动并完成基础配置' },
-      { action: '上架活动', operator: DEMO_OPERATOR_NAME, at: '2026-05-08 14:20', detail: '上架示例活动并展示活动价格' },
+      { action: '创建价格规则', operator: DEMO_OPERATOR_NAME, at: '2026-06-27 10:00', detail: '创建平安平台来源差异价规则' },
+      { action: '上架价格规则', operator: DEMO_OPERATOR_NAME, at: '2026-06-27 10:20', detail: '上架后平安平台按专项价展示' },
     ],
   },
   {
     id: 'act-002',
-    name: '肺结节专项活动价格',
-    description: '面向机构配置肺结节 AI 辅助筛查项目活动价。',
-    channelId: 'channel-ant',
-    institutionIds: ['org-ant-002'],
-    startAt: '2026-05-18 00:00',
-    endAt: '2026-05-31 23:59',
+    name: '互联网医院新客折扣券',
+    description: '用户侧优惠券/折扣券：面向互联网医院新客，命中项目后展示优惠后价；叠加规则后续需与价格引擎确认。',
+    ruleType: 'user-discount',
+    sourcePlatformId: 'all',
+    channelId: 'internet-hospital',
+    institutionIds: ['center-ih-001', 'center-ih-003'],
+    startAt: '2026-07-01 00:00',
+    endAt: '2026-07-31 23:59',
     status: 'listed',
     creator: DEMO_OPERATOR_NAME,
-    updatedAt: '2026-05-07 18:10',
+    updatedAt: '2026-06-27 11:05',
+    priority: 40,
     institutionConfigs: {
-      'org-ant-002': [
-        { projectId: 'p-006', activityPrice: 139 },
+      'center-ih-001': [
+        { projectId: 'p-001', activityPrice: 150 },
+        { projectId: 'p-002', activityPrice: 138 },
+      ],
+      'center-ih-003': [
+        { projectId: 'p-002', activityPrice: 145 },
       ],
     },
     logs: [
-      { action: '创建并上架活动', operator: DEMO_OPERATOR_NAME, at: '2026-05-07 18:10', detail: '创建示例活动并直接上架' },
+      { action: '创建价格规则', operator: DEMO_OPERATOR_NAME, at: '2026-06-27 11:05', detail: '创建用户侧新客折扣券规则' },
     ],
   },
   {
     id: 'act-003',
-    name: '骨密度检查五月活动',
-    description: '示例活动说明，用于演示骨密度检查活动价格配置。',
-    channelId: 'channel-pa',
-    institutionIds: ['org-pa-001', 'org-pa-003'],
-    startAt: '2026-05-06 00:00',
-    endAt: '2026-05-20 23:59',
+    name: '胸部CT筛查组套优惠',
+    description: '组套优惠：肺结节筛查与三维重建能力组合展示为套餐价，后续需明确是否拆分下发到交付中心。',
+    ruleType: 'bundle-discount',
+    sourcePlatformId: 'qingteng',
+    channelId: 'internet-hospital',
+    institutionIds: ['center-ih-002'],
+    startAt: '2026-07-05 00:00',
+    endAt: '2026-09-30 23:59',
     status: 'listed',
     creator: DEMO_OPERATOR_NAME,
-    updatedAt: '2026-05-06 09:42',
+    updatedAt: '2026-06-27 11:30',
+    priority: 50,
     institutionConfigs: {
-      'org-pa-001': [
-        { projectId: 'p-002', activityPrice: 169 },
-        { projectId: 'p-003', activityPrice: 99 },
-      ],
-      'org-pa-003': [
-        { projectId: 'p-003', activityPrice: 105 },
+      'center-ih-002': [
+        { projectId: 'p-004', activityPrice: 299 },
+        { projectId: 'p-006', activityPrice: 99 },
       ],
     },
     logs: [
-      { action: '创建并上架活动', operator: DEMO_OPERATOR_NAME, at: '2026-05-06 09:42', detail: '创建示例活动并直接上架' },
+      { action: '创建价格规则', operator: DEMO_OPERATOR_NAME, at: '2026-06-27 11:30', detail: '创建胸部 CT 组套优惠规则' },
     ],
   },
   {
     id: 'act-004',
-    name: '示例活动04',
-    description: '因机构侧活动暂停，运营已手动下架。',
-    channelId: 'channel-qt',
-    institutionIds: ['org-qt-004'],
-    startAt: '2026-04-20 00:00',
-    endAt: '2026-05-25 23:59',
+    name: '一脉中心门市价展示口径',
+    description: '价格口径校正：一脉侧按实际门市价展示，系统内记录 7 折后价格。该类规则不等同普通项目活动价。',
+    ruleType: 'platform-price',
+    sourcePlatformId: 'yimai',
+    channelId: 'yimai-center',
+    institutionIds: ['center-yimai-001', 'center-yimai-002'],
+    startAt: '2026-06-01 00:00',
+    endAt: '2026-12-31 23:59',
     status: 'offline',
     creator: DEMO_OPERATOR_NAME,
-    updatedAt: '2026-05-04 16:35',
+    updatedAt: '2026-06-26 16:35',
+    priority: 30,
     institutionConfigs: {
-      'org-qt-004': [
-        { projectId: 'p-004', activityPrice: 328 },
+      'center-yimai-001': [
+        { projectId: 'p-001', activityPrice: 140 },
+        { projectId: 'p-005', activityPrice: 196 },
+      ],
+      'center-yimai-002': [
+        { projectId: 'p-002', activityPrice: 126 },
       ],
     },
     logs: [
-      { action: '创建并上架活动', operator: DEMO_OPERATOR_NAME, at: '2026-04-20 10:00', detail: '创建示例活动并直接上架' },
-      { action: '下架活动', operator: DEMO_OPERATOR_NAME, at: '2026-05-04 16:35', detail: '下架示例活动并恢复默认价格' },
+      { action: '创建价格规则', operator: DEMO_OPERATOR_NAME, at: '2026-06-26 15:00', detail: '记录一脉展示价与系统记录价口径' },
+      { action: '下架价格规则', operator: DEMO_OPERATOR_NAME, at: '2026-06-26 16:35', detail: '等待结算配置页确认后再上架' },
     ],
   },
   {
     id: 'act-005',
-    name: '头颅MRI专项活动',
-    description: '示例活动说明，用于演示头颅 MRI 阶段性活动价配置。',
-    channelId: 'channel-pa',
-    institutionIds: ['org-pa-002'],
-    startAt: '2026-06-15 00:00',
-    endAt: '2026-06-30 23:59',
+    name: '青藤自助开单抽成比例调整',
+    description: '青藤自助开单抽成比例从 25% 调整至 30%，用于展示结算口径变化，不应与普通项目活动价混淆。',
+    ruleType: 'platform-price',
+    sourcePlatformId: 'qingteng',
+    channelId: 'qingteng-self-order',
+    institutionIds: ['center-qt-001'],
+    startAt: '2026-07-01 00:00',
+    endAt: '2026-12-31 23:59',
     status: 'listed',
     creator: DEMO_OPERATOR_NAME,
-    updatedAt: '2026-05-08 10:30',
+    updatedAt: '2026-06-27 12:00',
+    priority: 30,
     institutionConfigs: {
-      'org-pa-002': [
-        { projectId: 'p-005', activityPrice: 260 },
+      'center-qt-001': [
+        { projectId: 'p-005', activityPrice: 280 },
       ],
     },
     logs: [
-      { action: '创建并上架活动', operator: DEMO_OPERATOR_NAME, at: '2026-05-08 10:30', detail: '创建示例活动并直接上架' },
+      { action: '创建价格规则', operator: DEMO_OPERATOR_NAME, at: '2026-06-27 12:00', detail: '记录青藤自助开单抽成比例调整' },
     ],
   },
 ]
@@ -480,30 +544,45 @@ function getDemoActivityCode(activityId, index) {
 }
 
 function getDemoActivityName(activityId, index) {
-  return `示例活动${getDemoActivityCode(activityId, index)}`
+  return `价格规则${getDemoActivityCode(activityId, index)}`
 }
 
 function getDemoLogDetail(action) {
-  if (action.includes('创建') && action.includes('上架')) return '创建示例活动并直接上架'
-  if (action.includes('创建')) return '创建示例活动并完成基础配置'
-  if (action.includes('编辑')) return '更新示例活动配置'
-  if (action.includes('上架')) return '上架示例活动并展示活动价格'
-  if (action.includes('下架')) return '下架示例活动并恢复默认价格'
-  return '更新示例活动配置'
+  if (action.includes('创建') && action.includes('上架')) return '创建价格规则并直接上架'
+  if (action.includes('创建')) return '创建价格规则并完成基础配置'
+  if (action.includes('编辑')) return '更新价格规则配置'
+  if (action.includes('上架')) return '上架价格规则并展示规则价格'
+  if (action.includes('下架')) return '下架价格规则并恢复基础价格'
+  return '更新价格规则配置'
+}
+
+function getRuleTypeMeta(ruleType) {
+  return priceRuleTypes.find((item) => item.value === ruleType) || priceRuleTypes[1]
+}
+
+function getSourcePlatformName(id) {
+  return sourcePlatforms.find((item) => item.value === id)?.label || '全部平台'
 }
 
 function sanitizeActivitiesForDemo(activities = []) {
-  return activities.map((activity, index) => ({
-    ...activity,
-    name: getDemoActivityName(activity.id, index),
-    description: '示例活动说明，用于直播演示后台活动配置与价格维护流程。',
-    creator: DEMO_OPERATOR_NAME,
-    logs: (activity.logs || []).map((log) => ({
-      ...log,
-      operator: DEMO_OPERATOR_NAME,
-      detail: getDemoLogDetail(log.action || ''),
-    })),
-  }))
+  return activities.map((activity, index) => {
+    const ruleType = activity.ruleType || 'project-activity'
+    const ruleMeta = getRuleTypeMeta(ruleType)
+    return {
+      ...activity,
+      name: activity.name || getDemoActivityName(activity.id, index),
+      description: activity.description || '价格规则说明，用于演示后台价格规则配置与维护流程。',
+      ruleType,
+      sourcePlatformId: activity.sourcePlatformId || 'all',
+      priority: activity.priority || ruleMeta.priority,
+      creator: activity.creator || DEMO_OPERATOR_NAME,
+      logs: (activity.logs || []).map((log) => ({
+        ...log,
+        operator: log.operator || DEMO_OPERATOR_NAME,
+        detail: log.detail || getDemoLogDetail(log.action || ''),
+      })),
+    }
+  })
 }
 
 function cloneSeedActivities() {
@@ -616,13 +695,18 @@ function ActivityFrame({ title, subtitle, extra, children, standalone = false })
 
 function enrichActivity(activity) {
   const normalizedStatus = normalizeStatus(activity)
+  const ruleMeta = getRuleTypeMeta(activity.ruleType)
   return {
     ...activity,
     status: normalizedStatus,
+    ruleTypeMeta: ruleMeta,
+    ruleTypeLabel: ruleMeta.label,
     channelName: getChannelName(activity.channelId),
+    sourcePlatformName: getSourcePlatformName(activity.sourcePlatformId),
     institutionSummary: getInstitutionSummary(activity.institutionIds),
     institutionCount: activity.institutionIds?.length || 0,
     projectCount: getInstitutionProjectCount(activity),
+    priority: activity.priority || ruleMeta.priority,
   }
 }
 
@@ -641,11 +725,13 @@ function useActivityStore(storageKey) {
 }
 
 function canPassIntegrity(values, institutionProjectMap, activities, editingId) {
-  if (!values.name?.trim()) return '请填写活动名称'
-  if (!values.description?.trim()) return '请填写活动说明'
-  if (!values.channelId) return '请先选择所属渠道'
-  if (!values.institutionIds?.length) return '请至少选择一个所属机构'
-  if (!values.timeRange?.[0] || !values.timeRange?.[1]) return '请设置活动开始和结束时间'
+  if (!values.name?.trim()) return '请填写价格规则名称'
+  if (!values.ruleType) return '请选择价格规则类型'
+  if (!values.description?.trim()) return '请填写规则说明'
+  if (!values.channelId) return '请选择业务通道'
+  if (!values.sourcePlatformId) return '请选择来源平台/合作平台'
+  if (!values.institutionIds?.length) return '请至少选择一个适用签约交付中心'
+  if (!values.timeRange?.[0] || !values.timeRange?.[1]) return '请设置生效开始和结束时间'
 
   const [startAt, endAt] = values.timeRange
   if (!endAt.isAfter(startAt)) return '结束时间必须晚于开始时间'
@@ -653,14 +739,17 @@ function canPassIntegrity(values, institutionProjectMap, activities, editingId) 
   for (const institutionId of values.institutionIds) {
     const projectMap = institutionProjectMap[institutionId] || {}
     const projectIds = Object.keys(projectMap)
-    if (!projectIds.length) return `请先为机构“${getInstitutionName(institutionId)}”添加检查项目`
+    if (!projectIds.length) return `请先为签约中心“${getInstitutionName(institutionId)}”添加检查项目`
     const hasMissingPrice = projectIds.some((projectId) => projectMap[projectId] === null || projectMap[projectId] === undefined)
-    if (hasMissingPrice) return `请为机构“${getInstitutionName(institutionId)}”填写完整活动价`
+    if (hasMissingPrice) return `请为签约中心“${getInstitutionName(institutionId)}”填写完整规则价`
   }
 
   const hasConflict = activities.some((activity) => {
     if (activity.id === editingId) return false
     if (normalizeStatus(activity) === 'offline') return false
+    if (activity.channelId !== values.channelId) return false
+    if ((activity.sourcePlatformId || 'all') !== values.sourcePlatformId) return false
+    if ((activity.ruleType || 'project-activity') !== values.ruleType) return false
     const existingStart = dayjs(activity.startAt)
     const existingEnd = dayjs(activity.endAt)
     if (!(startAt.isBefore(existingEnd) && endAt.isAfter(existingStart))) return false
@@ -673,7 +762,7 @@ function canPassIntegrity(values, institutionProjectMap, activities, editingId) 
     })
   })
 
-  if (hasConflict) return '同一渠道下，同一机构的同一检查项目在相同时间内只能存在一个活动价'
+  if (hasConflict) return '同一业务通道、来源平台、规则类型、签约中心和项目在重叠时间内只能存在一条有效价格规则'
   return ''
 }
 
@@ -684,7 +773,7 @@ function ActivityListPage({ activities, commit, basePath, standalone }) {
   const updateStatus = (activity, nextStatus, label) => {
     Modal.confirm({
       title: `确认${label}`,
-      content: `${label}后，相关项目价格会按当前状态同步展示。`,
+      content: `${label}后，相关价格规则会按当前状态同步展示。`,
       okText: `确认${label}`,
       cancelText: '取消',
       onOk: () => {
@@ -701,7 +790,7 @@ function ActivityListPage({ activities, commit, basePath, standalone }) {
                 action: label,
                 operator: DEMO_OPERATOR_NAME,
                 at: actionAt,
-                detail: nextStatus === 'listed' ? '手动上架活动价格' : '手动下架并恢复机构原价格',
+                detail: nextStatus === 'listed' ? '手动上架价格规则' : '手动下架并恢复基础价格',
               },
             ],
           }
@@ -713,7 +802,7 @@ function ActivityListPage({ activities, commit, basePath, standalone }) {
 
   const removeActivity = (activity) => {
     Modal.confirm({
-      title: '确认删除活动',
+      title: '确认删除价格规则',
       content: `删除后将无法恢复，确定删除“${activity.name}”吗？`,
       okText: '确认删除',
       cancelText: '取消',
@@ -727,11 +816,17 @@ function ActivityListPage({ activities, commit, basePath, standalone }) {
 
   const columns = [
     { title: '序号', width: 72, render: (_, __, index) => index + 1 },
-    { title: '活动名称', dataIndex: 'name', width: 210 },
-    { title: '所属渠道', dataIndex: 'channelName', width: 140 },
+    { title: '价格规则名称', dataIndex: 'name', width: 230 },
     {
-      title: '所属机构',
-      width: 280,
+      title: '规则类型',
+      width: 160,
+      render: (_, row) => <Tag color={row.ruleTypeMeta.tagColor}>{row.ruleTypeLabel}</Tag>,
+    },
+    { title: '业务通道', dataIndex: 'channelName', width: 130 },
+    { title: '来源平台', dataIndex: 'sourcePlatformName', width: 130 },
+    {
+      title: '适用签约中心',
+      width: 300,
       render: (_, row) => (
         <div className="activity-institution-brief">
           <span className="activity-institution-brief__text">{row.institutionSummary}</span>
@@ -748,16 +843,16 @@ function ActivityListPage({ activities, commit, basePath, standalone }) {
                 </div>
               )}
             >
-              <button type="button" className="activity-institution-brief__link">查看机构</button>
+              <button type="button" className="activity-institution-brief__link">查看中心</button>
             </Popover>
           ) : null}
         </div>
       ),
     },
-    { title: '机构数', dataIndex: 'institutionCount', width: 90 },
-    { title: '活动项目数', dataIndex: 'projectCount', width: 110 },
+    { title: '中心数', dataIndex: 'institutionCount', width: 90 },
+    { title: '项目/组套数', dataIndex: 'projectCount', width: 120 },
     {
-      title: '活动时间',
+      title: '生效时间',
       width: 280,
       render: (_, row) => `${row.startAt} 至 ${row.endAt}`,
     },
@@ -766,7 +861,7 @@ function ActivityListPage({ activities, commit, basePath, standalone }) {
       width: 110,
       render: (_, row) => <StatusText status={row.status} />,
     },
-    { title: '创建人', dataIndex: 'creator', width: 140 },
+    { title: '优先级', dataIndex: 'priority', width: 90 },
     { title: '更新时间', dataIndex: 'updatedAt', width: 160 },
     {
       title: '操作',
@@ -801,10 +896,10 @@ function ActivityListPage({ activities, commit, basePath, standalone }) {
     <Annotatable id={1}>
       <ActivityFrame
         title="活动管理"
-      subtitle="统一由示例运营账号创建；一个活动可绑定同一渠道下多个机构，每个机构独立维护项目活动价。"
+        subtitle="统一管理互联网医院侧价格规则，覆盖平台差异价、用户优惠券/折扣券、组套优惠和项目活动价。"
         extra={(
           <Button className="activity-green-btn" icon={<PlusOutlined />} onClick={() => navigate(`${basePath}/create`)}>
-            新建活动
+            新建价格规则
           </Button>
         )}
         standalone={standalone}
@@ -815,7 +910,7 @@ function ActivityListPage({ activities, commit, basePath, standalone }) {
           columns={columns}
           dataSource={rows}
           pagination={{ pageSize: 10, showTotal: (total) => `共${total}条记录  当前显示${total}条记录` }}
-          scroll={{ x: 1500 }}
+          scroll={{ x: 1780 }}
         />
       </ActivityFrame>
     </Annotatable>
@@ -829,7 +924,8 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
   const isEdit = Boolean(editingActivity)
   const [form] = Form.useForm()
   const [projectModalOpen, setProjectModalOpen] = useState(false)
-  const [channelId, setChannelId] = useState(editingActivity?.channelId)
+  const [ruleType, setRuleType] = useState(editingActivity?.ruleType || 'platform-price')
+  const [channelId, setChannelId] = useState(editingActivity?.channelId || 'internet-hospital')
   const [selectedInstitutionIds, setSelectedInstitutionIds] = useState(() => editingActivity?.institutionIds || [])
   const [activeInstitutionId, setActiveInstitutionId] = useState(() => editingActivity?.institutionIds?.[0])
   const [institutionProjectMap, setInstitutionProjectMap] = useState(() => (
@@ -843,27 +939,39 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
 
   const initialValues = isEdit ? {
     name: editingActivity.name,
+    ruleType: editingActivity.ruleType || 'project-activity',
+    sourcePlatformId: editingActivity.sourcePlatformId || 'all',
     description: editingActivity.description,
     channelId: editingActivity.channelId,
     institutionIds: editingActivity.institutionIds,
     timeRange: [dayjs(editingActivity.startAt), dayjs(editingActivity.endAt)],
   } : {
+    ruleType: 'platform-price',
+    sourcePlatformId: 'pingan',
+    channelId: 'internet-hospital',
     timeRange: [dayjs().add(1, 'day').hour(0).minute(0), dayjs().add(31, 'day').hour(23).minute(59)],
   }
 
   const availableInstitutions = getInstitutionsByChannel(channelId)
   const activeInstitutionName = activeInstitutionId ? getInstitutionName(activeInstitutionId) : ''
+  const activeRuleMeta = getRuleTypeMeta(ruleType)
   const watchedTimeRange = Form.useWatch('timeRange', form)
+  const watchedSourcePlatformId = Form.useWatch('sourcePlatformId', form)
+  const watchedRuleType = Form.useWatch('ruleType', form)
 
   const conflictProjectMap = useMemo(() => {
     if (!activeInstitutionId || !channelId) return {}
 
     const [startAt, endAt] = watchedTimeRange || []
+    const currentSourcePlatformId = watchedSourcePlatformId || 'all'
+    const currentRuleType = watchedRuleType || ruleType
 
     return activities.reduce((acc, activity) => {
       if (activity.id === editingActivity?.id) return acc
       if (normalizeStatus(activity) === 'offline') return acc
       if (activity.channelId !== channelId) return acc
+      if ((activity.sourcePlatformId || 'all') !== currentSourcePlatformId) return acc
+      if ((activity.ruleType || 'project-activity') !== currentRuleType) return acc
       if (!activity.institutionIds?.includes(activeInstitutionId)) return acc
 
       if (startAt && endAt) {
@@ -881,7 +989,7 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
       })
       return acc
     }, {})
-  }, [activities, activeInstitutionId, channelId, editingActivity?.id, watchedTimeRange])
+  }, [activities, activeInstitutionId, channelId, editingActivity?.id, ruleType, watchedRuleType, watchedSourcePlatformId, watchedTimeRange])
 
   const projectLibraryColumns = [
     {
@@ -895,7 +1003,7 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
           <div className="activity-project-conflict-cell">
             <span>{name}</span>
             <Text type="danger">
-              已被活动「{conflict.activityName}」占用
+              已被规则「{conflict.activityName}」占用
             </Text>
           </div>
         )
@@ -937,13 +1045,13 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
     { title: '项目名称', dataIndex: 'name', width: 230 },
     { title: '编码', dataIndex: 'code', width: 100 },
     {
-      title: '原价',
+      title: '门市价',
       dataIndex: 'originPrice',
       width: 110,
       render: (price) => <span className="activity-price-origin">￥{price.toFixed(2)}</span>,
     },
     {
-      title: '活动价',
+      title: activeRuleMeta.priceColumnTitle,
       width: 150,
       render: (_, row) => (
         <InputNumber
@@ -987,11 +1095,11 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
 
   const handleAddProjects = () => {
     if (!activeInstitutionId) {
-      message.warning('请先选择所属渠道和所属机构')
+      message.warning('请先选择业务通道和适用签约交付中心')
       return
     }
     if (!librarySelectedIds.length) {
-      message.warning('请先从一级平台项目库选择检查项目')
+      message.warning('请先从平台标准项目库选择检查项目')
       return
     }
 
@@ -1022,6 +1130,10 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
     form.setFieldValue('institutionIds', [])
   }
 
+  const handleRuleTypeChange = (value) => {
+    setRuleType(value)
+  }
+
   const handleInstitutionChange = (values) => {
     setSelectedInstitutionIds(values)
     setActiveInstitutionId((prev) => (values.includes(prev) ? prev : values[0]))
@@ -1043,6 +1155,8 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
       id: editingActivity?.id || `act-${Date.now()}`,
       name: values.name.trim(),
       description: values.description.trim(),
+      ruleType: values.ruleType,
+      sourcePlatformId: values.sourcePlatformId,
       channelId: values.channelId,
       institutionIds: values.institutionIds,
       startAt: values.timeRange[0].format(DATE_TIME_FORMAT),
@@ -1050,17 +1164,18 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
       status: 'listed',
       creator: editingActivity?.creator || DEMO_OPERATOR_NAME,
       updatedAt: actionAt,
+      priority: getRuleTypeMeta(values.ruleType).priority,
       institutionConfigs: toInstitutionConfigs(institutionProjectMap, values.institutionIds),
       logs: [
         ...(editingActivity?.logs || []),
         {
-          action: isEdit ? '编辑活动' : '创建活动',
+          action: isEdit ? '编辑价格规则' : '创建价格规则',
           operator: DEMO_OPERATOR_NAME,
           at: actionAt,
-          detail: `配置 ${values.institutionIds.length} 个机构的活动项目价格`,
+          detail: `配置 ${values.institutionIds.length} 个适用中心的${getRuleTypeMeta(values.ruleType).label}`,
         },
         ...(editingActivity?.status !== 'listed'
-          ? [{ action: '上架活动', operator: DEMO_OPERATOR_NAME, at: actionAt, detail: '手动上架活动价格' }]
+          ? [{ action: '上架价格规则', operator: DEMO_OPERATOR_NAME, at: actionAt, detail: '手动上架价格规则' }]
           : []),
       ],
     }
@@ -1069,13 +1184,13 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
       if (isEdit) return prev.map((item) => item.id === nextActivity.id ? nextActivity : item)
       return [nextActivity, ...prev]
     })
-    message.success('活动已保存并上架')
+    message.success('价格规则已保存并上架')
     navigate(basePath)
   }
 
   return (
     <ActivityFrame
-      title={isEdit ? '编辑活动' : '新建活动'}
+      title={isEdit ? '编辑价格规则' : '新建价格规则'}
       extra={(
         <Space>
           <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(basePath)}>返回列表</Button>
@@ -1088,27 +1203,40 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
         <Annotatable id={2}>
           <Card className="activity-panel" title="基础信息">
             <Form form={form} layout="vertical" initialValues={initialValues}>
-              <Form.Item name="name" label="活动名称" rules={[{ required: true, message: '请填写活动名称' }]}>
-              <Input placeholder="例如：示例活动01" maxLength={30} showCount />
+              <Form.Item name="name" label="价格规则名称" rules={[{ required: true, message: '请填写价格规则名称' }]}>
+                <Input placeholder="例如：平安平台肺结节专项价" maxLength={30} showCount />
               </Form.Item>
-              <Form.Item name="channelId" label="所属渠道" rules={[{ required: true, message: '请选择所属渠道' }]}>
-                <Select placeholder="请选择所属渠道" options={channels} onChange={handleChannelChange} />
+              <Form.Item name="ruleType" label="价格规则类型" rules={[{ required: true, message: '请选择价格规则类型' }]}>
+                <Select placeholder="请选择价格规则类型" options={priceRuleTypes} onChange={handleRuleTypeChange} />
               </Form.Item>
-              <Form.Item name="institutionIds" label="所属机构" rules={[{ required: true, message: '请至少选择一个所属机构' }]}>
+              <Form.Item name="channelId" label="业务通道" rules={[{ required: true, message: '请选择业务通道' }]}>
+                <Select placeholder="请选择业务通道" options={channels} onChange={handleChannelChange} />
+              </Form.Item>
+              <Form.Item name="sourcePlatformId" label="来源平台/合作平台" rules={[{ required: true, message: '请选择来源平台/合作平台' }]}>
+                <Select placeholder="请选择来源平台/合作平台" options={sourcePlatforms} />
+              </Form.Item>
+              <Form.Item name="institutionIds" label="适用签约交付中心" rules={[{ required: true, message: '请至少选择一个适用签约交付中心' }]}>
                 <Select
                   mode="multiple"
-                  placeholder={channelId ? '请选择所属机构，可多选' : '请先选择所属渠道'}
+                  placeholder={channelId ? '请选择适用签约交付中心，可多选' : '请先选择业务通道'}
                   options={availableInstitutions}
                   disabled={!channelId}
                   onChange={handleInstitutionChange}
                 />
               </Form.Item>
-              <Form.Item name="timeRange" label="活动时间" rules={[{ required: true, message: '请选择活动开始和结束时间' }]}>
+              <Form.Item name="timeRange" label="生效时间" rules={[{ required: true, message: '请选择生效开始和结束时间' }]}>
                 <RangePicker showTime format={DATE_TIME_FORMAT} style={{ width: '100%' }} />
               </Form.Item>
-              <Form.Item name="description" label="活动说明" rules={[{ required: true, message: '请填写活动说明' }]}>
-                <Input.TextArea rows={5} placeholder="填写活动背景、机构沟通结论或展示说明" maxLength={120} showCount />
+              <Form.Item name="description" label="规则说明" rules={[{ required: true, message: '请填写规则说明' }]}>
+                <Input.TextArea rows={5} placeholder="填写价格背景、适用范围、展示价/记录价口径或叠加说明" maxLength={160} showCount />
               </Form.Item>
+              <Alert
+                className="activity-rule-note"
+                type="info"
+                showIcon
+                title={activeRuleMeta.formTitle}
+                description={activeRuleMeta.description}
+              />
             </Form>
           </Card>
         </Annotatable>
@@ -1117,7 +1245,7 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
           <Annotatable id={3}>
             <Card
               className="activity-panel"
-              title="机构项目活动价"
+              title="适用项目与规则价格"
               extra={(
                 <Button icon={<PlusOutlined />} disabled={!activeInstitutionId} onClick={() => setProjectModalOpen(true)}>
                   添加检查项目
@@ -1126,13 +1254,13 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
             >
               <div className="activity-project-hint">
                 <div>
-                  <Text strong>当前渠道下，每个机构独立配置项目和活动价</Text>
+                  <Text strong>{activeRuleMeta.formTitle}</Text>
                   <Paragraph type="secondary">
-                    先选择所属渠道和机构，再切换到当前机构维护检查项目，活动价只作用在该渠道下的当前机构。
+                    先选择业务通道、来源平台和适用签约中心，再切换到当前中心维护项目。交付中心只是适用范围，价格规则主体是业务通道与来源平台。
                   </Paragraph>
                 </div>
                 <Tag color="green">
-                  {activeInstitutionId ? `${activeInstitutionName} 已添加 ${selectedProjectRows.length} 项` : '未选择机构'}
+                  {activeInstitutionId ? `${activeInstitutionName} 已添加 ${selectedProjectRows.length} 项` : '未选择中心'}
                 </Tag>
               </div>
               <div className="activity-institution-switcher">
@@ -1169,7 +1297,7 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
         </div>
         <Annotatable id={4}>
           <Modal
-            title="一级平台项目库"
+            title="平台标准项目库"
             open={projectModalOpen}
             width={980}
             okText="确认添加"
@@ -1187,12 +1315,12 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
           >
             <Paragraph type="secondary">
               {activeInstitutionId
-                ? `当前为“${activeInstitutionName}”添加平台标准检查项目。已添加项目和与其他活动冲突的项目会自动禁选。`
-                : '请先选择所属机构。'}
+                ? `当前为“${activeInstitutionName}”添加平台标准检查项目。已添加项目和与同类型价格规则冲突的项目会自动禁选。`
+                : '请先选择适用签约交付中心。'}
             </Paragraph>
             {activeInstitutionId ? (
               <div className="activity-project-conflict-tip">
-                同渠道下，当前机构在所选活动时间内已被其他活动占用的项目将禁止选择，避免活动价格冲突。
+                同一业务通道、来源平台、规则类型、签约中心、项目在重叠时间内只能存在一条有效价格规则；不同类型规则后续由优先级和叠加规则决定最终价格。
               </div>
             ) : null}
             <div className="activity-project-search-bar">
@@ -1239,11 +1367,11 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
                     return {
                       disabled: selectedProjectIds.includes(record.id) || !activeInstitutionId || Boolean(conflict),
                       title: conflict
-                        ? `与活动“${conflict.activityName}”冲突，时间：${conflict.period}`
+                        ? `与价格规则“${conflict.activityName}”冲突，时间：${conflict.period}`
                         : selectedProjectIds.includes(record.id)
-                          ? '当前机构已添加该项目'
+                          ? '当前中心已添加该项目'
                           : !activeInstitutionId
-                            ? '请先选择所属机构'
+                            ? '请先选择适用签约交付中心'
                             : '',
                     }
                   },
@@ -1265,9 +1393,9 @@ function ActivityDetailPage({ activities, commit, basePath, standalone }) {
 
   if (!activity) {
     return (
-      <ActivityFrame title="活动详情" extra={<Button onClick={() => navigate(basePath)}>返回列表</Button>} standalone={standalone}>
+      <ActivityFrame title="价格规则详情" extra={<Button onClick={() => navigate(basePath)}>返回列表</Button>} standalone={standalone}>
         <Card>
-          <Text type="secondary">未找到该活动。</Text>
+          <Text type="secondary">未找到该价格规则。</Text>
         </Card>
       </ActivityFrame>
     )
@@ -1286,8 +1414,8 @@ function ActivityDetailPage({ activities, commit, basePath, standalone }) {
 
   const handleOffline = () => {
     Modal.confirm({
-      title: '确认下架活动',
-      content: '下架后，该机构相关检查项目将恢复原价格展示。',
+      title: '确认下架价格规则',
+      content: '下架后，相关项目将恢复基础价格或由其他优先级规则接管。',
       okText: '确认下架',
       cancelText: '取消',
       onOk: () => {
@@ -1298,10 +1426,10 @@ function ActivityDetailPage({ activities, commit, basePath, standalone }) {
           updatedAt: actionAt,
           logs: [
             ...(item.logs || []),
-            { action: '下架活动', operator: DEMO_OPERATOR_NAME, at: actionAt, detail: '手动下架并恢复机构原价格' },
+            { action: '下架价格规则', operator: DEMO_OPERATOR_NAME, at: actionAt, detail: '手动下架并恢复基础价格' },
           ],
         } : item))
-        message.success('活动已下架')
+        message.success('价格规则已下架')
       },
     })
   }
@@ -1311,8 +1439,8 @@ function ActivityDetailPage({ activities, commit, basePath, standalone }) {
     { title: '所属分类', dataIndex: 'category', width: 120 },
     { title: '编码', dataIndex: 'code', width: 100 },
     { title: '检查类型', dataIndex: 'type', width: 100, render: (type) => <Tag color="green">{type}</Tag> },
-    { title: '原价', dataIndex: 'originPrice', width: 110, render: (price) => <span className="activity-price-origin">￥{price.toFixed(2)}</span> },
-    { title: '活动价', dataIndex: 'activityPrice', width: 110, render: (price) => <Text strong style={{ color: '#14916a' }}>￥{price.toFixed(2)}</Text> },
+    { title: '门市价', dataIndex: 'originPrice', width: 110, render: (price) => <span className="activity-price-origin">￥{price.toFixed(2)}</span> },
+    { title: row.ruleTypeMeta.priceColumnTitle, dataIndex: 'activityPrice', width: 120, render: (price) => <Text strong style={{ color: '#14916a' }}>￥{price.toFixed(2)}</Text> },
     {
       title: '价格变化',
       dataIndex: 'diff',
@@ -1324,34 +1452,37 @@ function ActivityDetailPage({ activities, commit, basePath, standalone }) {
   return (
     <Annotatable id={5}>
       <ActivityFrame
-        title="活动详情"
+        title="价格规则详情"
         extra={(
           <Space>
             <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(basePath)}>返回列表</Button>
-            <Button icon={<EditOutlined />} onClick={() => navigate(`${basePath}/edit/${activity.id}`)}>编辑活动</Button>
-            {row.status === 'running' || row.status === 'listed' ? <Button danger icon={<StopOutlined />} onClick={handleOffline}>下架活动</Button> : null}
+            <Button icon={<EditOutlined />} onClick={() => navigate(`${basePath}/edit/${activity.id}`)}>编辑价格规则</Button>
+            {row.status === 'running' || row.status === 'listed' ? <Button danger icon={<StopOutlined />} onClick={handleOffline}>下架价格规则</Button> : null}
           </Space>
         )}
         standalone={standalone}
       >
         <Card className="activity-panel" title="基础信息">
           <Descriptions column={3} bordered size="middle">
-            <Descriptions.Item label="活动名称">{activity.name}</Descriptions.Item>
-            <Descriptions.Item label="所属渠道">{row.channelName}</Descriptions.Item>
-            <Descriptions.Item label="活动状态">
+            <Descriptions.Item label="价格规则名称">{activity.name}</Descriptions.Item>
+            <Descriptions.Item label="规则类型"><Tag color={row.ruleTypeMeta.tagColor}>{row.ruleTypeLabel}</Tag></Descriptions.Item>
+            <Descriptions.Item label="状态">
               <Tag color={statusMeta[row.status]?.tagColor}>{statusMeta[row.status]?.label}</Tag>
             </Descriptions.Item>
-            <Descriptions.Item label="活动时间" span={2}>{activity.startAt} 至 {activity.endAt}</Descriptions.Item>
+            <Descriptions.Item label="业务通道">{row.channelName}</Descriptions.Item>
+            <Descriptions.Item label="来源平台">{row.sourcePlatformName}</Descriptions.Item>
+            <Descriptions.Item label="优先级">{row.priority}</Descriptions.Item>
+            <Descriptions.Item label="生效时间" span={2}>{activity.startAt} 至 {activity.endAt}</Descriptions.Item>
             <Descriptions.Item label="创建人">{activity.creator}</Descriptions.Item>
             <Descriptions.Item label="更新时间">{activity.updatedAt}</Descriptions.Item>
-            <Descriptions.Item label="所属机构" span={2}>{row.institutionSummary}</Descriptions.Item>
-            <Descriptions.Item label="机构数">{row.institutionCount}</Descriptions.Item>
-            <Descriptions.Item label="活动项目数">{row.projectCount}</Descriptions.Item>
-            <Descriptions.Item label="活动说明" span={3}>{activity.description}</Descriptions.Item>
+            <Descriptions.Item label="适用签约中心" span={2}>{row.institutionSummary}</Descriptions.Item>
+            <Descriptions.Item label="中心数">{row.institutionCount}</Descriptions.Item>
+            <Descriptions.Item label="项目/组套数">{row.projectCount}</Descriptions.Item>
+            <Descriptions.Item label="规则说明" span={3}>{activity.description}</Descriptions.Item>
           </Descriptions>
         </Card>
 
-        <Card className="activity-panel activity-log" title="机构活动项目价格">
+        <Card className="activity-panel activity-log" title="适用项目与规则价格">
           <div className="activity-institution-switcher">
             {activity.institutionIds.map((institutionId) => (
               <button
@@ -1365,7 +1496,7 @@ function ActivityDetailPage({ activities, commit, basePath, standalone }) {
             ))}
           </div>
           <Paragraph type="secondary">
-            当前查看机构：{getInstitutionName(activeInstitutionId)}。项目价格仅作用在该渠道下的当前机构。
+            当前查看签约中心：{getInstitutionName(activeInstitutionId)}。该中心仅表示规则适用范围，最终价格由规则类型、来源平台、优先级与叠加规则共同决定。
           </Paragraph>
           <Table
             className="activity-table"

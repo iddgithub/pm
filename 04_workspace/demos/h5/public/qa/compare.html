@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>doctor-reporting-qa</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #0f1113;
+        color: #fff;
+        font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+      }
+
+      main {
+        max-width: 2200px;
+        margin: 0 auto;
+        padding: 18px;
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: 28px;
+      }
+
+      p {
+        margin: 0 0 18px;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 14px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+
+      .panel {
+        background: #171a1d;
+        border-radius: 18px;
+        padding: 12px;
+      }
+
+      .label {
+        margin-bottom: 8px;
+        color: #d9e1db;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      img {
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 12px;
+        background: #000;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>医生端报告确认与提现链路 QA 对照</h1>
+      <p>左侧为参考设计图，右侧为当前本地实现截图。</p>
+      <div class="grid">
+        <section class="panel">
+          <div class="label">Source</div>
+          <img src="/qa/reference.png" alt="source reference" />
+        </section>
+        <section class="panel">
+          <div class="label">Implementation</div>
+          <img src="/qa/implementation.png" alt="implementation screenshot" />
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

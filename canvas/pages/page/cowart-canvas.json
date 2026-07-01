@@ -1,0 +1,198 @@
+{
+  "schema": {
+    "schemaVersion": 2,
+    "sequences": {
+      "com.tldraw.store": 5,
+      "com.tldraw.asset": 1,
+      "com.tldraw.camera": 1,
+      "com.tldraw.document": 2,
+      "com.tldraw.instance": 26,
+      "com.tldraw.instance_page_state": 5,
+      "com.tldraw.page": 1,
+      "com.tldraw.instance_presence": 6,
+      "com.tldraw.pointer": 1,
+      "com.tldraw.shape": 4,
+      "com.tldraw.user": 1,
+      "com.tldraw.asset.image": 6,
+      "com.tldraw.asset.video": 5,
+      "com.tldraw.asset.bookmark": 2,
+      "com.tldraw.shape.group": 0,
+      "com.tldraw.shape.text": 4,
+      "com.tldraw.shape.bookmark": 2,
+      "com.tldraw.shape.draw": 4,
+      "com.tldraw.shape.geo": 11,
+      "com.tldraw.shape.note": 12,
+      "com.tldraw.shape.line": 5,
+      "com.tldraw.shape.frame": 1,
+      "com.tldraw.shape.arrow": 8,
+      "com.tldraw.shape.highlight": 3,
+      "com.tldraw.shape.embed": 4,
+      "com.tldraw.shape.image": 5,
+      "com.tldraw.shape.video": 4,
+      "com.tldraw.binding.arrow": 1
+    }
+  },
+  "store": {
+    "user:uF5P1aUe1riKEmeiiFs2G": {
+      "name": "",
+      "color": "#55B467",
+      "imageUrl": "",
+      "meta": {},
+      "id": "user:uF5P1aUe1riKEmeiiFs2G",
+      "typeName": "user"
+    },
+    "asset:1083437148": {
+      "id": "asset:1083437148",
+      "type": "image",
+      "typeName": "asset",
+      "props": {
+        "name": "微信图片_20260210101818_98_7.png",
+        "src": "",
+        "w": 3440.651109190435,
+        "h": 5000,
+        "fileSize": 1792871,
+        "mimeType": "image/png",
+        "isAnimated": false
+      },
+      "meta": {}
+    },
+    "user:0jS74pcO2YuLJ1dPAbFCT": {
+      "name": "",
+      "color": "#FF802B",
+      "imageUrl": "",
+      "meta": {},
+      "id": "user:0jS74pcO2YuLJ1dPAbFCT",
+      "typeName": "user"
+    },
+    "shape:ytj-pRFoGVN-ThgCDqP6g": {
+      "x": 275.6107160355259,
+      "y": -68.75630181131828,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {
+        "cowartAnnotationArrow": true
+      },
+      "id": "shape:ytj-pRFoGVN-ThgCDqP6g",
+      "type": "arrow",
+      "props": {
+        "kind": "arc",
+        "elbowMidPoint": 0.5,
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "red",
+        "labelColor": "red",
+        "bend": 48,
+        "start": {
+          "x": 0,
+          "y": 0
+        },
+        "end": {
+          "x": 833.8811838231559,
+          "y": 1151.9807589687784
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "richText": {
+          "type": "doc",
+          "content": [
+            {
+              "type": "paragraph"
+            }
+          ]
+        },
+        "labelPosition": 0,
+        "font": "draw",
+        "scale": 1
+      },
+      "parentId": "page:page",
+      "index": "a3RlJzlG",
+      "typeName": "shape"
+    },
+    "shape:omJAPwTh3RighC1yKtB1z": {
+      "x": -1923.478166612298,
+      "y": -1784.2791966822633,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "id": "shape:omJAPwTh3RighC1yKtB1z",
+      "type": "image",
+      "props": {
+        "w": 3440.651109190435,
+        "h": 5000,
+        "assetId": "asset:1083437148",
+        "playing": true,
+        "url": "",
+        "crop": null,
+        "flipX": false,
+        "flipY": false,
+        "altText": ""
+      },
+      "parentId": "page:page",
+      "index": "a1RMlUel",
+      "typeName": "shape"
+    },
+    "page:page": {
+      "meta": {},
+      "id": "page:page",
+      "name": "Page 1",
+      "index": "a1",
+      "typeName": "page"
+    },
+    "document:document": {
+      "gridSize": 10,
+      "name": "",
+      "meta": {},
+      "id": "document:document",
+      "typeName": "document"
+    },
+    "shape:Lwb3AUYGJnRr0XY6C7HGn": {
+      "x": -200.50492325349887,
+      "y": 264.07722918291165,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {
+        "cowartAnnotationArrow": true
+      },
+      "id": "shape:Lwb3AUYGJnRr0XY6C7HGn",
+      "type": "arrow",
+      "props": {
+        "kind": "arc",
+        "elbowMidPoint": 0.5,
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "red",
+        "labelColor": "red",
+        "bend": -48,
+        "start": {
+          "x": 0,
+          "y": 0
+        },
+        "end": {
+          "x": 656.2655948208285,
+          "y": 438.25796412143427
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "richText": {
+          "type": "doc",
+          "content": [
+            {
+              "type": "paragraph"
+            }
+          ]
+        },
+        "labelPosition": 0,
+        "font": "draw",
+        "scale": 1
+      },
+      "parentId": "page:page",
+      "index": "a2qUrA8G",
+      "typeName": "shape"
+    }
+  }
+}

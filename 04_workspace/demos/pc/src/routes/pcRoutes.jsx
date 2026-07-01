@@ -8,6 +8,7 @@ import OrderAssociation from '../features/incentive-admin/pages/Incentive/OrderA
 import InterpretationAssignment from '../features/incentive-admin/pages/Incentive/InterpretationAssignment'
 import BonusManagement from '../features/incentive-admin/pages/Incentive/BonusManagement'
 import OperatorManagement from '../features/incentive-admin/pages/Incentive/OperatorManagement'
+import AcademicHall from '../features/incentive-admin/pages/Incentive/AcademicHall'
 import Withdrawal from '../features/incentive-admin/pages/Incentive/Withdrawal'
 import Dashboard from '../features/platform-ops/pages/Platform/Dashboard'
 import Analysis from '../features/platform-ops/pages/Platform/Analysis'
@@ -44,6 +45,7 @@ export const menuItems = [
       { key: '/incentive/bonus-management', label: '业务管理' },
       { key: '/incentive/withdrawal', label: '提现审核' },
       { key: '/platform/dashboard', label: '业务总览' },
+      { key: '/incentive/academic-hall', label: '学术大厅' },
     ],
   },
   {
@@ -106,6 +108,7 @@ export const appRouteConfig = {
   '/incentive/bonus-management': { label: '业务管理', component: BonusManagement },
   '/incentive/withdrawal': { label: '提现审核', component: Withdrawal },
   '/platform/dashboard': { label: '业务总览', component: Dashboard },
+  '/incentive/academic-hall': { label: '学术大厅', component: AcademicHall },
   '/platform/analysis': { label: '运营业绩分析', component: Analysis },
   '/platform/doctor-analysis': { label: '医生业绩分析', component: DoctorAnalysis },
   '/platform/ai-report-upload': { label: 'AI报告上传', component: AiReportUpload },

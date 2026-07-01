@@ -126,6 +126,19 @@
   white-space: pre-line;
 }
 
+.page-panel--embedded {
+  padding: 0;
+  overflow: hidden;
+}
+
+.module-embed-frame {
+  display: block;
+  width: 100%;
+  min-height: calc(100vh - 122px);
+  border: 0;
+  background: #fff;
+}
+
 @media (max-width: 1200px) {
   .detail-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));

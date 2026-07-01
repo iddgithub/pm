@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CMS 组合对码高保真原型</title>
+  <link rel="stylesheet" href="./cms-hospital-item-replica.css" />
+</head>
+<body data-page-kind="combo-copy">
+  <div class="prototype-shell">
+    <section class="login-screen" id="loginScreen" hidden>
+      <div class="login-card">
+        <h2>欢迎登录</h2>
+        <p>本页仅保留登录壳交互，用于进入目标后台页面。</p>
+
+        <div class="field-stack">
+          <label class="field">
+            <span>账号</span>
+            <input id="loginAccount" type="text" placeholder="请输入账号" />
+          </label>
+          <label class="field">
+            <span>密码</span>
+            <input id="loginPassword" type="password" placeholder="请输入密码" />
+          </label>
+          <div class="field field--captcha">
+            <label>
+              <span>验证码</span>
+              <input id="loginCaptchaInput" type="text" placeholder="请输入验证码" />
+            </label>
+            <button class="captcha-card" id="refreshCaptcha" type="button" aria-label="刷新验证码"></button>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-block" id="loginButton" type="button">确认登录</button>
+        <div class="login-note">
+          登录即表示同意 <span>《隐私政策》</span> 与 <span>《用户协议》</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="workspace-screen" id="workspaceScreen">
+      <div class="app-shell" id="appShell">
+        <aside class="sidebar" id="sidebar">
+          <div class="sidebar-brand">
+            <div class="sidebar-brand__logo">
+              <span class="sidebar-brand__glyph"></span>
+            </div>
+            <div class="sidebar-brand__text">
+              <strong>检查检验流转平台</strong>
+            </div>
+          </div>
+
+          <div class="sidebar-nav">
+            <button class="menu-item" type="button">
+              <span class="menu-item__icon">⌂</span>
+              <span class="menu-item__text">首页</span>
+            </button>
+            <button class="menu-item" type="button">
+              <span class="menu-item__icon">◫</span>
+              <span class="menu-item__text">医院信息</span>
+            </button>
+            <button class="menu-item" type="button" data-route="./03-cms院内检查项目对码高保真原型.html">
+              <span class="menu-item__icon">⇆</span>
+              <span class="menu-item__text">检查项目对码</span>
+            </button>
+            <button class="menu-item is-active" type="button">
+              <span class="menu-item__icon">◎</span>
+              <span class="menu-item__text">组合对码</span>
+            </button>
+            <button class="menu-item" type="button">
+              <span class="menu-item__icon">⊞</span>
+              <span class="menu-item__text">医院管理</span>
+            </button>
+            <button class="menu-item" type="button" data-route="./05-cms平台项目列表高保真原型.html">
+              <span class="menu-item__icon">☰</span>
+              <span class="menu-item__text">平台项目列表</span>
+            </button>
+            <button class="menu-item" type="button">
+              <span class="menu-item__icon">≣</span>
+              <span class="menu-item__text">平台患者列表</span>
+            </button>
+            <button class="menu-item" type="button">
+              <span class="menu-item__icon">¥</span>
+              <span class="menu-item__text">财务管理</span>
+            </button>
+            <button class="menu-item" type="button">
+              <span class="menu-item__icon">⚙</span>
+              <span class="menu-item__text">设备管理</span>
+            </button>
+            <button class="menu-item" type="button">
+              <span class="menu-item__icon">✎</span>
+              <span class="menu-item__text">设备排班</span>
+            </button>
+            <button class="menu-item" type="button">
+              <span class="menu-item__icon">⚑</span>
+              <span class="menu-item__text">权限管理</span>
+            </button>
+          </div>
+        </aside>
+
+        <div class="main-shell">
+          <header class="topbar">
+            <div class="topbar__left">
+              <button class="icon-btn" id="collapseToggle" type="button" aria-label="切换侧边栏">☰</button>
+              <button class="hospital-chip" id="hospitalSwitchButton" type="button"></button>
+            </div>
+
+            <div class="topbar__right">
+              <div class="user-box" id="userBox">
+                <button class="user-box__trigger" id="userMenuButton" type="button">
+                  <span class="user-box__name">胡高鹏</span>
+                  <span class="user-box__caret">▾</span>
+                </button>
+                <div class="user-menu" id="userMenu" hidden>
+                  <button class="user-menu__item" id="changePasswordButton" type="button">修改密码</button>
+                  <button class="user-menu__item" id="switchHospitalQuickButton" type="button">切换医院</button>
+                  <button class="user-menu__item user-menu__item--danger" id="logoutButton" type="button">退出登录</button>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <main class="content-shell">
+            <section class="page-panel">
+              <div class="page-panel__title">组合对码</div>
+
+              <div class="toolbar-row">
+                <div class="toolbar-row__filters">
+                  <label class="inline-field inline-field--select">
+                    <span>对码类型：</span>
+                    <select id="comboListTypeFilter">
+                      <option value="">对码类型</option>
+                      <option value="一对多">一对多</option>
+                      <option value="多对一">多对一</option>
+                      <option value="多对多">多对多</option>
+                    </select>
+                  </label>
+                  <label class="inline-field inline-field--keyword">
+                    <span>编码/名称：</span>
+                    <input id="comboListKeywordFilter" type="text" placeholder="编码/名称" />
+                  </label>
+                  <button class="btn btn-primary btn-search" id="comboListSearchButton" type="button">查询</button>
+                </div>
+
+                <div class="toolbar-row__actions">
+                  <button class="btn btn-primary" id="comboListAddButton" type="button">＋ 新增组合规则</button>
+                  <button class="btn btn-primary" id="comboListTemplateButton" type="button">规则模版</button>
+                  <button class="btn btn-primary" id="comboListImportButton" type="button">↓ 规则导入</button>
+                  <button class="btn btn-primary" id="comboListBatchButton" type="button">批量对码</button>
+                  <button class="btn btn-primary" id="comboListExportButton" type="button">↑ 规则导出</button>
+                  <input id="comboListImportFileInput" type="file" hidden />
+                </div>
+              </div>
+
+              <div class="table-wrap">
+                <div class="table-scroll">
+                  <table class="data-table data-table--combo-copy">
+                    <thead>
+                      <tr>
+                        <th>开单机构</th>
+                        <th>上游项目编码</th>
+                        <th>上游项目名称</th>
+                        <th>对码类型</th>
+                        <th>平台展示项目</th>
+                        <th>平台标准项目</th>
+                        <th>执行机构</th>
+                        <th>执行项目</th>
+                        <th>价格方式</th>
+                        <th>订单展示名</th>
+                        <th>规则状态</th>
+                        <th>更新时间</th>
+                        <th>操作</th>
+                      </tr>
+                    </thead>
+                    <tbody id="comboMainTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="footer-bar">
+                <div class="footer-bar__records" id="comboRecordText"></div>
+                <div class="pagination" id="comboPagination"></div>
+              </div>
+            </section>
+          </main>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="hospitalModal" hidden>
+    <div class="modal-panel modal-panel--large">
+      <div class="modal-header">
+        <div>
+          <span class="modal-kicker">切换上下文</span>
+          <h3>选择医院</h3>
+        </div>
+        <button class="icon-btn" type="button" data-close="hospitalModal">✕</button>
+      </div>
+
+      <div class="modal-toolbar">
+        <label class="field">
+          <span>医院类型</span>
+          <select id="hospitalTypeFilter"></select>
+        </label>
+        <label class="field field--wide">
+          <span>搜索</span>
+          <input id="hospitalKeywordFilter" type="text" placeholder="请输入医院名称或城市" />
+        </label>
+      </div>
+
+      <div class="hospital-grid" id="hospitalGrid"></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="comboRuleModal" hidden>
+    <div class="modal-panel modal-panel--xlarge">
+      <div class="modal-header">
+        <div>
+          <span class="modal-kicker" id="comboRuleModalModeLabel">新增规则</span>
+          <h3 id="comboRuleModalTitle">新增组合规则</h3>
+        </div>
+        <button class="icon-btn" type="button" data-close="comboRuleModal">✕</button>
+      </div>
+
+      <div class="modal-banner" id="comboRuleBanner"></div>
+
+      <div class="form-grid">
+        <label class="field">
+          <span>开单机构</span>
+          <select id="comboUpstreamHospitalSelect"></select>
+        </label>
+
+        <label class="field">
+          <span>执行机构</span>
+          <select id="comboDeliveryHospitalSelect"></select>
+        </label>
+
+        <label class="field field--full">
+          <span>上游项目名称</span>
+          <div class="inline-field">
+            <input id="comboUpstreamNameInput" type="text" placeholder="请输入上游项目名称" />
+            <button class="btn btn-primary btn-compact" id="comboAiSplitButton" type="button">AI 拆解</button>
+          </div>
+        </label>
+
+        <label class="field">
+          <span>上游项目编码</span>
+          <input id="comboUpstreamCodeInput" type="text" placeholder="请输入上游项目编码" />
+        </label>
+
+        <label class="field">
+          <span>对码类型</span>
+          <select id="comboMappingTypeSelect">
+            <option value="一对多">一对多</option>
+            <option value="多对一">多对一</option>
+            <option value="多对多">多对多</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>平台展示项目</span>
+          <input id="comboDisplayNameInput" type="text" placeholder="请输入平台展示项目" />
+        </label>
+
+        <label class="field">
+          <span>订单展示名</span>
+          <input id="comboOrderDisplayInput" type="text" placeholder="请输入订单展示名" />
+        </label>
+
+        <div class="summary-pair summary-pair--full">
+          <div class="summary-box">
+            <span>平台标准项目数</span>
+            <strong id="comboPlatformCountPreview">0</strong>
+          </div>
+          <div class="summary-box">
+            <span>执行项目数</span>
+            <strong id="comboDeliveryCountPreview">0</strong>
+          </div>
+        </div>
+
+        <label class="field field--full">
+          <span>平台标准项目</span>
+          <textarea id="comboPlatformItemsInput" class="combo-textarea" placeholder="每行一个平台标准项目"></textarea>
+        </label>
+
+        <label class="field field--full">
+          <span>执行项目</span>
+          <textarea id="comboDeliveryItemsInput" class="combo-textarea" placeholder="每行一个执行项目"></textarea>
+        </label>
+
+        <label class="field">
+          <span>价格方式</span>
+          <select id="comboPriceModeSelect">
+            <option value="组合固定价">组合固定价</option>
+            <option value="明细价格相加">明细价格相加</option>
+            <option value="按交付中心价格">按交付中心价格</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>价格值</span>
+          <input id="comboPriceValueInput" type="text" placeholder="请输入价格值或说明" />
+        </label>
+
+        <div class="field field--full">
+          <span>规则效果示例</span>
+          <div class="combo-example-grid">
+            <article class="combo-example-card">
+              <span>上游医嘱</span>
+              <div id="comboExampleSource"></div>
+            </article>
+            <article class="combo-example-card">
+              <span>平台拆解</span>
+              <div id="comboExamplePlatform"></div>
+            </article>
+            <article class="combo-example-card">
+              <span>下发结果</span>
+              <div id="comboExampleDelivery"></div>
+            </article>
+          </div>
+        </div>
+
+        <div class="field field--full">
+          <span>AI 拆解结果</span>
+          <div class="ai-result" id="comboAiResultBox">输入上游项目名称后，点击 “AI 拆解” 生成组合拆解建议。</div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-ghost" type="button" data-close="comboRuleModal">取消</button>
+        <button class="btn btn-primary" id="comboSaveRuleButton" type="button">确认保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="comboBatchModal" hidden>
+    <div class="modal-panel modal-panel--xlarge">
+      <div class="modal-header">
+        <div>
+          <span class="modal-kicker">批量操作</span>
+          <h3>组合批量对码</h3>
+        </div>
+        <button class="icon-btn" type="button" data-close="comboBatchModal">✕</button>
+      </div>
+
+      <div class="batch-actions">
+        <p>按当前筛选结果展示，可进行 AI 批量拆解并统一保存。</p>
+        <div class="batch-actions__buttons">
+          <button class="btn btn-secondary" id="comboBatchAiButton" type="button">AI 批量拆解</button>
+          <button class="btn btn-primary" id="comboBatchSaveButton" type="button">批量保存</button>
+        </div>
+      </div>
+
+      <div class="table-scroll table-scroll--modal">
+        <table class="data-table data-table--compact data-table--combo-batch">
+          <thead>
+            <tr>
+              <th>上游项目名称</th>
+              <th>AI 建议拆解</th>
+              <th>平台标准项目</th>
+              <th>执行项目</th>
+              <th>状态</th>
+            </tr>
+          </thead>
+          <tbody id="comboBatchTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toastStack"></div>
+
+  <script src="./cms-hospital-item-replica.js"></script>
+</body>
+</html>
