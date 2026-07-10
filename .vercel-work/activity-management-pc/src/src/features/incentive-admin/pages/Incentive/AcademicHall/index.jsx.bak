@@ -1,0 +1,529 @@
+import { useMemo, useState } from 'react'
+import {
+  Button,
+  Card,
+  Col,
+  Descriptions,
+  Drawer,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Statistic,
+  Table,
+  Tag,
+  message,
+} from 'antd'
+import {
+  DownloadOutlined,
+  FileTextOutlined,
+  TranslationOutlined,
+  UploadOutlined,
+  UserSwitchOutlined,
+} from '@ant-design/icons'
+import { doctorApplications } from '../../../../../shared/mocks/incentive'
+import * as XLSX from 'xlsx'
+
+const { TextArea } = Input
+
+const approvedDoctors = doctorApplications
+  .filter((item) => item.auditStatus === '审核通过')
+  .map((item) => ({
+    id: item.id,
+    doctorNo: item.applicationNo.replace('SQ', 'YS'),
+    doctorName: item.doctorName,
+    phone: item.phone,
+    hospitalName: item.clinicName,
+    department: item.department,
+    enabledStatus: item.enabledStatus,
+  }))
+
+const literatureTemplates = [
+  {
+    title: 'Clinical value of low-dose CT screening in pulmonary nodules',
+    journal: 'Journal of Thoracic Imaging',
+    specialty: '影像',
+    sourceText:
+      'Objective: To evaluate the diagnostic value of low-dose computed tomography in screening pulmonary nodules among high-risk populations. Methods: A retrospective cohort was analyzed with follow-up imaging and pathological confirmation.',
+  },
+  {
+    title: 'Magnetic resonance imaging features of acute ischemic stroke',
+    journal: 'Neuroimaging Clinics',
+    specialty: '神经',
+    sourceText:
+      'Background: Diffusion-weighted magnetic resonance imaging improves early identification of acute ischemic stroke. This study summarizes imaging characteristics, clinical correlation and reporting recommendations.',
+  },
+  {
+    title: 'Artificial intelligence assisted triage in radiology reporting',
+    journal: 'Radiology Management Review',
+    specialty: 'AI辅助',
+    sourceText:
+      'Purpose: Artificial intelligence assisted triage may shorten turnaround time for critical imaging findings. We compared workflow efficiency before and after AI implementation in a regional diagnostic center.',
+  },
+]
+
+const seedTasks = [
+  {
+    id: 1,
+    taskNo: 'XS20260612001',
+    title: literatureTemplates[0].title,
+    journal: literatureTemplates[0].journal,
+    specialty: literatureTemplates[0].specialty,
+    sourceText: literatureTemplates[0].sourceText,
+    translatedText: '目的：评估低剂量 CT 在高危人群肺结节筛查中的诊断价值。方法：结合随访影像和病理结果，对回顾性队列进行分析。',
+    price: 68,
+    assignmentStatus: '已分配',
+    completionStatus: '进行中',
+    progress: 55,
+    doctorId: approvedDoctors[0]?.id,
+    createdAt: '2026-06-12 09:20',
+  },
+  {
+    id: 2,
+    taskNo: 'XS20260612002',
+    title: literatureTemplates[1].title,
+    journal: literatureTemplates[1].journal,
+    specialty: literatureTemplates[1].specialty,
+    sourceText: literatureTemplates[1].sourceText,
+    translatedText: '背景：弥散加权磁共振成像可提升急性缺血性卒中的早期识别能力。本文总结影像表现、临床关联和报告建议。',
+    price: 82,
+    assignmentStatus: '已分配',
+    completionStatus: '已完成',
+    progress: 100,
+    doctorId: approvedDoctors[1]?.id,
+    createdAt: '2026-06-12 10:05',
+  },
+  {
+    id: 3,
+    taskNo: 'XS20260612003',
+    title: literatureTemplates[2].title,
+    journal: literatureTemplates[2].journal,
+    specialty: literatureTemplates[2].specialty,
+    sourceText: literatureTemplates[2].sourceText,
+    translatedText: '',
+    price: 0,
+    assignmentStatus: '未分配',
+    completionStatus: '',
+    progress: 0,
+    doctorId: undefined,
+    createdAt: '2026-06-12 10:40',
+  },
+]
+
+const assignmentStatusColors = {
+  已分配: 'blue',
+  未分配: 'default',
+}
+
+const completionStatusColors = {
+  进行中: 'processing',
+  已完成: 'success',
+}
+
+const BATCH_COLUMNS = [
+  { header: '英文文献标题', key: 'title', width: 50 },
+  { header: '英文原文', key: 'sourceText', width: 60 },
+  { header: '任务价格', key: 'price', width: 12 },
+  { header: '派发医生姓名', key: 'doctorName', width: 16 },
+]
+
+function buildTranslation(task) {
+  const prefix = task.specialty === 'AI辅助' ? '目的' : task.specialty === '神经' ? '背景' : '目的'
+  return `${prefix}：${task.title} 的中文预览已由 AI 生成，内容覆盖研究目的、方法、关键发现和运营派发所需的摘要信息。运营可在正式派发前继续编辑润色。\n\n中文摘要：本文围绕“${task.title}”展开，重点说明英文文献中的临床问题、研究对象、影像或诊疗方法，以及对合规开单医生学习任务的参考价值。`
+}
+
+function getDoctor(doctorId) {
+  return approvedDoctors.find((doctor) => doctor.id === doctorId)
+}
+
+function downloadExcelTemplate() {
+  const wb = XLSX.utils.book_new()
+
+  /* ── Sheet 1: 填写说明 ── */
+  const instructionsData = [
+    ['批量导入医学英文文献填写说明'],
+    [],
+    ['字段', '是否必填', '说明'],
+    ['英文文献标题', '必填', '输入文献的完整英文标题，例如 "Clinical value of low-dose CT screening..."'],
+    ['英文原文', '必填', '粘贴英文摘要或原文片段，用于后续翻译任务派发'],
+    ['任务价格', '可选', '正整数，单位元。留空可在派发前单独设置'],
+    ['派发医生姓名', '可选', '填写已审核通过的合规开单医生姓名；留空则任务为"未分配"状态'],
+    [],
+    ['注意：', '请勿修改表头行（第 1 行），各列顺序以"数据填写区"Sheet 为准。'],
+    ['注意：', '建议一次导入不超过 100 条，超过部分请分批导入。'],
+    ['注意：', '派发医生姓名需与系统中已审核通过的医生姓名完全一致。'],
+  ]
+  const wsInstructions = XLSX.utils.aoa_to_sheet(instructionsData)
+  wsInstructions['!cols'] = [{ wch: 20 }, { wch: 14 }, { wch: 60 }]
+  XLSX.utils.book_append_sheet(wb, wsInstructions, '填写说明')
+
+  /* ── Sheet 2: 数据填写区 ── */
+  const headerRow = BATCH_COLUMNS.map((c) => c.header)
+  const exampleData = [
+    {
+      title: 'Clinical value of low-dose CT screening in pulmonary nodules',
+      sourceText: 'Objective: To evaluate the diagnostic value of low-dose computed tomography in screening pulmonary nodules among high-risk populations.',
+      price: 68,
+      doctorName: '李医生',
+    },
+  ]
+  const wsData = [headerRow, ...exampleData.map((row) => BATCH_COLUMNS.map((c) => row[c.key]))]
+  const wsDataSheet = XLSX.utils.aoa_to_sheet(wsData)
+  wsDataSheet['!cols'] = BATCH_COLUMNS.map((c) => ({ wch: c.width }))
+  XLSX.utils.book_append_sheet(wb, wsDataSheet, '数据填写区')
+
+  /* ── 下载 ── */
+  const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
+  const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = '学术大厅批量导入模板.xlsx'
+  link.click()
+  URL.revokeObjectURL(url)
+  message.success('批量导入模板已下载，请在第一页阅读填写说明后，在"数据填写区"填入数据')
+}
+
+export default function AcademicHall() {
+  const [tasks, setTasks] = useState(seedTasks)
+  const [query, setQuery] = useState({
+    assignmentStatus: undefined,
+    completionStatus: undefined,
+    doctorId: undefined,
+    keyword: '',
+  })
+  const [activeTask, setActiveTask] = useState(null)
+  const [assignTask, setAssignTask] = useState(null)
+  const [singleOpen, setSingleOpen] = useState(false)
+  const [singleForm] = Form.useForm()
+  const [assignForm] = Form.useForm()
+
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      if (query.assignmentStatus && task.assignmentStatus !== query.assignmentStatus) return false
+      if (query.completionStatus && task.completionStatus !== query.completionStatus) return false
+      if (query.doctorId && task.doctorId !== query.doctorId) return false
+      if (query.keyword.trim()) {
+        const keyword = query.keyword.trim()
+        const doctor = getDoctor(task.doctorId)
+        const hit = [
+          task.taskNo,
+          task.title,
+          doctor?.doctorName,
+          doctor?.phone,
+        ].some((value) => String(value || '').includes(keyword))
+        if (!hit) return false
+      }
+      return true
+    })
+  }, [query, tasks])
+
+  const summary = useMemo(() => ({
+    total: tasks.length,
+    unassigned: tasks.filter((task) => task.assignmentStatus === '未分配').length,
+    assigned: tasks.filter((task) => task.assignmentStatus === '已分配').length,
+    completed: tasks.filter((task) => task.completionStatus === '已完成').length,
+  }), [tasks])
+
+  const updateTask = (taskId, patch) => {
+    setTasks((list) => list.map((task) => (
+      task.id === taskId ? { ...task, ...patch } : task
+    )))
+    setActiveTask((task) => (task?.id === taskId ? { ...task, ...patch } : task))
+  }
+
+  const handleSingleCreate = async () => {
+    const values = await singleForm.validateFields()
+    const nextTask = {
+      id: Date.now(),
+      taskNo: `XS20260612${String(tasks.length + 1).padStart(3, '0')}`,
+      journal: '',
+      translatedText: '',
+      assignmentStatus: '未分配',
+      completionStatus: '',
+      progress: 0,
+      doctorId: undefined,
+      createdAt: '2026-06-12 11:10',
+      ...values,
+      price: values.price || 0,
+    }
+    setTasks((list) => [nextTask, ...list])
+    setSingleOpen(false)
+    singleForm.resetFields()
+    message.success('已新增单篇医学文献任务单')
+  }
+
+  const previewTranslation = (record) => {
+    const translatedText = record.translatedText || buildTranslation(record)
+    updateTask(record.id, { translatedText })
+    setActiveTask({ ...record, translatedText })
+    message.success('AI 中文预览已生成')
+  }
+
+  const openAssign = (record) => {
+    setAssignTask(record)
+    assignForm.setFieldsValue({
+      doctorId: record.doctorId,
+      price: record.price || 0,
+    })
+  }
+
+  const handleAssign = async () => {
+    const values = await assignForm.validateFields()
+    const doctor = getDoctor(values.doctorId)
+    updateTask(assignTask.id, {
+      doctorId: values.doctorId,
+      price: values.price,
+      assignmentStatus: '已分配',
+      completionStatus: assignTask.completionStatus === '已完成' ? '已完成' : '进行中',
+      progress: assignTask.progress > 0 ? assignTask.progress : 20,
+    })
+    setAssignTask(null)
+    message.success(`任务已派发给 ${doctor?.doctorName || '医生'}`)
+  }
+
+  const columns = [
+    { title: '任务单号', dataIndex: 'taskNo', width: 150, fixed: 'left' },
+    {
+      title: '英文文献',
+      dataIndex: 'title',
+      width: 330,
+      ellipsis: true,
+      render: (value, record) => (
+        <Button
+          type="link"
+          size="small"
+          style={{ display: 'block', height: 22, maxWidth: 310, padding: 0, textAlign: 'left' }}
+          onClick={() => setActiveTask(record)}
+        >
+          <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {value}
+          </span>
+        </Button>
+      ),
+    },
+    {
+      title: '任务价格',
+      dataIndex: 'price',
+      width: 110,
+      render: (value) => (value ? `¥${value}` : <Tag>待设置</Tag>),
+    },
+    {
+      title: '分配状态',
+      dataIndex: 'assignmentStatus',
+      width: 110,
+      render: (value) => <Tag color={assignmentStatusColors[value]}>{value}</Tag>,
+    },
+    {
+      title: '派发医生',
+      dataIndex: 'doctorId',
+      width: 160,
+      render: (value) => {
+        const doctor = getDoctor(value)
+        return doctor ? doctor.doctorName : <span style={{ color: '#999' }}>未分配</span>
+      },
+    },
+    {
+      title: '完成情况',
+      dataIndex: 'completionStatus',
+      width: 120,
+      render: (value) => (value ? <Tag color={completionStatusColors[value]}>{value}</Tag> : <span style={{ color: '#999' }}>-</span>),
+    },
+    { title: '创建时间', dataIndex: 'createdAt', width: 150 },
+    {
+      title: '操作',
+      key: 'action',
+      width: 180,
+      fixed: 'right',
+      render: (_, record) => (
+        <Space size={0}>
+          <Button type="link" size="small" onClick={() => previewTranslation(record)}>AI文献预览</Button>
+          <Button type="link" size="small" onClick={() => openAssign(record)}>设置</Button>
+        </Space>
+      ),
+    },
+  ]
+
+  return (
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: 16, gap: 16, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <div style={{ fontSize: 16, fontWeight: 500, color: '#333' }}>学术大厅</div>
+          <div style={{ marginTop: 4, color: '#8c8c8c' }}>医学英文文献翻译任务、定价、派发与医生完成情况管理</div>
+        </div>
+        <Space>
+          <Button icon={<UploadOutlined />} onClick={downloadExcelTemplate}>批量上传文献</Button>
+          <Button type="primary" icon={<FileTextOutlined />} onClick={() => setSingleOpen(true)}>新增单篇文献</Button>
+        </Space>
+      </div>
+
+      <Row gutter={16}>
+        <Col span={6}><Card><Statistic title="任务单总数" value={summary.total} suffix="条" /></Card></Col>
+        <Col span={6}><Card><Statistic title="未分配任务" value={summary.unassigned} suffix="条" valueStyle={{ color: '#8c8c8c' }} /></Card></Col>
+        <Col span={6}><Card><Statistic title="已分配任务" value={summary.assigned} suffix="条" valueStyle={{ color: '#1677ff' }} /></Card></Col>
+        <Col span={6}><Card><Statistic title="医生已完成" value={summary.completed} suffix="条" valueStyle={{ color: '#52c41a' }} /></Card></Col>
+      </Row>
+
+      <Card bodyStyle={{ paddingBottom: 8 }}>
+        <Form layout="inline">
+          <Form.Item label="分配状态">
+            <Select
+              allowClear
+              placeholder="请选择"
+              value={query.assignmentStatus}
+              style={{ width: 140 }}
+              onChange={(value) => setQuery({ ...query, assignmentStatus: value })}
+              options={[
+                { value: '已分配', label: '已分配' },
+                { value: '未分配', label: '未分配' },
+              ]}
+            />
+          </Form.Item>
+          <Form.Item label="完成情况">
+            <Select
+              allowClear
+              placeholder="请选择"
+              value={query.completionStatus}
+              style={{ width: 140 }}
+              onChange={(value) => setQuery({ ...query, completionStatus: value })}
+              options={['进行中', '已完成'].map((value) => ({ value, label: value }))}
+            />
+          </Form.Item>
+          <Form.Item label="派发医生">
+            <Select
+              allowClear
+              showSearch
+              optionFilterProp="label"
+              placeholder="选择医生"
+              value={query.doctorId}
+              style={{ width: 180 }}
+              onChange={(value) => setQuery({ ...query, doctorId: value })}
+              options={approvedDoctors.map((doctor) => ({
+                value: doctor.id,
+                label: doctor.doctorName,
+              }))}
+            />
+          </Form.Item>
+          <Form.Item label="任务搜索">
+            <Input
+              allowClear
+              value={query.keyword}
+              placeholder="任务单/文献/医生"
+              style={{ width: 220 }}
+              onChange={(event) => setQuery({ ...query, keyword: event.target.value })}
+            />
+          </Form.Item>
+          <Form.Item>
+            <Button onClick={() => setQuery({ assignmentStatus: undefined, completionStatus: undefined, doctorId: undefined, keyword: '' })}>重置</Button>
+          </Form.Item>
+        </Form>
+      </Card>
+
+      <Table
+        rowKey="id"
+        columns={columns}
+        dataSource={filteredTasks}
+        pagination={{ pageSize: 10, showSizeChanger: false }}
+        scroll={{ x: 1440, y: 'calc(100vh - 420px)' }}
+        style={{ flex: 1 }}
+      />
+
+      <Drawer
+        width={720}
+        title="文献翻译预览与编辑"
+        open={Boolean(activeTask)}
+        onClose={() => setActiveTask(null)}
+        extra={activeTask && (
+          <Space>
+            <Button icon={<TranslationOutlined />} onClick={() => previewTranslation(activeTask)}>重新生成AI预览</Button>
+            <Button type="primary" icon={<UserSwitchOutlined />} onClick={() => openAssign(activeTask)}>设置价格并派发</Button>
+          </Space>
+        )}
+      >
+        {activeTask && (
+          <Space direction="vertical" size={16} style={{ width: '100%' }}>
+            <Descriptions bordered size="small" column={1}>
+              <Descriptions.Item label="任务单号">{activeTask.taskNo}</Descriptions.Item>
+              <Descriptions.Item label="英文文献">{activeTask.title}</Descriptions.Item>
+              <Descriptions.Item label="任务价格">{activeTask.price ? `¥${activeTask.price}` : '待设置'}</Descriptions.Item>
+              <Descriptions.Item label="派发医生">{getDoctor(activeTask.doctorId)?.doctorName || '未分配'}</Descriptions.Item>
+              <Descriptions.Item label="完成情况">
+                {activeTask.completionStatus ? (
+                  <Tag color={completionStatusColors[activeTask.completionStatus]}>{activeTask.completionStatus}</Tag>
+                ) : '-'}
+              </Descriptions.Item>
+            </Descriptions>
+            <Card title="英文原文" size="small">
+              <TextArea
+                autoSize={{ minRows: 5, maxRows: 8 }}
+                value={activeTask.sourceText}
+                onChange={(event) => updateTask(activeTask.id, { sourceText: event.target.value })}
+              />
+            </Card>
+            <Card title="AI中文翻译预览" size="small">
+              <TextArea
+                autoSize={{ minRows: 7, maxRows: 12 }}
+                placeholder="点击 AI预览 后生成中文翻译，也可以在这里编辑修改"
+                value={activeTask.translatedText}
+                onChange={(event) => updateTask(activeTask.id, { translatedText: event.target.value })}
+              />
+            </Card>
+          </Space>
+        )}
+      </Drawer>
+
+      <Modal
+        title="新增单篇医学英文文献"
+        open={singleOpen}
+        onCancel={() => setSingleOpen(false)}
+        onOk={handleSingleCreate}
+        okText="生成任务单"
+        cancelText="取消"
+        destroyOnClose
+      >
+        <Form form={singleForm} layout="vertical" preserve={false}>
+          <Form.Item label="英文文献标题" name="title" rules={[{ required: true, message: '请输入英文文献标题' }]}>
+            <Input placeholder="请输入英文文献标题" />
+          </Form.Item>
+          <Form.Item label="任务价格" name="price">
+            <InputNumber min={0} precision={0} addonBefore="¥" style={{ width: '100%' }} placeholder="可先不填，派发前再设置" />
+          </Form.Item>
+          <Form.Item label="英文原文" name="sourceText" rules={[{ required: true, message: '请输入英文原文摘要' }]}>
+            <TextArea rows={5} placeholder="粘贴待翻译英文摘要或正文片段" />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title="设置价格并派发医生"
+        open={Boolean(assignTask)}
+        onCancel={() => setAssignTask(null)}
+        onOk={handleAssign}
+        okText="确认派发"
+        cancelText="取消"
+        destroyOnClose
+      >
+        <Form form={assignForm} layout="vertical" preserve={false}>
+          <Form.Item label="任务价格" name="price" rules={[{ required: true, message: '请设置任务价格' }]}>
+            <InputNumber min={1} precision={0} addonBefore="¥" addonAfter="元" style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item label="选择合规开单医生" name="doctorId" rules={[{ required: true, message: '请选择医生' }]}>
+            <Select
+              showSearch
+              optionFilterProp="label"
+              placeholder="从医生管理模块选择医生"
+              options={approvedDoctors.map((doctor) => ({
+                value: doctor.id,
+                label: doctor.doctorName,
+                disabled: doctor.enabledStatus !== '已启用',
+              }))}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </div>
+  )
+}

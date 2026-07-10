@@ -20,6 +20,7 @@
 - `src/routes/h5Routes.jsx` — H5 路由配置
 - `src/features/doctor/` — 医生端工作台
 - `src/features/doctor-ordering/` — 医生开单与患者分享页
+- `src/features/doctor-ordering/pages/RimagOrderDetailReplica.jsx` — 一脉阳光订单详情截图复刻页
 - `src/features/operator/` — 运营端工作台
 - `src/features/patient/` — 患者端相关页面与模拟数据
 - `src/features/qingteng-doctor-promo/` — 青藤医生入驻推广视频工程、scene 时间轴与清单

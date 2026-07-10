@@ -1,41 +1,41 @@
-source visual truth path: `/var/folders/mr/y6t0sns53vl4_fh7x3fl88wc0000gn/T/codex-clipboard-8096e9cf-576c-4009-a753-5aa47b7e54c9.png`
+source visual truth path: `/Users/hugaopeng/Library/Containers/com.tencent.xinWeChat/Data/Documents/xwechat_files/wxid_7vh7k61j5w6m22_7e68/temp/RWTemp/2026-07/9e20f478899dc29eb19741386f9343c8/5e0163ae7b78081db68de8dccdc37e18.jpg`
 
-implementation screenshot path: `/private/tmp/doctor-reporting-home.png`
+implementation screenshot path: `/Users/hugaopeng/Desktop/pm_agent/04_workspace/demos/h5/qa-captures/rimag-order-detail-prototype.png`
 
-viewport: browser default desktop viewport with centered mobile canvas
+viewport: `414x1128`, matching the supplied mobile screenshot at 2x scale
 
-state: `home` initial state for the doctor-side single-page prototype; latest confirmed brief treats the first panel of the source board as the homepage and requires the other panels to be reachable only through homepage interactions
+state: initial unpaid order detail state, no patient selected, no inspection time selected
 
-full-view comparison evidence: `/private/tmp/doctor-reporting-comparison.png`
+full-view comparison evidence: `/Users/hugaopeng/Desktop/pm_agent/04_workspace/demos/h5/qa-captures/rimag-order-detail-comparison.png`
 
-focused region comparison evidence: not saved as a separate cropped artifact. The latest brief narrows the primary fidelity target to the left-most homepage panel in the source board, and that homepage remained directly readable from the source image plus `/private/tmp/doctor-reporting-home.png` during QA. Interaction-only secondary screens were validated by live browser clicks rather than static side-by-side crops.
+focused region comparison evidence: same combined artifact is sufficient for this pass because the full-height source and prototype are both readable at 414px width; focused surfaces checked in-place include the hero/logo area, fee rows, totals, and bottom pay bar.
 
 **Findings**
-- No actionable P0/P1/P2 issues for the confirmed scope.
-  Location: homepage initial state and homepage-triggered secondary flows.
-  Evidence: the implementation preserves the same top bar, tab selection, profile card, service-fee card, search row, status chips, and two report cards as the first panel in the source board, while moving the remaining panels behind interactions per the latest brief.
-  Impact: the delivered page now matches the requested single-page presentation model instead of the earlier multi-screen showcase.
+- No actionable P0/P1/P2 issues remain.
+  Location: full order detail screen.
+  Evidence: the prototype matches the source layout structure: teal medical hero, RIMAG logo card, institution tags, white description card, appointment date card, patient action card, mint fee header, two CT fee rows, total card, and fixed green payment button.
+  Impact: the implemented screen is faithful enough for H5 demo review and preserves the core payment workflow implied by the screenshot.
   Fix: none required.
 
 **Open Questions**
-- The source board contains all secondary screens side by side, while the implemented deliverable intentionally shows only the homepage by default. This is treated as an intentional brief change, not a design drift.
+- The source uses the exact WeChat mini-program capsule glyphs and a real CT background crop. The prototype uses Ant Design icon glyphs plus a generated no-text CT background asset, which avoids embedding duplicated source UI text. This is treated as acceptable implementation substitution.
 
 **Implementation Checklist**
-- Verified homepage loads as the default active page.
-- Verified clicking the first report card opens `确认报告`.
-- Verified clicking `确认报告解读内容` returns to homepage and updates the report status plus service-fee total.
-- Verified clicking the homepage fee card opens `服务费详情`.
-- Verified clicking `提现申请` opens the withdrawal page.
-- Verified submitting `456` creates a new `处理中` record and navigates to `提现记录`.
-- Verified changing the month entry path is supported through the bottom sheet.
+- Fonts and typography checked: PingFang/SF fallback stack, compact Chinese UI weights, no negative letter spacing, text truncation on address and patient value.
+- Spacing and layout rhythm checked: 414px mobile width, 16px page gutters, 8px card radii, stacked card rhythm, fixed bottom payment area.
+- Colors and visual tokens checked: pale aqua hero, mint fee header, dark text, gray alias fields, green action text, red total amount.
+- Image quality and asset fidelity checked: source logo crop used as a bitmap asset; generated CT background placed as a bitmap asset; icons come from Ant Design Icons.
+- Copy/content checked: institution name, badges, appointment date, CT project names, aliases, prices, totals, and payment CTA match the supplied screenshot.
+- Interactions implemented: back/nav/phone actions show toast feedback; description expands; add patient opens a sheet; each project opens time selection; payment validates patient and time before success state.
 
 **Follow-up Polish**
-- P3: if needed later, a dedicated cropped QA artifact for the homepage panel could make future screenshot audits faster.
+- P3: the mini-program capsule icon can be swapped for a closer platform asset if an approved source asset becomes available.
+- P3: the generated CT background is slightly cleaner and less photographic than the reference crop.
 
 patches made since the previous QA pass:
-- replaced the multi-screen board layout with a single centered mobile canvas that matches the referenced single-page prototype style
-- swapped generic avatar/empty placeholders for generated PNG assets
-- converted secondary screens into page-stack transitions driven from homepage interactions
-- revalidated the confirm-report and withdraw-record writeback paths in-browser
+- aligned the mobile canvas to the 414px screenshot viewport
+- fixed the bottom pay bar stacking and height so the total card remains visible
+- tightened card heights and vertical rhythm to match the source density
+- generated and placed comparison evidence after the final screenshot
 
 final result: passed

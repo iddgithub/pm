@@ -17,6 +17,7 @@ H5 demo 使用 React + Ant Design + Vite，固定本地访问地址为：
 
 ## 当前演示入口
 
+- `/doctor-ordering/rimag-order-detail`：一脉阳光影像中心订单详情截图复刻页，包含添加就诊人、选择受检时间和支付反馈。
 - `/qingteng-doctor-promo-video`：青藤医生入驻推广视频工程，包含 70 秒竖版时间轴、8 个 scene、中文字幕、素材清单和可预览页面。
 
 ## 视频导出

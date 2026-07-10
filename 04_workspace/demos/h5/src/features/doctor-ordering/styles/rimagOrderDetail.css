@@ -1,0 +1,636 @@
+.rimag-order-stage {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  background: #f4f7fb;
+  color: #20242c;
+  font-family: 'PingFang SC', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.rimag-order-device {
+  position: relative;
+  width: min(100vw, 414px);
+  min-height: 100vh;
+  overflow: hidden;
+  background: #f6f8fb;
+  box-shadow: 0 24px 70px rgba(23, 50, 43, 0.14);
+}
+
+.rimag-hero {
+  position: relative;
+  min-height: 246px;
+  padding: 14px 16px 26px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #bdf7ed 0%, #cff5f5 72%, #dcfbfa 100%);
+}
+
+.rimag-hero::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: rgba(209, 251, 246, 0.42);
+  pointer-events: none;
+}
+
+.rimag-hero__bg {
+  position: absolute;
+  top: -18px;
+  right: -110px;
+  width: 500px;
+  height: 278px;
+  object-fit: cover;
+  opacity: 0.28;
+  filter: saturate(0.82) contrast(0.9);
+}
+
+.rimag-status,
+.rimag-nav,
+.rimag-institution {
+  position: relative;
+  z-index: 1;
+}
+
+.rimag-status {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  color: #05080d;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.rimag-status__icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 18px;
+}
+
+.rimag-battery {
+  min-width: 28px;
+  height: 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background: #57c46d;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.rimag-nav {
+  height: 64px;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) 86px;
+  align-items: center;
+}
+
+.rimag-nav h1 {
+  margin: 0;
+  text-align: center;
+  color: #1e2530;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.rimag-icon-button,
+.rimag-mini-capsule,
+.rimag-address-row button,
+.rimag-patient-card button,
+.rimag-time-row,
+.rimag-text-link,
+.rimag-sheet button,
+.rimag-paybar button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.rimag-icon-button {
+  border: 0;
+  background: transparent;
+  color: #02070d;
+}
+
+.rimag-icon-button--plain {
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: 27px;
+}
+
+.rimag-mini-capsule {
+  justify-self: end;
+  width: 82px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid rgba(216, 232, 233, 0.78);
+  border-radius: 999px;
+  display: inline-grid;
+  grid-template-columns: 1fr 1px 1fr;
+  align-items: center;
+  justify-items: center;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 4px 12px rgba(59, 111, 111, 0.1);
+  color: #101821;
+  font-size: 20px;
+}
+
+.rimag-mini-capsule span {
+  width: 1px;
+  height: 18px;
+  background: #dbe6e7;
+}
+
+.rimag-institution {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 13px;
+  align-items: center;
+  margin-top: 18px;
+}
+
+.rimag-institution__logo {
+  width: 58px;
+  height: 58px;
+  border-radius: 6px;
+  object-fit: cover;
+  box-shadow: 0 8px 20px rgba(47, 113, 106, 0.12);
+}
+
+.rimag-institution__main strong {
+  display: block;
+  color: #252b34;
+  font-size: 17px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.rimag-tags {
+  margin-top: 11px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rimag-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 27px;
+  padding: 0 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.rimag-tag--solid {
+  background: #16b489;
+  color: #ffffff;
+}
+
+.rimag-tag--soft {
+  background: rgba(227, 249, 239, 0.92);
+  color: #15856a;
+}
+
+.rimag-content {
+  margin-top: -54px;
+  padding: 0 16px 126px;
+  position: relative;
+  z-index: 2;
+}
+
+.rimag-card,
+.rimag-fee-card {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 8px 24px rgba(28, 43, 68, 0.06);
+}
+
+.rimag-summary-card {
+  padding: 16px 14px 13px;
+}
+
+.rimag-summary-card p {
+  margin: 0;
+  color: #2b3038;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.46;
+}
+
+.rimag-text-link {
+  margin: 2px 0 14px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #178d74;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.rimag-address-row {
+  min-height: 58px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f1f3;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 43px 43px;
+  gap: 11px;
+  align-items: center;
+}
+
+.rimag-address-row strong {
+  display: block;
+  color: #6e737c;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.rimag-address-row span {
+  display: block;
+  margin-top: 5px;
+  color: #626873;
+  font-size: 14px;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rimag-address-row button {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #5f656e;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.rimag-address-row button svg {
+  color: #168a72;
+  font-size: 22px;
+}
+
+.rimag-date-card,
+.rimag-patient-card,
+.rimag-total-card {
+  margin-top: 10px;
+}
+
+.rimag-date-card {
+  min-height: 54px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+}
+
+.rimag-date-card strong {
+  color: #148469;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.rimag-patient-card {
+  min-height: 58px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.rimag-patient-card > span {
+  color: #22262d;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.rimag-patient-card button {
+  max-width: 230px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #19886f;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.rimag-patient-card button span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rimag-fee-card {
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.rimag-fee-card header {
+  height: 56px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  background: #e4fffb;
+  color: #202630;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.rimag-fee-list {
+  padding: 13px 16px 12px;
+}
+
+.rimag-project + .rimag-project {
+  margin-top: 10px;
+}
+
+.rimag-project__title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.rimag-project__title-row strong {
+  color: #1f252e;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.rimag-project__title-row span {
+  color: #535960;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.rimag-project__alias {
+  height: 34px;
+  margin-top: 10px;
+  padding: 0 12px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  background: #f0f0f3;
+  color: #777d86;
+  font-size: 14px;
+}
+
+.rimag-time-row {
+  width: 100%;
+  min-height: 43px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #656b73;
+  font-size: 14px;
+  text-align: left;
+}
+
+.rimag-time-row b {
+  color: #d44e5f;
+  font-weight: 900;
+}
+
+.rimag-time-row > span:last-child {
+  color: #16876d;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.rimag-time-row .is-selected {
+  font-weight: 700;
+}
+
+.rimag-project__divider {
+  height: 1px;
+  background: #f0f1f4;
+}
+
+.rimag-total-card {
+  padding: 13px 16px;
+}
+
+.rimag-total-card div {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.rimag-total-card div + div {
+  margin-top: 4px;
+}
+
+.rimag-total-card strong {
+  color: #171c25;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.rimag-total-card span {
+  color: #494f58;
+  font-size: 15px;
+}
+
+.rimag-total-card .is-red {
+  color: #bd4c61;
+  font-weight: 900;
+}
+
+.rimag-paybar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  min-height: 180px;
+  padding: 21px 42px 24px;
+  border-top: 1px solid #e4e5e9;
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.rimag-paybar::after {
+  position: absolute;
+  left: 50%;
+  bottom: 7px;
+  width: 134px;
+  height: 5px;
+  border-radius: 999px;
+  background: #000000;
+  content: '';
+  transform: translateX(-50%);
+}
+
+.rimag-paybar button {
+  width: 100%;
+  height: 60px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #65cda9 0%, #12a06d 100%);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0;
+  box-shadow: 0 10px 20px rgba(18, 160, 109, 0.22);
+}
+
+.rimag-paybar button.is-paid {
+  background: #40b884;
+}
+
+.rimag-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(14, 24, 33, 0.28);
+}
+
+.rimag-sheet {
+  width: 100%;
+  padding: 18px 18px 26px;
+  border-radius: 16px 16px 0 0;
+  background: #ffffff;
+  box-shadow: 0 -16px 36px rgba(17, 31, 43, 0.16);
+}
+
+.rimag-sheet header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.rimag-sheet header strong {
+  color: #1d2430;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.rimag-sheet header button {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 999px;
+  background: #f2f4f7;
+  color: #59616d;
+}
+
+.rimag-patient-option {
+  width: 100%;
+  min-height: 72px;
+  padding: 14px;
+  border: 1px solid #d9f0e7;
+  border-radius: 8px;
+  background: #f7fffb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  color: #15876d;
+}
+
+.rimag-patient-option span {
+  display: grid;
+  gap: 5px;
+}
+
+.rimag-patient-option strong {
+  color: #1f2630;
+  font-size: 16px;
+}
+
+.rimag-patient-option small {
+  color: #747c88;
+  font-size: 13px;
+}
+
+.rimag-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.rimag-slot-grid button {
+  height: 44px;
+  border: 1px solid #e0e7eb;
+  border-radius: 8px;
+  background: #f8fafb;
+  color: #2b323c;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.rimag-slot-grid button.is-active,
+.rimag-slot-grid button:hover {
+  border-color: #16a476;
+  background: #ecfbf5;
+  color: #128668;
+}
+
+.rimag-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 118px;
+  z-index: 30;
+  max-width: 280px;
+  padding: 11px 16px;
+  border-radius: 999px;
+  background: rgba(23, 31, 39, 0.88);
+  color: #ffffff;
+  font-size: 14px;
+  transform: translateX(-50%);
+}
+
+@media (max-width: 600px) {
+  .rimag-order-stage {
+    justify-content: flex-start;
+  }
+
+  .rimag-order-device {
+    width: min(100vw, 414px);
+    box-shadow: none;
+  }
+
+  .rimag-paybar {
+    position: fixed;
+    left: 50%;
+    width: min(100vw, 414px);
+    transform: translateX(-50%);
+  }
+
+  .rimag-sheet-backdrop {
+    position: fixed;
+    left: 50%;
+    width: min(100vw, 414px);
+    transform: translateX(-50%);
+  }
+}

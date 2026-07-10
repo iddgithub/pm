@@ -3,6 +3,18 @@ import { useNavigate } from 'react-router-dom'
 
 const roleCards = [
   {
+    key: 'rimag-order-detail',
+    route: '/doctor-ordering/rimag-order-detail',
+    label: '患者端订单详情',
+    title: '订单详情',
+    summary: '按一脉阳光影像中心截图复刻的患者支付订单页，含添加就诊人、选择受检时间和支付反馈。',
+    pages: ['机构说明', '检查费用', '支付订单'],
+    metrics: [
+      { label: '预约日期', value: '07月08号' },
+      { label: '总金额', value: '990元' },
+    ],
+  },
+  {
     key: 'promo-video',
     route: '/qingteng-doctor-promo-video',
     label: '竖版视频工程',

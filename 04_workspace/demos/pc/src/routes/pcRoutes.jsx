@@ -14,7 +14,7 @@ import Dashboard from '../features/platform-ops/pages/Platform/Dashboard'
 import Analysis from '../features/platform-ops/pages/Platform/Analysis'
 import DoctorAnalysis from '../features/platform-ops/pages/Platform/DoctorAnalysis'
 import AiReportUpload from '../features/platform-ops/pages/Platform/AiReportUpload'
-import ActivityManagement from '../features/platform-ops/pages/Platform/ActivityManagement'
+import ActivityManagement, { ActivityManagementCopyPage } from '../features/platform-ops/pages/Platform/ActivityManagement'
 import MultiCodeMapping, { MULTI_CODE_MAPPING_BASE_PATH } from '../features/platform-ops/pages/Platform/MultiCodeMapping'
 import {
   DoctorAuditV1Page,
@@ -25,6 +25,8 @@ import {
 } from '../features/compliance-v1/pages/ComplianceV1'
 
 export const ACTIVITY_MANAGEMENT_BASE_PATH = '/platform/activity-management'
+export const ACTIVITY_MANAGEMENT_COPY_BASE_PATH = '/platform/activity-management-copy'
+export const ACTIVITY_MANAGEMENT_SHORT_PATH = '/a'
 export const ACTIVITY_MANAGEMENT_SHARE_BASE_PATH = '/share/activity-management'
 export const MULTI_CODE_MAPPING_STANDARD_PATH = `${MULTI_CODE_MAPPING_BASE_PATH}/standard`
 export const MULTI_CODE_MAPPING_UPSTREAM_PATH = `${MULTI_CODE_MAPPING_BASE_PATH}/upstream`
@@ -49,19 +51,6 @@ export const menuItems = [
     ],
   },
   {
-    key: 'compliance-v1',
-    label: '合规开单1.0',
-    children: [
-      { key: '/compliance-v1/doctor-audit', label: '医生审核' },
-      { key: '/compliance-v1/doctor-management', label: '医生管理' },
-      { key: '/compliance-v1/operator-binding', label: '运营医生绑定' },
-      { key: '/compliance-v1/withdrawal-review', label: '提现审核' },
-      { key: '/compliance-v1/management-dashboard', label: '管理层数据看板' },
-      { key: '/platform/analysis', label: '运营业绩分析' },
-      { key: '/platform/doctor-analysis', label: '医生业绩分析' },
-    ],
-  },
-  {
     key: 'commerce',
     label: '经营业务',
     children: [
@@ -80,17 +69,7 @@ export const menuItems = [
     label: '产品功能',
     children: [
       { key: '/platform/ai-report-upload', label: 'AI报告上传' },
-      {
-        key: 'multi-code-mapping',
-        label: '对码多对多',
-        children: [
-          { key: MULTI_CODE_MAPPING_STANDARD_PATH, label: '组合对码列表' },
-          { key: MULTI_CODE_MAPPING_UPSTREAM_PATH, label: '平台标准项目库' },
-          { key: MULTI_CODE_MAPPING_DELIVERY_PATH, label: '交付中心院内项目库' },
-          { key: MULTI_CODE_MAPPING_LOG_PATH, label: '匹配日志 / 待人工对码' },
-        ],
-      },
-      { key: '/platform/activity-management', label: '活动管理' },
+      { key: '/platform/activity-management', label: '活动价格管理' },
     ],
   },
 ]
@@ -122,10 +101,18 @@ export const appRouteConfig = {
   '/compliance-v1/operator-binding': { label: '运营医生绑定', component: OperatorBindingV1Page },
   '/compliance-v1/withdrawal-review': { label: '提现审核', component: WithdrawalReviewV1Page },
   '/compliance-v1/management-dashboard': { label: '管理层数据看板', component: ManagementDashboardV1Page },
-  [ACTIVITY_MANAGEMENT_BASE_PATH]: { label: '活动管理', component: ActivityManagement },
+  [ACTIVITY_MANAGEMENT_BASE_PATH]: { label: '活动价格管理', component: ActivityManagement },
   [`${ACTIVITY_MANAGEMENT_BASE_PATH}/create`]: { label: '新建活动', component: ActivityManagement },
   [`${ACTIVITY_MANAGEMENT_BASE_PATH}/edit/:id`]: { label: '编辑活动', component: ActivityManagement },
   [`${ACTIVITY_MANAGEMENT_BASE_PATH}/:id`]: { label: '活动详情', component: ActivityManagement },
+  [ACTIVITY_MANAGEMENT_COPY_BASE_PATH]: { label: '活动价格管理副本', component: ActivityManagementCopyPage },
+  [`${ACTIVITY_MANAGEMENT_COPY_BASE_PATH}/create`]: { label: '新建活动副本', component: ActivityManagementCopyPage },
+  [`${ACTIVITY_MANAGEMENT_COPY_BASE_PATH}/edit/:id`]: { label: '编辑活动副本', component: ActivityManagementCopyPage },
+  [`${ACTIVITY_MANAGEMENT_COPY_BASE_PATH}/:id`]: { label: '活动详情副本', component: ActivityManagementCopyPage },
+  [ACTIVITY_MANAGEMENT_SHORT_PATH]: { label: '活动价格管理副本', component: ActivityManagementCopyPage },
+  [`${ACTIVITY_MANAGEMENT_SHORT_PATH}/create`]: { label: '新建活动副本', component: ActivityManagementCopyPage },
+  [`${ACTIVITY_MANAGEMENT_SHORT_PATH}/edit/:id`]: { label: '编辑活动副本', component: ActivityManagementCopyPage },
+  [`${ACTIVITY_MANAGEMENT_SHORT_PATH}/:id`]: { label: '活动详情副本', component: ActivityManagementCopyPage },
 }
 
 export const shareRouteConfig = {

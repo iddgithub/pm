@@ -68,6 +68,53 @@
   gap: 16px;
 }
 
+.activity-overview {
+  margin-bottom: 16px;
+}
+
+.activity-overview__title {
+  margin-bottom: 12px;
+  color: #263832;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.activity-overview__grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.activity-overview-card {
+  min-height: 112px;
+  padding: 24px 24px 20px;
+  background: #fff;
+  border: 1px solid #edf2ef;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(22, 69, 48, 0.04);
+}
+
+.activity-overview-card__label {
+  color: #8a9590;
+  font-size: 14px;
+}
+
+.activity-overview-card__value {
+  margin-top: 18px;
+  color: #202c28;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.activity-overview-card__value--green {
+  color: #43b149;
+}
+
+.activity-overview-card__value--orange {
+  color: #f07a21;
+}
+
 .activity-green-btn {
   color: #fff !important;
   background: #159269 !important;
@@ -107,10 +154,6 @@
 
 .activity-status-listed {
   color: #1677ff;
-}
-
-.activity-status-running {
-  color: #159269;
 }
 
 .activity-status-offline {
@@ -177,6 +220,136 @@
   margin-bottom: 0;
 }
 
+.activity-discount-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.activity-discount-config {
+  padding: 2px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.activity-discount-config__header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.activity-discount-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.activity-discount-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #4d5b56;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.activity-discount-field .ant-input-number,
+.activity-discount-field .ant-input {
+  width: 100%;
+}
+
+.activity-discount-field--wide {
+  grid-column: 1 / -1;
+}
+
+.activity-discount-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.activity-discount-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.activity-discount-summary__item {
+  min-width: 0;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #fbfcfb;
+  border: 1px solid #edf2ef;
+  border-radius: 8px;
+}
+
+.activity-discount-summary__item span {
+  color: #8b9791;
+  font-size: 12px;
+}
+
+.activity-discount-summary__item strong {
+  color: #263832;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.activity-discount-note {
+  padding: 14px 16px;
+  color: #69756f;
+  background: #fcfdfc;
+  border: 1px dashed #dfe8e3;
+  border-radius: 8px;
+}
+
+.activity-discount-note__title {
+  margin-bottom: 10px;
+  color: #5a6761;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.activity-discount-note__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 22px;
+}
+
+.activity-discount-note__item {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr);
+  gap: 10px;
+  align-items: baseline;
+}
+
+.activity-discount-note__item span,
+.activity-discount-note__flow span {
+  color: #9aa59f;
+  font-size: 12px;
+}
+
+.activity-discount-note__item strong,
+.activity-discount-note__flow strong {
+  color: #4d5b56;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.55;
+}
+
+.activity-discount-note__flow {
+  margin-top: 10px;
+  padding-top: 10px;
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid #edf2ef;
+}
+
 .activity-institution-switcher {
   margin-bottom: 12px;
   display: flex;
@@ -203,6 +376,41 @@
   color: #159269;
   background: #edf8f4;
   border-color: #159269;
+}
+
+.activity-bundle-name {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.activity-bundle-name__input {
+  max-width: 156px;
+  font-size: 12px;
+}
+
+.activity-platform-project-names {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.45;
+  white-space: normal;
+}
+
+.activity-platform-project-names span {
+  display: block;
+  color: #3f4a46;
+}
+
+.activity-bundle-price {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.activity-bundle-price span {
+  color: #8b9791;
+  font-size: 12px;
 }
 
 .activity-institution-brief {
@@ -304,12 +512,48 @@
   color: #394743;
 }
 
+.activity-price-config-table .ant-table {
+  font-size: 12px;
+}
+
+.activity-price-config-table .ant-table-thead > tr > th,
+.activity-price-config-table .ant-table-tbody > tr > td {
+  padding: 8px 8px !important;
+  white-space: nowrap;
+}
+
+.activity-price-config-table .ant-tag {
+  margin-inline-end: 0;
+}
+
+.activity-price-config-table .ant-input-number-group-wrapper {
+  width: 112px;
+}
+
 .activity-table-empty {
   margin: 20px 0;
 }
 
 @media (max-width: 1180px) {
+  .activity-overview__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .activity-form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .activity-discount-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .activity-discount-fields,
+  .activity-discount-summary,
+  .activity-discount-note__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .activity-discount-note__item {
+    grid-template-columns: 64px minmax(0, 1fr);
   }
 }

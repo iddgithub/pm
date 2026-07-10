@@ -1,0 +1,224 @@
+.price-management-page .activity-content {
+  background: #f6f8f7;
+}
+
+.price-management-hero {
+  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(360px, 0.7fr);
+  gap: 16px;
+}
+
+.price-management-card {
+  border: 1px solid #edf2ef;
+  box-shadow: 0 8px 24px rgba(22, 69, 48, 0.04);
+}
+
+.price-management-card .ant-card-head {
+  border-bottom-color: #edf2ef;
+}
+
+.price-management-logic {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.price-management-logic-card {
+  min-height: 142px;
+  padding: 14px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbf9 100%);
+  border: 1px solid #edf2ef;
+  border-radius: 12px;
+}
+
+.price-management-logic-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  color: #263832;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.price-management-logic-card__icon {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #159269;
+  background: #e8f7f1;
+  border-radius: 999px;
+}
+
+.price-management-logic-card__desc {
+  min-height: 42px;
+  color: #5f6d68;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.price-management-logic-card__example {
+  margin-top: 10px;
+  color: #8a5a00;
+  font-size: 12px;
+}
+
+.price-management-flow {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.price-management-flow-step {
+  position: relative;
+  min-height: 112px;
+  padding: 14px 12px;
+  background: #fff;
+  border: 1px solid #edf2ef;
+  border-radius: 12px;
+}
+
+.price-management-flow-step:not(:last-child)::after {
+  position: absolute;
+  top: 50%;
+  right: -8px;
+  width: 8px;
+  height: 1px;
+  content: '';
+  background: #cddbd4;
+}
+
+.price-management-flow-step__index {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  background: #159269;
+  border-radius: 999px;
+}
+
+.price-management-flow-step__title {
+  margin-top: 10px;
+  color: #263832;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.price-management-flow-step__desc {
+  margin-top: 6px;
+  color: #72807b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.price-management-toolbar {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.price-management-segment .ant-segmented-item-selected {
+  color: #159269;
+  font-weight: 600;
+}
+
+.price-management-summary {
+  margin-bottom: 16px;
+}
+
+.price-management-stat-card {
+  border: 1px solid #edf2ef;
+}
+
+.price-management-table-card {
+  border: 1px solid #edf2ef;
+}
+
+.price-management-type-tag {
+  min-width: 104px;
+  text-align: center;
+}
+
+.price-management-subtle {
+  color: #87938e;
+  font-size: 12px;
+}
+
+.price-management-project-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.price-management-price-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.price-management-price-cell__main {
+  color: #263832;
+  font-weight: 600;
+}
+
+.price-management-price-cell__sub {
+  color: #8c8c8c;
+  font-size: 12px;
+}
+
+.price-management-modal-flow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.price-management-modal-flow__item {
+  padding: 12px;
+  background: #f8fbf9;
+  border: 1px solid #edf2ef;
+  border-radius: 10px;
+}
+
+.price-management-modal-flow__title {
+  color: #263832;
+  font-weight: 600;
+}
+
+.price-management-modal-flow__desc {
+  margin-top: 6px;
+  color: #5f6d68;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 1280px) {
+  .price-management-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .price-management-flow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .price-management-flow-step:not(:last-child)::after {
+    display: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .price-management-logic,
+  .price-management-flow,
+  .price-management-modal-flow {
+    grid-template-columns: 1fr;
+  }
+}

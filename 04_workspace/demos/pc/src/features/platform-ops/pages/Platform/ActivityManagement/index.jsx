@@ -1,6 +1,5 @@
 import { useMemo, useState, useRef, useEffect } from 'react'
 import {
-  Alert,
   ConfigProvider,
   Button,
   Card,
@@ -11,7 +10,6 @@ import {
   Input,
   InputNumber,
   Modal,
-  Popover,
   Select,
   Space,
   Table,
@@ -34,6 +32,8 @@ import { createPortal } from 'react-dom'
 import dayjs from 'dayjs'
 import {
   ACTIVITY_MANAGEMENT_BASE_PATH,
+  ACTIVITY_MANAGEMENT_COPY_BASE_PATH,
+  ACTIVITY_MANAGEMENT_SHORT_PATH,
   ACTIVITY_MANAGEMENT_SHARE_BASE_PATH,
 } from '../../../../../routes/pcRoutes'
 import './ActivityManagement.css'
@@ -48,7 +48,7 @@ const ANNOTATIONS = [
     content: `**功能描述**：展示互联网医院侧价格规则总览，支持查看、编辑、上架、下架和删除。
 
 **页面模块**：
-- 页面标题：活动管理
+- 页面标题：活动价格管理
 - 页面副标题：统一管理平台差异价、用户优惠券/折扣券、组套优惠和项目活动价。
 - 顶部操作：新建价格规则按钮
 - 表格字段：序号、价格规则名称、规则类型、业务通道、来源平台、适用签约中心、中心数、项目/组套数、生效时间、状态、优先级、更新时间、操作
@@ -63,8 +63,7 @@ const ANNOTATIONS = [
 
 **状态规则**：
 - 已下架：手动下架，或活动结束时间早于当前时间
-- 已上架：活动未开始但已保存上架，开始时间晚于当前时间
-- 进行中：当前时间处于活动开始和结束时间之间，且未手动下架`
+- 已上架：未手动下架且活动结束时间未过期`
   },
   {
     id: 2,
@@ -97,19 +96,18 @@ const ANNOTATIONS = [
 - 模块说明：交付中心只是规则适用范围，价格规则主体是业务通道/来源平台
 - 中心切换：当适用中心有多个时，以切换按钮展示
 - 表格字段：项目名称、编码、门市价、规则价、操作
-- 操作说明：点击"添加检查项目"打开平台标准项目库；在已选项目表格中可编辑规则价；组套优惠可选择多个项目共同组成套餐`
+- 操作说明：点击"添加检查项目"打开检查项目已对码表；在已选项目表格中可编辑规则价；组套优惠可选择多个项目共同组成套餐`
   },
   {
     id: 4,
-    title: '需求描述：平台标准项目库弹窗',
-    content: `**平台标准项目库弹窗**：
-- 功能描述：从标准检查项目库中为当前签约中心选择适用项目
-- 标题：平台标准项目库
-- 冲突提示：同一业务通道、来源平台、规则类型、签约中心、项目在重叠时间内只能存在一条有效价格规则
+    title: '需求描述：检查项目已对码表弹窗',
+    content: `**检查项目已对码表弹窗**：
+- 功能描述：从已对码检查项目中为当前活动对象选择适用项目
+- 标题：检查项目已对码表
 - 查询区字段：检查类型、编码/名称关键字
 - 行选择规则：
-  - 已添加到当前中心的项目禁选
-  - 当前中心未选中时全部禁选
+  - 已添加到当前活动的项目禁选
+  - 当前活动对象未选中时全部禁选
   - 与同类型价格规则冲突的项目禁选，并显示冲突规则名称与时间提示`
   },
   {
@@ -120,7 +118,7 @@ const ANNOTATIONS = [
 
 **基础信息区域**：
 - 展示字段：价格规则名称、规则类型、业务通道、来源平台、状态、生效时间、创建人、更新时间、适用签约中心、中心数、项目/组套数、规则说明
-- 状态展示：使用标签展示"已上架 / 进行中 / 已下架"
+- 状态展示：使用标签展示"已上架 / 已下架"
 
 **规则价格区域**：
 - 签约中心切换：展示该规则下全部适用中心按钮
@@ -283,7 +281,8 @@ const { RangePicker } = DatePicker
 
 const DATE_TIME_FORMAT = 'YYYY-MM-DD HH:mm'
 
-const STORAGE_KEY_BACKSTAGE = 'pm-agent-activity-management-v7'
+const STORAGE_KEY_BACKSTAGE = 'pm-agent-activity-management-v8'
+const STORAGE_KEY_COPY = 'pm-agent-activity-management-copy-v1'
 const STORAGE_KEY_SHARE = 'pm-agent-activity-management-share-v5'
 const DEMO_OPERATOR_NAME = '运营账号A'
 
@@ -292,6 +291,95 @@ const channels = [
   { label: '一脉中心', value: 'yimai-center' },
   { label: '青藤自助开单', value: 'qingteng-self-order' },
 ]
+
+const activityObjectOptionsByRuleType = {
+  'internet-hospital-activity': [
+    { label: '蚂蚁好大夫', value: 'mayi-doctor' },
+    { label: '平安', value: 'pingan' },
+    { label: '华西', value: 'huaxi' },
+  ],
+  'delivery-center-activity': [
+    { label: '北京一脉阳光医学诊断中心（193）', value: 'yimai-beijing' },
+    { label: '福州一脉阳光医学诊断中心（142）', value: 'yimai-fuzhou' },
+    { label: '辽宁一脉阳光医学诊断中心（513）', value: 'yimai-liaoning' },
+    { label: '南昌一脉阳光医学诊断中心（358）', value: 'yimai-nanchang' },
+    { label: '温州一脉颐影医学影像诊断中心（190）', value: 'yimai-wenzhou' },
+    { label: '湘潭一脉阳光医学诊断中心（48）', value: 'yimai-xiangtan' },
+    { label: '一脉阳光上海正影医学影像诊断中心（530）', value: 'yimai-shanghai' },
+    { label: '长春一脉阳光医学诊断中心（517）', value: 'yimai-changchun' },
+    { label: '长沙一脉阳光医学诊断中心（224）', value: 'yimai-changsha' },
+    { label: '郑州一脉阳光医学诊断中心（313）', value: 'yimai-zhengzhou' },
+  ],
+  'platform-activity': [
+    { label: '满减活动', value: 'full-reduction' },
+    { label: '折扣活动', value: 'discount' },
+    { label: '新客优惠券', value: 'new-user-coupon' },
+    { label: '组合项目优惠', value: 'combo-project-discount' },
+  ],
+}
+
+const yimaiCenterOptions = [
+  { label: '北京一脉阳光医学诊断中心（193）', value: 'yimai-beijing' },
+  { label: '福州一脉阳光医学诊断中心（142）', value: 'yimai-fuzhou' },
+  { label: '辽宁一脉阳光医学诊断中心（513）', value: 'yimai-liaoning' },
+  { label: '南昌一脉阳光医学诊断中心（358）', value: 'yimai-nanchang' },
+  { label: '温州一脉颐影医学影像诊断中心（190）', value: 'yimai-wenzhou' },
+  { label: '湘潭一脉阳光医学诊断中心（48）', value: 'yimai-xiangtan' },
+  { label: '一脉阳光上海正影医学影像诊断中心（530）', value: 'yimai-shanghai' },
+  { label: '长春一脉阳光医学诊断中心（517）', value: 'yimai-changchun' },
+  { label: '长沙一脉阳光医学诊断中心（224）', value: 'yimai-changsha' },
+  { label: '郑州一脉阳光医学诊断中心（313）', value: 'yimai-zhengzhou' },
+]
+
+const ACTIVITY_SCOPE_ID = 'activity-scope'
+const PLATFORM_COMMISSION_RATE = 0.25
+const LEGACY_EXAM_DISCOUNT_RATE = 0.7
+const DEFAULT_PLATFORM_ACTIVITY_CONFIGS = {
+  'full-reduction': {
+    actionType: 'amount-off',
+    thresholdAmount: 300,
+    discountAmount: 30,
+    displayName: '满300减30',
+    patientHint: '患者下单页自动展示，达到门槛后结算时直接抵扣',
+    eligibility: '全部患者',
+    scopeText: '青藤平台全部影像检查订单',
+    triggerText: '按订单实付前项目费用累计判断门槛',
+    settlementText: '结算时自动抵扣青藤平台优惠金额',
+  },
+  discount: {
+    actionType: 'percentage-off',
+    discountRate: 8.5,
+    maxDiscountAmount: 80,
+    displayName: '全场8.5折',
+    patientHint: '患者下单页展示青藤平台折扣，结算时按订单项目金额自动计算优惠',
+    eligibility: '全部患者',
+    scopeText: '青藤平台全部影像检查订单',
+    triggerText: '订单进入确认页后按项目费用计算折扣',
+    settlementText: '结算时按折扣率抵扣，超过封顶金额按封顶抵扣',
+  },
+  'new-user-coupon': {
+    actionType: 'new-user-coupon',
+    thresholdAmount: 200,
+    discountAmount: 25,
+    displayName: '新客满200减25',
+    patientHint: '首次下单患者自动领券并在订单确认页使用',
+    eligibility: '青藤平台首次下单患者',
+    scopeText: '新客首单影像检查订单',
+    triggerText: '患者首次提交订单且订单金额达到门槛',
+    settlementText: '支付前自动匹配新客券并完成抵扣',
+  },
+  'combo-project-discount': {
+    actionType: 'combo-benefit',
+    comboCount: 2,
+    discountAmount: 50,
+    displayName: '组合检查减50',
+    patientHint: '患者同一订单选择多个检查项目时自动展示组合优惠',
+    eligibility: '同单多项目患者',
+    scopeText: '同一订单内多个影像检查项目',
+    triggerText: '订单内检查项目数量达到组合条件',
+    settlementText: '按组合项目规则在结算时自动抵扣',
+  },
+}
 
 const sourcePlatforms = [
   { label: '全部平台', value: 'all' },
@@ -303,42 +391,45 @@ const sourcePlatforms = [
 
 const priceRuleTypes = [
   {
-    label: '不同平台不同价格',
-    value: 'platform-price',
+    label: '互联网医院',
+    value: 'internet-hospital-activity',
     tagColor: 'blue',
     priority: 30,
-    formTitle: '互联网医院侧来源平台展示价',
-    priceColumnTitle: '平台展示价',
-    description: '用于平安等特定来源平台，在互联网医院业务通道下对同一项目展示不同价格。',
+    formTitle: '互联网医院活动',
+    priceColumnTitle: '活动价',
+    description: '用于互联网医院侧的项目价格活动，解决不同互联网医院/合作渠道展示不同价格的问题。',
   },
   {
-    label: '项目活动价格',
-    value: 'project-activity',
+    label: '交付中心',
+    value: 'delivery-center-activity',
     tagColor: 'green',
     priority: 20,
-    formTitle: '签约中心项目活动价',
+    formTitle: '交付中心活动',
     priceColumnTitle: '活动价',
-    description: '用于在互联网医院业务通道下，为特定签约交付中心的特定项目设置阶段性活动价格。',
+    description: '用于交付中心自身项目的阶段性价格活动。',
   },
   {
-    label: '用户优惠券/折扣券',
-    value: 'user-discount',
+    label: '青藤平台',
+    value: 'platform-activity',
     tagColor: 'purple',
     priority: 40,
-    formTitle: '用户侧优惠后价格',
+    formTitle: '青藤平台活动',
     priceColumnTitle: '优惠后价',
-    description: '用于面向指定用户、人群或券码提供优惠，需要后续明确是否可与平台价、活动价和套餐价叠加。',
-  },
-  {
-    label: '组套优惠',
-    value: 'bundle-discount',
-    tagColor: 'orange',
-    priority: 50,
-    formTitle: '组套优惠价',
-    priceColumnTitle: '组套价',
-    description: '用于多个项目组合后的套餐优惠，需明确套餐展示、明细拆分和下发到交付中心的规则。',
+    description: '用于青藤平台层面的通用优惠、用户券或折扣活动。',
   },
 ]
+
+const internetHospitalActivityMethodOptions = [
+  { label: '满减活动', value: 'full-reduction' },
+  { label: '折扣活动', value: 'discount' },
+]
+
+const legacyRuleTypeMap = {
+  'platform-price': 'internet-hospital-activity',
+  'project-activity': 'delivery-center-activity',
+  'user-discount': 'platform-activity',
+  'bundle-discount': 'platform-activity',
+}
 
 const institutionsByChannel = {
   'internet-hospital': [
@@ -347,11 +438,7 @@ const institutionsByChannel = {
     { label: '南昌西湖影像交付中心', value: 'center-ih-003' },
     { label: '杭州滨江影像交付中心', value: 'center-ih-004' },
   ],
-  'yimai-center': [
-    { label: '一脉成都中心', value: 'center-yimai-001' },
-    { label: '一脉南昌中心', value: 'center-yimai-002' },
-    { label: '一脉杭州中心', value: 'center-yimai-003' },
-  ],
+  'yimai-center': yimaiCenterOptions,
   'qingteng-self-order': [
     { label: '青藤成都自助开单中心', value: 'center-qt-001' },
     { label: '青藤南昌自助开单中心', value: 'center-qt-002' },
@@ -359,154 +446,65 @@ const institutionsByChannel = {
   ],
 }
 
-const standardProjects = [
-  { id: 'p-001', name: 'CT门控钙化积分辅助诊断', category: '心脏', code: 'PKG006', type: 'CT', originPrice: 200 },
-  { id: 'p-002', name: 'CT骨密度辅助诊断', category: '脊柱', code: 'PKG012', type: 'CT', originPrice: 180 },
-  { id: 'p-003', name: '骨龄DR量化评估', category: '骨关节', code: 'PKG018', type: 'DR', originPrice: 120 },
-  { id: 'p-004', name: '癌症筛查影像分析', category: '癌症筛查', code: 'PKG026', type: 'MR', originPrice: 360 },
-  { id: 'p-005', name: '头颅MRI平扫', category: '神经系统', code: 'PKG031', type: 'MR', originPrice: 280 },
-  { id: 'p-006', name: '肺结节AI辅助筛查', category: '胸部', code: 'PKG040', type: 'CT', originPrice: 160 },
+const ctMappedProjectNames = [
+  'CT颅脑平扫',
+  'CT颅脑增强',
+  'CT颅底平扫',
+  'CT颅底增强',
+  'CT颌面部平扫',
+  'CT颌面部增强',
+  'CT眼部平扫',
+  'CT眼部增强',
+  'CT副鼻窦平扫',
+  'CT副鼻窦增强',
 ]
 
-const defaultActivityPriceMap = {
-  'p-001': 160,
-}
+const standardProjects = ctMappedProjectNames.map((name, index) => {
+  const platformCode = String(30010100510000 + index).padStart(14, '0')
+  return {
+    id: `p-${String(index + 1).padStart(3, '0')}`,
+    name,
+    type: 'CT',
+    platformCode,
+    platformName: name,
+    examFee: 60,
+    materialFee: 10,
+    drugFee: 10,
+    code: platformCode,
+    category: 'CT',
+    originPrice: 80,
+  }
+})
 
 const seedActivities = [
   {
     id: 'act-001',
-    name: '平安平台肺结节专项价',
-    description: '互联网医院侧来源平台差异价：平安平台访问时展示肺结节项目专项价格，交付中心只作为适用范围。',
-    ruleType: 'platform-price',
-    sourcePlatformId: 'pingan',
-    channelId: 'internet-hospital',
-    institutionIds: ['center-ih-001', 'center-ih-002'],
-    startAt: '2026-06-20 00:00',
-    endAt: '2026-08-31 23:59',
-    status: 'listed',
-    creator: DEMO_OPERATOR_NAME,
-    updatedAt: '2026-06-27 10:20',
-    priority: 30,
-    institutionConfigs: {
-      'center-ih-001': [
-        { projectId: 'p-006', activityPrice: 129 },
-      ],
-      'center-ih-002': [
-        { projectId: 'p-006', activityPrice: 135 },
-      ],
-    },
-    logs: [
-      { action: '创建价格规则', operator: DEMO_OPERATOR_NAME, at: '2026-06-27 10:00', detail: '创建平安平台来源差异价规则' },
-      { action: '上架价格规则', operator: DEMO_OPERATOR_NAME, at: '2026-06-27 10:20', detail: '上架后平安平台按专项价展示' },
-    ],
-  },
-  {
-    id: 'act-002',
-    name: '互联网医院新客折扣券',
-    description: '用户侧优惠券/折扣券：面向互联网医院新客，命中项目后展示优惠后价；叠加规则后续需与价格引擎确认。',
-    ruleType: 'user-discount',
+    name: '好大夫价格活动',
+    description: '互联网医院活动：面向蚂蚁好大夫维护已对码项目的活动价。',
+    ruleType: 'internet-hospital-activity',
     sourcePlatformId: 'all',
-    channelId: 'internet-hospital',
-    institutionIds: ['center-ih-001', 'center-ih-003'],
-    startAt: '2026-07-01 00:00',
-    endAt: '2026-07-31 23:59',
+    channelId: 'mayi-doctor',
+    institutionIds: [ACTIVITY_SCOPE_ID],
+    startAt: '2026-07-03 00:00',
+    endAt: '2026-08-02 23:59',
     status: 'listed',
     creator: DEMO_OPERATOR_NAME,
-    updatedAt: '2026-06-27 11:05',
-    priority: 40,
-    institutionConfigs: {
-      'center-ih-001': [
-        { projectId: 'p-001', activityPrice: 150 },
-        { projectId: 'p-002', activityPrice: 138 },
-      ],
-      'center-ih-003': [
-        { projectId: 'p-002', activityPrice: 145 },
-      ],
-    },
-    logs: [
-      { action: '创建价格规则', operator: DEMO_OPERATOR_NAME, at: '2026-06-27 11:05', detail: '创建用户侧新客折扣券规则' },
-    ],
-  },
-  {
-    id: 'act-003',
-    name: '胸部CT筛查组套优惠',
-    description: '组套优惠：肺结节筛查与三维重建能力组合展示为套餐价，后续需明确是否拆分下发到交付中心。',
-    ruleType: 'bundle-discount',
-    sourcePlatformId: 'qingteng',
-    channelId: 'internet-hospital',
-    institutionIds: ['center-ih-002'],
-    startAt: '2026-07-05 00:00',
-    endAt: '2026-09-30 23:59',
-    status: 'listed',
-    creator: DEMO_OPERATOR_NAME,
-    updatedAt: '2026-06-27 11:30',
-    priority: 50,
-    institutionConfigs: {
-      'center-ih-002': [
-        { projectId: 'p-004', activityPrice: 299 },
-        { projectId: 'p-006', activityPrice: 99 },
-      ],
-    },
-    logs: [
-      { action: '创建价格规则', operator: DEMO_OPERATOR_NAME, at: '2026-06-27 11:30', detail: '创建胸部 CT 组套优惠规则' },
-    ],
-  },
-  {
-    id: 'act-004',
-    name: '一脉中心门市价展示口径',
-    description: '价格口径校正：一脉侧按实际门市价展示，系统内记录 7 折后价格。该类规则不等同普通项目活动价。',
-    ruleType: 'platform-price',
-    sourcePlatformId: 'yimai',
-    channelId: 'yimai-center',
-    institutionIds: ['center-yimai-001', 'center-yimai-002'],
-    startAt: '2026-06-01 00:00',
-    endAt: '2026-12-31 23:59',
-    status: 'offline',
-    creator: DEMO_OPERATOR_NAME,
-    updatedAt: '2026-06-26 16:35',
+    updatedAt: '2026-07-02 18:00',
     priority: 30,
     institutionConfigs: {
-      'center-yimai-001': [
-        { projectId: 'p-001', activityPrice: 140 },
-        { projectId: 'p-005', activityPrice: 196 },
-      ],
-      'center-yimai-002': [
-        { projectId: 'p-002', activityPrice: 126 },
+      [ACTIVITY_SCOPE_ID]: [
+        { projectId: 'p-001', activityPrice: 100 },
       ],
     },
     logs: [
-      { action: '创建价格规则', operator: DEMO_OPERATOR_NAME, at: '2026-06-26 15:00', detail: '记录一脉展示价与系统记录价口径' },
-      { action: '下架价格规则', operator: DEMO_OPERATOR_NAME, at: '2026-06-26 16:35', detail: '等待结算配置页确认后再上架' },
-    ],
-  },
-  {
-    id: 'act-005',
-    name: '青藤自助开单抽成比例调整',
-    description: '青藤自助开单抽成比例从 25% 调整至 30%，用于展示结算口径变化，不应与普通项目活动价混淆。',
-    ruleType: 'platform-price',
-    sourcePlatformId: 'qingteng',
-    channelId: 'qingteng-self-order',
-    institutionIds: ['center-qt-001'],
-    startAt: '2026-07-01 00:00',
-    endAt: '2026-12-31 23:59',
-    status: 'listed',
-    creator: DEMO_OPERATOR_NAME,
-    updatedAt: '2026-06-27 12:00',
-    priority: 30,
-    institutionConfigs: {
-      'center-qt-001': [
-        { projectId: 'p-005', activityPrice: 280 },
-      ],
-    },
-    logs: [
-      { action: '创建价格规则', operator: DEMO_OPERATOR_NAME, at: '2026-06-27 12:00', detail: '记录青藤自助开单抽成比例调整' },
+      { action: '创建活动', operator: DEMO_OPERATOR_NAME, at: '2026-07-02 18:00', detail: '创建好大夫价格活动' },
+      { action: '上架活动', operator: DEMO_OPERATOR_NAME, at: '2026-07-02 18:00', detail: '活动已上架' },
     ],
   },
 ]
 
 const statusMeta = {
   listed: { label: '已上架', className: 'activity-status-listed', tagColor: 'blue' },
-  running: { label: '进行中', className: 'activity-status-running', tagColor: 'green' },
   offline: { label: '已下架', className: 'activity-status-offline', tagColor: 'orange' },
 }
 
@@ -518,12 +516,41 @@ function isSharePath(pathname) {
   return pathname.startsWith(ACTIVITY_MANAGEMENT_SHARE_BASE_PATH)
 }
 
-function getActivityBasePath(pathname) {
-  return isSharePath(pathname) ? ACTIVITY_MANAGEMENT_SHARE_BASE_PATH : ACTIVITY_MANAGEMENT_BASE_PATH
+function isCopyPath(pathname) {
+  return pathname.startsWith(ACTIVITY_MANAGEMENT_COPY_BASE_PATH)
 }
 
-function getActivityStorageKey(pathname) {
-  return isSharePath(pathname) ? STORAGE_KEY_SHARE : STORAGE_KEY_BACKSTAGE
+function isShortCopyPath(pathname) {
+  return pathname.startsWith(ACTIVITY_MANAGEMENT_SHORT_PATH)
+}
+
+function isCopyVariant(variant) {
+  return variant === 'copy' || variant === 'short-copy'
+}
+
+function getActivityVariant(pathname, explicitVariant) {
+  if (explicitVariant) return explicitVariant
+  if (isSharePath(pathname)) return 'share'
+  if (isShortCopyPath(pathname)) return 'short-copy'
+  if (isCopyPath(pathname)) return 'copy'
+  return 'default'
+}
+
+function getActivityBasePath(variant) {
+  if (variant === 'share') return ACTIVITY_MANAGEMENT_SHARE_BASE_PATH
+  if (variant === 'short-copy') return ACTIVITY_MANAGEMENT_SHORT_PATH
+  if (variant === 'copy') return ACTIVITY_MANAGEMENT_COPY_BASE_PATH
+  return ACTIVITY_MANAGEMENT_BASE_PATH
+}
+
+function getActivityStorageKey(variant) {
+  if (variant === 'share') return STORAGE_KEY_SHARE
+  if (isCopyVariant(variant)) return STORAGE_KEY_COPY
+  return STORAGE_KEY_BACKSTAGE
+}
+
+function getActivityPageTitle(variant) {
+  return isCopyVariant(variant) ? '活动价格管理副本' : '活动价格管理'
 }
 
 function isCreatePath(pathname, basePath) {
@@ -552,29 +579,252 @@ function getDemoLogDetail(action) {
   if (action.includes('创建')) return '创建价格规则并完成基础配置'
   if (action.includes('编辑')) return '更新价格规则配置'
   if (action.includes('上架')) return '上架价格规则并展示规则价格'
-  if (action.includes('下架')) return '下架价格规则并恢复基础价格'
+  if (action.includes('下架')) return '下架活动并恢复基础价格'
   return '更新价格规则配置'
 }
 
+function normalizeRuleType(ruleType) {
+  const normalized = legacyRuleTypeMap[ruleType] || ruleType
+  return priceRuleTypes.some((item) => item.value === normalized) ? normalized : 'internet-hospital-activity'
+}
+
 function getRuleTypeMeta(ruleType) {
-  return priceRuleTypes.find((item) => item.value === ruleType) || priceRuleTypes[1]
+  const normalized = normalizeRuleType(ruleType)
+  return priceRuleTypes.find((item) => item.value === normalized) || priceRuleTypes[0]
 }
 
 function getSourcePlatformName(id) {
   return sourcePlatforms.find((item) => item.value === id)?.label || '全部平台'
 }
 
+function getActivityObjectOptions(ruleType) {
+  return activityObjectOptionsByRuleType[normalizeRuleType(ruleType)] || []
+}
+
+function isInternetHospitalActivity(ruleType) {
+  return normalizeRuleType(ruleType) === 'internet-hospital-activity'
+}
+
+function getDefaultActivityObjectId(ruleType) {
+  return getActivityObjectOptions(ruleType)[0]?.value
+}
+
+function isActivityObjectValid(ruleType, activityObjectId) {
+  return getActivityObjectOptions(ruleType).some((item) => item.value === activityObjectId)
+}
+
+function isPlatformActivity(ruleType) {
+  return normalizeRuleType(ruleType) === 'platform-activity'
+}
+
+function isPlatformActivityConfig(ruleType, channelId) {
+  return isPlatformActivity(ruleType) && Boolean(DEFAULT_PLATFORM_ACTIVITY_CONFIGS[channelId])
+}
+
+function isInternetHospitalActivityMethod(value) {
+  return internetHospitalActivityMethodOptions.some((item) => item.value === value)
+}
+
+function getActivityDiscountConfigKey(ruleType, channelId, activityMethod) {
+  if (isPlatformActivityConfig(ruleType, channelId)) return channelId
+  if (isInternetHospitalActivity(ruleType) && isInternetHospitalActivityMethod(activityMethod)) return activityMethod
+  return undefined
+}
+
+function getActivityMethodName(activityMethod) {
+  return internetHospitalActivityMethodOptions.find((item) => item.value === activityMethod)?.label || '-'
+}
+
+function getPlatformActivityTemplate(activityObjectId) {
+  return DEFAULT_PLATFORM_ACTIVITY_CONFIGS[activityObjectId] || DEFAULT_PLATFORM_ACTIVITY_CONFIGS['full-reduction']
+}
+
+function getNumericConfigValue(value, fallback) {
+  const numberValue = Number(value)
+  return Number.isNaN(numberValue) ? fallback : numberValue
+}
+
+function getPlatformActivityDisplayName(activityObjectId, config) {
+  if (activityObjectId === 'discount') return `全场${config.discountRate}折`
+  if (activityObjectId === 'new-user-coupon') return `新客满${config.thresholdAmount}减${config.discountAmount}`
+  if (activityObjectId === 'combo-project-discount') return `组合检查减${config.discountAmount}`
+  return `满${config.thresholdAmount}减${config.discountAmount}`
+}
+
+function normalizePlatformActivityConfig(activityObjectId, config = {}) {
+  const template = getPlatformActivityTemplate(activityObjectId)
+  const normalized = {
+    ...template,
+    ...config,
+    activityObjectId,
+    thresholdAmount: getNumericConfigValue(config.thresholdAmount, template.thresholdAmount),
+    discountAmount: getNumericConfigValue(config.discountAmount, template.discountAmount),
+    discountRate: getNumericConfigValue(config.discountRate, template.discountRate),
+    maxDiscountAmount: getNumericConfigValue(config.maxDiscountAmount, template.maxDiscountAmount),
+    comboCount: getNumericConfigValue(config.comboCount, template.comboCount),
+    eligibility: config.eligibility?.trim() || template.eligibility,
+    patientHint: config.patientHint?.trim() || template.patientHint,
+    scopeText: config.scopeText?.trim() || template.scopeText,
+    triggerText: config.triggerText?.trim() || template.triggerText,
+    settlementText: config.settlementText?.trim() || template.settlementText,
+  }
+
+  normalized.displayName = config.displayName?.trim() || getPlatformActivityDisplayName(activityObjectId, normalized)
+  return normalized
+}
+
+function getPlatformActivityConfig(activityOrChannelId, config) {
+  if (typeof activityOrChannelId === 'string') {
+    return normalizePlatformActivityConfig(activityOrChannelId, config)
+  }
+
+  const activity = activityOrChannelId
+  const activityObjectId = activity?.channelId || 'full-reduction'
+  return normalizePlatformActivityConfig(
+    activityObjectId,
+    activity?.platformActivityConfig || activity?.fullReductionRule,
+  )
+}
+
+function getPlatformActivityText(activityObjectId, config) {
+  return normalizePlatformActivityConfig(activityObjectId, config).displayName
+}
+
+function applyActivityDiscountContext(config, context, activityObjectName) {
+  if (context !== 'internet-hospital') return config
+
+  return {
+    ...config,
+    scopeText: `互联网医院「${activityObjectName || '活动对象'}」活动订单`,
+    patientHint: config.activityObjectId === 'discount'
+      ? '患者下单页展示互联网医院折扣，结算时按订单项目金额自动计算优惠'
+      : '患者下单页自动展示互联网医院满减，达到门槛后结算时直接抵扣',
+    settlementText: config.activityObjectId === 'discount'
+      ? '结算时按折扣率抵扣，超过封顶金额按封顶抵扣'
+      : '结算时自动抵扣活动优惠金额',
+  }
+}
+
+function getPlatformActivityConfigIntro(activityObjectId, context = 'qingteng') {
+  const orderLabel = context === 'internet-hospital' ? '互联网医院订单' : '青藤平台订单'
+  const promoLabel = context === 'internet-hospital' ? '互联网医院活动' : '青藤平台促销'
+
+  if (activityObjectId === 'discount') return `面向${orderLabel}的统一折扣配置，适合阶段性${promoLabel}或节假日折扣。`
+  if (activityObjectId === 'new-user-coupon') return '面向首次下单患者的拉新优惠配置，自动识别新客资格并在下单链路展示。'
+  if (activityObjectId === 'combo-project-discount') return '面向同单多项目检查的组合优惠配置，适合 CT/MR 多项目组合转化。'
+  return `面向${orderLabel}的满减优惠配置，适合按订单金额门槛做${promoLabel}。`
+}
+
+function getPlatformActivityFieldConfigs(activityObjectId) {
+  if (activityObjectId === 'discount') {
+    return [
+      { key: 'discountRate', label: '折扣力度', type: 'number', addonBefore: '折', min: 0.1, max: 9.9, precision: 1 },
+      { key: 'maxDiscountAmount', label: '最高优惠金额', type: 'number', addonBefore: '￥', min: 1, precision: 2 },
+      { key: 'displayName', label: '患者端优惠文案', type: 'text', wide: true, maxLength: 20 },
+    ]
+  }
+
+  if (activityObjectId === 'combo-project-discount') {
+    return [
+      { key: 'comboCount', label: '组合项目数量', type: 'number', addonBefore: '满', addonAfter: '项', min: 2, precision: 0 },
+      { key: 'discountAmount', label: '组合优惠金额', type: 'number', addonBefore: '减￥', min: 1, precision: 2 },
+      { key: 'displayName', label: '患者端优惠文案', type: 'text', wide: true, maxLength: 20 },
+    ]
+  }
+
+  return [
+    { key: 'thresholdAmount', label: activityObjectId === 'new-user-coupon' ? '首单优惠门槛' : '订单满减门槛', type: 'number', addonBefore: '满￥', min: 1, precision: 2 },
+    { key: 'discountAmount', label: '优惠金额', type: 'number', addonBefore: '减￥', min: 1, precision: 2 },
+    { key: 'displayName', label: '患者端优惠文案', type: 'text', wide: true, maxLength: 20 },
+  ]
+}
+
+function getPlatformActivitySummaryItems(activityObjectId, config) {
+  if (activityObjectId === 'discount') {
+    return [
+      { label: '患者端优惠文案', value: config.displayName },
+      { label: '折扣力度', value: `${config.discountRate} 折` },
+      { label: '最高优惠金额', value: `￥${config.maxDiscountAmount}` },
+    ]
+  }
+
+  if (activityObjectId === 'combo-project-discount') {
+    return [
+      { label: '患者端优惠文案', value: config.displayName },
+      { label: '组合项目数量', value: `${config.comboCount} 项` },
+      { label: '组合优惠金额', value: `￥${config.discountAmount}` },
+    ]
+  }
+
+  return [
+    { label: '患者端优惠文案', value: config.displayName },
+    { label: activityObjectId === 'new-user-coupon' ? '首单优惠门槛' : '订单满减门槛', value: `￥${config.thresholdAmount}` },
+    { label: '优惠金额', value: `￥${config.discountAmount}` },
+  ]
+}
+
+function PlatformActivitySummary({ activityObjectId, config }) {
+  return (
+    <div className="activity-discount-summary">
+      {getPlatformActivitySummaryItems(activityObjectId, config).map((item) => (
+        <div key={item.label} className="activity-discount-summary__item">
+          <span>{item.label}</span>
+          <strong>{item.value}</strong>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function PlatformActivityRuleNote({ config }) {
+  const ruleItems = [
+    { label: '适用范围', value: config.scopeText },
+    { label: '触发方式', value: config.triggerText },
+    { label: '患者展示', value: '下单页、确认订单页、支付页同步展示' },
+    { label: '抵扣方式', value: config.settlementText },
+  ]
+
+  return (
+    <div className="activity-discount-note">
+      <div className="activity-discount-note__title">规则说明</div>
+      <div className="activity-discount-note__grid">
+        {ruleItems.map((item) => (
+          <div key={item.label} className="activity-discount-note__item">
+            <span>{item.label}</span>
+            <strong>{item.value}</strong>
+          </div>
+        ))}
+      </div>
+      <div className="activity-discount-note__flow">
+        <span>业务闭环</span>
+        <strong>配置规则、患者展示、支付抵扣、活动核销</strong>
+      </div>
+    </div>
+  )
+}
+
 function sanitizeActivitiesForDemo(activities = []) {
   return activities.map((activity, index) => {
-    const ruleType = activity.ruleType || 'project-activity'
+    const ruleType = normalizeRuleType(activity.ruleType || 'internet-hospital-activity')
     const ruleMeta = getRuleTypeMeta(ruleType)
+    const activityMethod = isInternetHospitalActivity(ruleType) && isInternetHospitalActivityMethod(activity.activityMethod)
+      ? activity.activityMethod
+      : undefined
+    const discountConfigKey = getActivityDiscountConfigKey(ruleType, activity.channelId, activityMethod)
+    const platformActivityConfig = discountConfigKey
+      ? getPlatformActivityConfig(discountConfigKey, activity.platformActivityConfig || activity.fullReductionRule)
+      : undefined
     return {
       ...activity,
+      activityMethod,
       name: activity.name || getDemoActivityName(activity.id, index),
-      description: activity.description || '价格规则说明，用于演示后台价格规则配置与维护流程。',
+      description: activity.description || '活动说明，用于演示后台活动配置与维护流程。',
       ruleType,
       sourcePlatformId: activity.sourcePlatformId || 'all',
       priority: activity.priority || ruleMeta.priority,
+      institutionConfigs: normalizeInstitutionConfigPrices(activity.institutionConfigs),
+      platformActivityConfig,
+      fullReductionRule: undefined,
       creator: activity.creator || DEMO_OPERATOR_NAME,
       logs: (activity.logs || []).map((log) => ({
         ...log,
@@ -610,17 +860,33 @@ function now() {
 }
 
 function getChannelName(id) {
-  return channels.find((item) => item.value === id)?.label || '-'
-}
-
-function getInstitutionsByChannel(channelId) {
-  return institutionsByChannel[channelId] || []
+  return [
+    ...channels,
+    ...Object.values(activityObjectOptionsByRuleType).flat(),
+  ].find((item) => item.value === id)?.label || '-'
 }
 
 function getInstitutionName(id) {
+  if (id === ACTIVITY_SCOPE_ID) return '活动通用范围'
   return Object.values(institutionsByChannel)
     .flat()
-    .find((item) => item.value === id)?.label || '-'
+    .find((item) => item.value === id)?.label || getChannelName(id)
+}
+
+function getDeliveryScopeOptions() {
+  return yimaiCenterOptions
+}
+
+function getValidDeliveryScopeIds(ids = []) {
+  const validIds = new Set(getDeliveryScopeOptions().map((item) => item.value))
+  return ids.filter((id) => validIds.has(id))
+}
+
+function getDefaultInstitutionIds(ruleType, channelId, existingIds = []) {
+  if (isPlatformActivityConfig(ruleType, channelId)) return [ACTIVITY_SCOPE_ID]
+  if (isInternetHospitalActivity(ruleType)) return getValidDeliveryScopeIds(existingIds)
+  if (normalizeRuleType(ruleType) === 'delivery-center-activity') return channelId ? [channelId] : []
+  return existingIds.length ? existingIds : [ACTIVITY_SCOPE_ID]
 }
 
 function getInstitutionSummary(ids = []) {
@@ -634,10 +900,85 @@ function getInstitutionProjectCount(activity) {
   return Object.values(activity.institutionConfigs || {}).reduce((sum, configs) => sum + configs.length, 0)
 }
 
+function isBundleConfig(value) {
+  return Boolean(value && typeof value === 'object' && value.type === 'bundle')
+}
+
+function getBundleProjects(projectIds = []) {
+  return projectIds.map(getProject).filter(Boolean)
+}
+
+function getBundleProjectNameText(projectIds = []) {
+  const names = getBundleProjects(projectIds).map((project) => project.name)
+  return names.length ? names.join('、') : '-'
+}
+
+function renderPlatformProjectName(_, row) {
+  if (row.rowType !== 'bundle') return row.platformName
+
+  const projects = row.projects || []
+  if (!projects.length) return row.platformName || '-'
+
+  return (
+    <div className="activity-platform-project-names">
+      {projects.map((project) => (
+        <span key={project.id}>{project.name}</span>
+      ))}
+    </div>
+  )
+}
+
+function sumProjectFee(projects, key) {
+  return projects.reduce((sum, project) => sum + Number(project?.[key] || 0), 0)
+}
+
+function getBundleDefaultPrice(projectIds = []) {
+  return getBundleProjects(projectIds).reduce((sum, project) => sum + calculatePatientDisplayPrice(project), 0)
+}
+
+function getBundleDisplayName(projectIds = []) {
+  const projects = getBundleProjects(projectIds)
+  if (!projects.length) return '组套项目SKU'
+  if (projects.length <= 2) return `组套SKU：${projects.map((project) => project.name).join(' + ')}`
+  return `组套SKU：${projects.slice(0, 2).map((project) => project.name).join(' + ')} 等${projects.length}项`
+}
+
+function getSavedConfigProjectIds(config) {
+  if (config?.type === 'bundle' || config?.projectIds?.length) return config.projectIds || []
+  return config?.projectId ? [config.projectId] : []
+}
+
+function getProjectMapProjectIds(projectMap = {}) {
+  return Object.entries(projectMap).flatMap(([projectId, config]) => (
+    isBundleConfig(config) ? config.projectIds || [] : [projectId]
+  ))
+}
+
+function getConfigActivityPrice(config) {
+  return isBundleConfig(config) ? config.activityPrice : config
+}
+
+function getConfigMapFromSavedConfigs(configs = []) {
+  return Object.fromEntries(configs.map((item, index) => {
+    if (item.type === 'bundle' || item.projectIds?.length) {
+      const skuId = item.skuId || `bundle-${index + 1}`
+      return [skuId, {
+        type: 'bundle',
+        skuId,
+        skuName: item.skuName || getBundleDisplayName(item.projectIds),
+        projectIds: item.projectIds || [],
+        activityPrice: item.activityPrice,
+      }]
+    }
+
+    return [item.projectId, item.activityPrice]
+  }))
+}
+
 function getInstitutionConfigMap(activity) {
   return Object.fromEntries(
     Object.entries(activity.institutionConfigs || {}).map(([institutionId, configs]) => (
-      [institutionId, Object.fromEntries(configs.map((item) => [item.projectId, item.activityPrice]))]
+      [institutionId, getConfigMapFromSavedConfigs(configs)]
     )),
   )
 }
@@ -646,8 +987,42 @@ function toInstitutionConfigs(configMap, institutionIds) {
   return Object.fromEntries(
     institutionIds.map((institutionId) => {
       const projectMap = configMap[institutionId] || {}
-      return [institutionId, Object.entries(projectMap).map(([projectId, activityPrice]) => ({ projectId, activityPrice }))]
+      return [institutionId, Object.entries(projectMap).map(([projectId, config]) => {
+        if (isBundleConfig(config)) {
+          return {
+            type: 'bundle',
+            skuId: projectId,
+            skuName: config.skuName || getBundleDisplayName(config.projectIds),
+            projectIds: config.projectIds || [],
+            activityPrice: config.activityPrice,
+          }
+        }
+
+        return { projectId, activityPrice: config }
+      })]
     }),
+  )
+}
+
+function cloneProjectMap(projectMap = {}) {
+  return Object.fromEntries(Object.entries(projectMap).map(([projectId, config]) => [
+    projectId,
+    isBundleConfig(config)
+      ? { ...config, projectIds: [...(config.projectIds || [])] }
+      : config,
+  ]))
+}
+
+function getSharedInstitutionProjectMap(configMap, institutionIds, sourceInstitutionId) {
+  const sourceProjectMap = [
+    configMap[sourceInstitutionId],
+    ...institutionIds.map((institutionId) => configMap[institutionId]),
+  ]
+    .filter(Boolean)
+    .find((projectMap) => Object.keys(projectMap).length) || {}
+
+  return Object.fromEntries(
+    institutionIds.map((institutionId) => [institutionId, cloneProjectMap(sourceProjectMap)]),
   )
 }
 
@@ -655,9 +1030,89 @@ function getProject(projectId) {
   return standardProjects.find((item) => item.id === projectId)
 }
 
+function calculatePatientDisplayPrice(project) {
+  if (!project) return 0
+  return Number(project.examFee || 0) + Number(project.materialFee || 0) + Number(project.drugFee || 0)
+}
+
 function getDefaultActivityPrice(projectId) {
   const project = getProject(projectId)
-  return defaultActivityPriceMap[projectId] ?? project?.originPrice ?? 0
+  return calculatePatientDisplayPrice(project)
+}
+
+function getSelectedConfigRows(projectMap = {}) {
+  return Object.entries(projectMap).map(([rowId, config]) => {
+    if (isBundleConfig(config)) {
+      const projects = getBundleProjects(config.projectIds)
+      return {
+        id: rowId,
+        rowType: 'bundle',
+        skuName: config.skuName || getBundleDisplayName(config.projectIds),
+        projectIds: config.projectIds || [],
+        projects,
+        name: config.skuName || getBundleDisplayName(config.projectIds),
+        type: '组套SKU',
+        platformCode: projects.map((project) => project.platformCode).join(' / '),
+        platformName: getBundleProjectNameText(config.projectIds),
+        examFee: sumProjectFee(projects, 'examFee'),
+        materialFee: sumProjectFee(projects, 'materialFee'),
+        drugFee: sumProjectFee(projects, 'drugFee'),
+        activityPrice: config.activityPrice,
+      }
+    }
+
+    const project = getProject(rowId)
+    if (!project) return null
+    return {
+      ...project,
+      id: rowId,
+      rowType: 'project',
+      activityPrice: config,
+    }
+  }).filter(Boolean)
+}
+
+function getLegacyActivityPrice(project) {
+  if (!project) return 0
+  const legacyExamDisplayPrice = Number(project.examFee || 0) * LEGACY_EXAM_DISCOUNT_RATE / (1 - PLATFORM_COMMISSION_RATE)
+  return legacyExamDisplayPrice + Number(project.materialFee || 0) + Number(project.drugFee || 0)
+}
+
+function normalizeActivityPrice(projectId, activityPrice) {
+  const project = getProject(projectId)
+  const numericPrice = Number(activityPrice)
+  if (!project || Number.isNaN(numericPrice)) return activityPrice
+
+  const legacyDefaultPrice = getLegacyActivityPrice(project)
+  if (Math.abs(numericPrice - legacyDefaultPrice) > 0.01) return activityPrice
+
+  return Number(calculatePatientDisplayPrice(project).toFixed(2))
+}
+
+function normalizeInstitutionConfigPrices(institutionConfigs = {}) {
+  return Object.fromEntries(
+    Object.entries(institutionConfigs || {}).map(([institutionId, configs = []]) => [
+      institutionId,
+      configs.map((config, index) => {
+        if (config.type === 'bundle' || config.projectIds?.length) {
+          const projectIds = config.projectIds || []
+          return {
+            ...config,
+            type: 'bundle',
+            skuId: config.skuId || `bundle-${index + 1}`,
+            skuName: config.skuName || getBundleDisplayName(projectIds),
+            projectIds,
+            activityPrice: config.activityPrice,
+          }
+        }
+
+        return {
+          ...config,
+          activityPrice: normalizeActivityPrice(config.projectId, config.activityPrice),
+        }
+      }),
+    ]),
+  )
 }
 
 function normalizeStatus(activity) {
@@ -665,10 +1120,7 @@ function normalizeStatus(activity) {
   if (activity.endAt && dayjs(activity.endAt).isBefore(dayjs())) {
     return 'offline'
   }
-  if (activity.startAt && dayjs(activity.startAt).isAfter(dayjs())) {
-    return 'listed'
-  }
-  return 'running'
+  return 'listed'
 }
 
 function StatusText({ status }) {
@@ -724,51 +1176,98 @@ function useActivityStore(storageKey) {
   return [activities, commit]
 }
 
-function canPassIntegrity(values, institutionProjectMap, activities, editingId) {
-  if (!values.name?.trim()) return '请填写价格规则名称'
-  if (!values.ruleType) return '请选择价格规则类型'
-  if (!values.description?.trim()) return '请填写规则说明'
-  if (!values.channelId) return '请选择业务通道'
-  if (!values.sourcePlatformId) return '请选择来源平台/合作平台'
-  if (!values.institutionIds?.length) return '请至少选择一个适用签约交付中心'
+function canPassIntegrity(values, institutionProjectMap, activities, editingId, effectiveInstitutionIds = []) {
+  if (!values.name?.trim()) return '请填写活动名称'
+  if (!values.ruleType) return '请选择活动类型'
+  if (!values.channelId) return '请选择活动对象'
+  if (!effectiveInstitutionIds.length) {
+    return isInternetHospitalActivity(values.ruleType) ? '请选择交付范围' : '请先选择活动对象'
+  }
   if (!values.timeRange?.[0] || !values.timeRange?.[1]) return '请设置生效开始和结束时间'
 
   const [startAt, endAt] = values.timeRange
   if (!endAt.isAfter(startAt)) return '结束时间必须晚于开始时间'
 
-  for (const institutionId of values.institutionIds) {
-    const projectMap = institutionProjectMap[institutionId] || {}
-    const projectIds = Object.keys(projectMap)
-    if (!projectIds.length) return `请先为签约中心“${getInstitutionName(institutionId)}”添加检查项目`
-    const hasMissingPrice = projectIds.some((projectId) => projectMap[projectId] === null || projectMap[projectId] === undefined)
-    if (hasMissingPrice) return `请为签约中心“${getInstitutionName(institutionId)}”填写完整规则价`
+  const discountConfigKey = getActivityDiscountConfigKey(values.ruleType, values.channelId, values.activityMethod)
+  if (discountConfigKey) {
+    const platformConfig = normalizePlatformActivityConfig(discountConfigKey, values.platformActivityConfig)
+    if (discountConfigKey === 'discount') {
+      if (!platformConfig.discountRate || platformConfig.discountRate <= 0 || platformConfig.discountRate >= 10) return '请填写 0-10 之间的折扣'
+      if (!platformConfig.maxDiscountAmount || platformConfig.maxDiscountAmount <= 0) return '请填写折扣封顶金额'
+    } else if (discountConfigKey === 'combo-project-discount') {
+      if (!platformConfig.comboCount || platformConfig.comboCount < 2) return '组合项目数量至少为 2 项'
+      if (!platformConfig.discountAmount || platformConfig.discountAmount <= 0) return '请填写组合优惠金额'
+    } else {
+      if (!platformConfig.thresholdAmount || platformConfig.thresholdAmount <= 0) return '请填写订单优惠门槛'
+      if (!platformConfig.discountAmount || platformConfig.discountAmount <= 0) return '请填写优惠金额'
+      if (platformConfig.discountAmount >= platformConfig.thresholdAmount) return '优惠金额必须小于优惠门槛'
+    }
+    if (!platformConfig.displayName?.trim()) return '请填写患者端展示文案'
+  }
+
+  if (!discountConfigKey) {
+    for (const institutionId of effectiveInstitutionIds) {
+      const projectMap = institutionProjectMap[institutionId] || {}
+      const projectIds = Object.keys(projectMap)
+      if (!projectIds.length) return '请先添加检查项目'
+      const hasInvalidBundle = Object.values(projectMap).some((config) => isBundleConfig(config) && (config.projectIds || []).length < 2)
+      if (hasInvalidBundle) return '组套项目SKU至少需要包含 2 个检查项目'
+      const hasMissingPrice = projectIds.some((projectId) => {
+        const price = getConfigActivityPrice(projectMap[projectId])
+        return price === null || price === undefined
+      })
+      if (hasMissingPrice) return '请填写完整活动价'
+    }
   }
 
   const hasConflict = activities.some((activity) => {
     if (activity.id === editingId) return false
     if (normalizeStatus(activity) === 'offline') return false
     if (activity.channelId !== values.channelId) return false
-    if ((activity.sourcePlatformId || 'all') !== values.sourcePlatformId) return false
-    if ((activity.ruleType || 'project-activity') !== values.ruleType) return false
+    if (normalizeRuleType(activity.ruleType || 'internet-hospital-activity') !== values.ruleType) return false
     const existingStart = dayjs(activity.startAt)
     const existingEnd = dayjs(activity.endAt)
     if (!(startAt.isBefore(existingEnd) && endAt.isAfter(existingStart))) return false
 
-    return values.institutionIds.some((institutionId) => {
+    if (discountConfigKey) {
+      if (isPlatformActivity(values.ruleType)) return true
+      if (activity.activityMethod !== values.activityMethod) return false
+      return effectiveInstitutionIds.some((institutionId) => activity.institutionIds?.includes(institutionId))
+    }
+
+    return effectiveInstitutionIds.some((institutionId) => {
       if (!activity.institutionIds?.includes(institutionId)) return false
-      const currentProjectIds = Object.keys(institutionProjectMap[institutionId] || {})
-      const existingProjectIds = (activity.institutionConfigs?.[institutionId] || []).map((item) => item.projectId)
+      const currentProjectIds = getProjectMapProjectIds(institutionProjectMap[institutionId] || {})
+      const existingProjectIds = (activity.institutionConfigs?.[institutionId] || []).flatMap(getSavedConfigProjectIds)
       return currentProjectIds.some((projectId) => existingProjectIds.includes(projectId))
     })
   })
 
-  if (hasConflict) return '同一业务通道、来源平台、规则类型、签约中心和项目在重叠时间内只能存在一条有效价格规则'
+  if (hasConflict) {
+    return discountConfigKey
+      ? '同一活动对象、活动方式和交付范围在重叠时间内只能存在一条有效活动'
+      : '同一活动对象、活动类型和项目在重叠时间内只能存在一条有效活动'
+  }
   return ''
 }
 
-function ActivityListPage({ activities, commit, basePath, standalone }) {
+function ActivityListPage({ activities, commit, basePath, standalone, pageTitle }) {
   const navigate = useNavigate()
   const rows = useMemo(() => activities.map(enrichActivity), [activities])
+  const overviewCards = useMemo(() => {
+    const internetHospitalActivities = rows.filter((item) => normalizeRuleType(item.ruleType) === 'internet-hospital-activity')
+    const deliveryCenterActivities = rows.filter((item) => normalizeRuleType(item.ruleType) === 'delivery-center-activity')
+    const platformActivities = rows.filter((item) => normalizeRuleType(item.ruleType) === 'platform-activity')
+    const totalProjects = rows.reduce((sum, item) => sum + (item.projectCount || 0), 0)
+
+    return [
+      { label: '活动总数', value: `${rows.length}个`, accentClass: 'activity-overview-card__value' },
+      { label: '互联网医院活动', value: `${internetHospitalActivities.length}个`, accentClass: 'activity-overview-card__value activity-overview-card__value--green' },
+      { label: '交付中心活动', value: `${deliveryCenterActivities.length}个`, accentClass: 'activity-overview-card__value' },
+      { label: '青藤平台', value: `${platformActivities.length}个`, accentClass: 'activity-overview-card__value activity-overview-card__value--orange' },
+      { label: '已关联项目数', value: `${totalProjects}项`, accentClass: 'activity-overview-card__value' },
+    ]
+  }, [rows])
 
   const updateStatus = (activity, nextStatus, label) => {
     Modal.confirm({
@@ -816,44 +1315,16 @@ function ActivityListPage({ activities, commit, basePath, standalone }) {
 
   const columns = [
     { title: '序号', width: 72, render: (_, __, index) => index + 1 },
-    { title: '价格规则名称', dataIndex: 'name', width: 230 },
+    { title: '活动名称', dataIndex: 'name', width: 230 },
     {
-      title: '规则类型',
+      title: '活动类型',
       width: 160,
       render: (_, row) => <Tag color={row.ruleTypeMeta.tagColor}>{row.ruleTypeLabel}</Tag>,
     },
-    { title: '业务通道', dataIndex: 'channelName', width: 130 },
-    { title: '来源平台', dataIndex: 'sourcePlatformName', width: 130 },
-    {
-      title: '适用签约中心',
-      width: 300,
-      render: (_, row) => (
-        <div className="activity-institution-brief">
-          <span className="activity-institution-brief__text">{row.institutionSummary}</span>
-          {row.institutionCount > 1 ? (
-            <Popover
-              placement="bottomLeft"
-              content={(
-                <div className="activity-institution-popover">
-                  {row.institutionIds.map((institutionId) => (
-                    <div key={institutionId} className="activity-institution-popover__item">
-                      {getInstitutionName(institutionId)}
-                    </div>
-                  ))}
-                </div>
-              )}
-            >
-              <button type="button" className="activity-institution-brief__link">查看中心</button>
-            </Popover>
-          ) : null}
-        </div>
-      ),
-    },
-    { title: '中心数', dataIndex: 'institutionCount', width: 90 },
-    { title: '项目/组套数', dataIndex: 'projectCount', width: 120 },
+    { title: '活动对象', dataIndex: 'channelName', width: 180 },
     {
       title: '生效时间',
-      width: 280,
+      width: 260,
       render: (_, row) => `${row.startAt} 至 ${row.endAt}`,
     },
     {
@@ -861,12 +1332,10 @@ function ActivityListPage({ activities, commit, basePath, standalone }) {
       width: 110,
       render: (_, row) => <StatusText status={row.status} />,
     },
-    { title: '优先级', dataIndex: 'priority', width: 90 },
     { title: '更新时间', dataIndex: 'updatedAt', width: 160 },
     {
       title: '操作',
-      fixed: 'right',
-      width: 300,
+      width: 260,
       render: (_, row) => (
         <Space size={14}>
           <Button type="link" className="activity-link" icon={<EyeOutlined />} onClick={() => navigate(`${basePath}/${row.id}`)}>
@@ -875,7 +1344,7 @@ function ActivityListPage({ activities, commit, basePath, standalone }) {
           <Button type="link" className="activity-link" icon={<EditOutlined />} onClick={() => navigate(`${basePath}/edit/${row.id}`)}>
             编辑
           </Button>
-          {row.status === 'running' || row.status === 'listed' ? (
+          {row.status === 'listed' ? (
             <Button type="link" danger icon={<StopOutlined />} onClick={() => updateStatus(row, 'offline', '下架')}>
               下架
             </Button>
@@ -895,39 +1364,62 @@ function ActivityListPage({ activities, commit, basePath, standalone }) {
   return (
     <Annotatable id={1}>
       <ActivityFrame
-        title="活动管理"
-        subtitle="统一管理互联网医院侧价格规则，覆盖平台差异价、用户优惠券/折扣券、组套优惠和项目活动价。"
+        title={pageTitle}
         extra={(
           <Button className="activity-green-btn" icon={<PlusOutlined />} onClick={() => navigate(`${basePath}/create`)}>
-            新建价格规则
+            新建活动
           </Button>
         )}
         standalone={standalone}
       >
+        <section className="activity-overview" aria-label={`${pageTitle}业务数据概览`}>
+          <div className="activity-overview__title">业务数据概览</div>
+          <div className="activity-overview__grid">
+            {overviewCards.map((card) => (
+              <div key={card.label} className="activity-overview-card">
+                <div className="activity-overview-card__label">{card.label}</div>
+                <div className={card.accentClass}>{card.value}</div>
+              </div>
+            ))}
+          </div>
+        </section>
         <Table
           className="activity-table"
           rowKey="id"
           columns={columns}
           dataSource={rows}
           pagination={{ pageSize: 10, showTotal: (total) => `共${total}条记录  当前显示${total}条记录` }}
-          scroll={{ x: 1780 }}
         />
       </ActivityFrame>
     </Annotatable>
   )
 }
 
-function ActivityFormPage({ activities, commit, basePath, standalone }) {
+function ActivityFormPage({ activities, commit, basePath, standalone, variant }) {
   const navigate = useNavigate()
   const { id } = useParams()
   const editingActivity = activities.find((item) => item.id === id)
   const isEdit = Boolean(editingActivity)
   const [form] = Form.useForm()
+  const allowInternetHospitalActivityMethod = variant === 'copy'
+  const defaultRuleType = normalizeRuleType(editingActivity?.ruleType || 'internet-hospital-activity')
+  const defaultChannelId = isActivityObjectValid(defaultRuleType, editingActivity?.channelId)
+    ? editingActivity.channelId
+    : getDefaultActivityObjectId(defaultRuleType)
+  const defaultActivityMethod = allowInternetHospitalActivityMethod
+    && isInternetHospitalActivity(defaultRuleType)
+    && isInternetHospitalActivityMethod(editingActivity?.activityMethod)
+    ? editingActivity.activityMethod
+    : undefined
+  const defaultDiscountConfigKey = getActivityDiscountConfigKey(defaultRuleType, defaultChannelId, defaultActivityMethod)
+  const defaultInstitutionIds = getDefaultInstitutionIds(defaultRuleType, defaultChannelId, editingActivity?.institutionIds || [])
   const [projectModalOpen, setProjectModalOpen] = useState(false)
-  const [ruleType, setRuleType] = useState(editingActivity?.ruleType || 'platform-price')
-  const [channelId, setChannelId] = useState(editingActivity?.channelId || 'internet-hospital')
-  const [selectedInstitutionIds, setSelectedInstitutionIds] = useState(() => editingActivity?.institutionIds || [])
-  const [activeInstitutionId, setActiveInstitutionId] = useState(() => editingActivity?.institutionIds?.[0])
+  const [projectModalMode, setProjectModalMode] = useState('project')
+  const [ruleType, setRuleType] = useState(defaultRuleType)
+  const [channelId, setChannelId] = useState(defaultChannelId)
+  const [activityMethod, setActivityMethod] = useState(defaultActivityMethod)
+  const [selectedInstitutionIds, setSelectedInstitutionIds] = useState(() => defaultInstitutionIds)
+  const [activeInstitutionId, setActiveInstitutionId] = useState(() => defaultInstitutionIds[0])
   const [institutionProjectMap, setInstitutionProjectMap] = useState(() => (
     editingActivity ? getInstitutionConfigMap(editingActivity) : {}
   ))
@@ -936,42 +1428,56 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
   const [projectTypeInput, setProjectTypeInput] = useState(undefined)
   const [projectType, setProjectType] = useState(undefined)
   const [librarySelectedIds, setLibrarySelectedIds] = useState([])
+  const [platformActivityConfig, setPlatformActivityConfig] = useState(() => (
+    getPlatformActivityConfig(defaultDiscountConfigKey || 'full-reduction', editingActivity?.platformActivityConfig || editingActivity?.fullReductionRule)
+  ))
 
   const initialValues = isEdit ? {
     name: editingActivity.name,
-    ruleType: editingActivity.ruleType || 'project-activity',
-    sourcePlatformId: editingActivity.sourcePlatformId || 'all',
-    description: editingActivity.description,
-    channelId: editingActivity.channelId,
-    institutionIds: editingActivity.institutionIds,
+    ruleType: defaultRuleType,
+    channelId: defaultChannelId,
+    activityMethod: defaultActivityMethod,
+    deliveryScopeIds: isInternetHospitalActivity(defaultRuleType) ? defaultInstitutionIds : undefined,
     timeRange: [dayjs(editingActivity.startAt), dayjs(editingActivity.endAt)],
   } : {
-    ruleType: 'platform-price',
-    sourcePlatformId: 'pingan',
-    channelId: 'internet-hospital',
+    ruleType: 'internet-hospital-activity',
+    channelId: getDefaultActivityObjectId('internet-hospital-activity'),
+    activityMethod: undefined,
+    deliveryScopeIds: [],
     timeRange: [dayjs().add(1, 'day').hour(0).minute(0), dayjs().add(31, 'day').hour(23).minute(59)],
   }
 
-  const availableInstitutions = getInstitutionsByChannel(channelId)
-  const activeInstitutionName = activeInstitutionId ? getInstitutionName(activeInstitutionId) : ''
   const activeRuleMeta = getRuleTypeMeta(ruleType)
+  const activityObjectOptions = getActivityObjectOptions(ruleType)
+  const activeActivityObjectName = getChannelName(channelId)
+  const deliveryScopeOptions = getDeliveryScopeOptions()
+  const activeInstitutionName = getInstitutionName(activeInstitutionId)
+  const isInternetHospitalConfig = isInternetHospitalActivity(ruleType)
   const watchedTimeRange = Form.useWatch('timeRange', form)
-  const watchedSourcePlatformId = Form.useWatch('sourcePlatformId', form)
   const watchedRuleType = Form.useWatch('ruleType', form)
+  const isPlatformConfig = isPlatformActivityConfig(ruleType, channelId)
+  const effectiveActivityMethod = allowInternetHospitalActivityMethod ? activityMethod : undefined
+  const activityDiscountConfigKey = getActivityDiscountConfigKey(ruleType, channelId, effectiveActivityMethod)
+  const activityDiscountContext = isPlatformConfig ? 'qingteng' : 'internet-hospital'
+  const canAddProjectConfig = !activityDiscountConfigKey && Boolean(activeInstitutionId)
+  const normalizedPlatformActivityConfig = applyActivityDiscountContext(
+    getPlatformActivityConfig(activityDiscountConfigKey || 'full-reduction', platformActivityConfig),
+    activityDiscountContext,
+    activeActivityObjectName,
+  )
+  const platformActivityFieldConfigs = activityDiscountConfigKey ? getPlatformActivityFieldConfigs(activityDiscountConfigKey) : []
 
   const conflictProjectMap = useMemo(() => {
     if (!activeInstitutionId || !channelId) return {}
 
     const [startAt, endAt] = watchedTimeRange || []
-    const currentSourcePlatformId = watchedSourcePlatformId || 'all'
     const currentRuleType = watchedRuleType || ruleType
 
     return activities.reduce((acc, activity) => {
       if (activity.id === editingActivity?.id) return acc
       if (normalizeStatus(activity) === 'offline') return acc
       if (activity.channelId !== channelId) return acc
-      if ((activity.sourcePlatformId || 'all') !== currentSourcePlatformId) return acc
-      if ((activity.ruleType || 'project-activity') !== currentRuleType) return acc
+      if (normalizeRuleType(activity.ruleType || 'internet-hospital-activity') !== currentRuleType) return acc
       if (!activity.institutionIds?.includes(activeInstitutionId)) return acc
 
       if (startAt && endAt) {
@@ -982,48 +1488,75 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
 
       const configs = activity.institutionConfigs?.[activeInstitutionId] || []
       configs.forEach((item) => {
-        acc[item.projectId] = {
+        getSavedConfigProjectIds(item).forEach((projectId) => {
+          acc[projectId] = {
           activityName: activity.name,
           period: `${activity.startAt} 至 ${activity.endAt}`,
-        }
+          }
+        })
       })
       return acc
     }, {})
-  }, [activities, activeInstitutionId, channelId, editingActivity?.id, ruleType, watchedRuleType, watchedSourcePlatformId, watchedTimeRange])
+  }, [activities, activeInstitutionId, channelId, editingActivity?.id, ruleType, watchedRuleType, watchedTimeRange])
 
   const projectLibraryColumns = [
+    { title: '项目名称', dataIndex: 'name', width: 150 },
     {
-      title: '项目名称',
-      dataIndex: 'name',
-      width: 260,
-      render: (name, row) => {
-        const conflict = conflictProjectMap[row.id]
-        if (!conflict) return name
-        return (
-          <div className="activity-project-conflict-cell">
-            <span>{name}</span>
-            <Text type="danger">
-              已被规则「{conflict.activityName}」占用
-            </Text>
-          </div>
-        )
-      },
-    },
-    { title: '所属分类', dataIndex: 'category', width: 120 },
-    { title: '编码', dataIndex: 'code', width: 100 },
-    {
-      title: '适用检查类型',
+      title: '检查类型',
       dataIndex: 'type',
-      width: 130,
+      width: 100,
       render: (type) => <Tag color="green">{type}</Tag>,
+    },
+    { title: '平台项目编码', dataIndex: 'platformCode', width: 170 },
+    { title: '平台项目名称', dataIndex: 'platformName', width: 150 },
+    {
+      title: '项目检查费用',
+      dataIndex: 'examFee',
+      width: 130,
+      render: (price) => Number(price).toFixed(1),
+    },
+    {
+      title: '项目耗材费用',
+      dataIndex: 'materialFee',
+      width: 130,
+      render: (price) => Number(price).toFixed(1),
+    },
+    {
+      title: '项目药品费用',
+      dataIndex: 'drugFee',
+      width: 130,
+      render: (price) => Number(price).toFixed(1),
+    },
+    {
+      title: '检查项目总金额',
+      width: 130,
+      render: (_, row) => calculatePatientDisplayPrice(row).toFixed(1),
     },
   ]
 
   const selectedProjectMap = activeInstitutionId ? (institutionProjectMap[activeInstitutionId] || {}) : {}
-  const selectedProjectIds = Object.keys(selectedProjectMap)
-  const selectedProjectRows = selectedProjectIds
-    .map((projectId) => getProject(projectId))
-    .filter(Boolean)
+  const selectedLibraryProjectIds = getProjectMapProjectIds(selectedProjectMap)
+  const selectedProjectRows = getSelectedConfigRows(selectedProjectMap)
+  const selectedBundleCount = selectedProjectRows.filter((row) => row.rowType === 'bundle').length
+
+  const updateBundleSkuName = (bundleId, skuName) => {
+    setInstitutionProjectMap((prev) => {
+      const current = { ...(prev[activeInstitutionId] || {}) }
+      const currentConfig = current[bundleId]
+      if (!isBundleConfig(currentConfig)) return prev
+
+      return {
+        ...prev,
+        [activeInstitutionId]: {
+          ...current,
+          [bundleId]: {
+            ...currentConfig,
+            skuName,
+          },
+        },
+      }
+    })
+  }
 
   const projectTypeOptions = [...new Set(standardProjects.map((project) => project.type))]
     .map((type) => ({ label: type, value: type }))
@@ -1037,43 +1570,93 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
         !keyword
         || project.name.toLowerCase().includes(keyword)
         || project.code.toLowerCase().includes(keyword)
+        || project.platformCode.toLowerCase().includes(keyword)
+        || project.platformName.toLowerCase().includes(keyword)
       )
     ))
   }, [projectKeyword, projectType])
 
   const selectedProjectColumns = [
-    { title: '项目名称', dataIndex: 'name', width: 230 },
-    { title: '编码', dataIndex: 'code', width: 100 },
     {
-      title: '门市价',
-      dataIndex: 'originPrice',
-      width: 110,
-      render: (price) => <span className="activity-price-origin">￥{price.toFixed(2)}</span>,
+      title: '项目名称',
+      dataIndex: 'name',
+      width: 150,
+      ellipsis: true,
+      render: (_, row) => row.rowType === 'bundle' ? (
+        <div className="activity-bundle-name">
+          <Input
+            className="activity-bundle-name__input"
+            size="small"
+            value={row.skuName}
+            maxLength={40}
+            onChange={(event) => updateBundleSkuName(row.id, event.target.value)}
+          />
+        </div>
+      ) : row.name,
+    },
+    {
+      title: '检查类型',
+      dataIndex: 'type',
+      width: 78,
+      render: (_, row) => row.rowType === 'bundle' ? <Tag color="orange">组套SKU</Tag> : <Tag color="green">{row.type}</Tag>,
+    },
+    { title: '平台项目编码', dataIndex: 'platformCode', width: 118, ellipsis: true },
+    { title: '平台项目名称', dataIndex: 'platformName', width: 126, render: renderPlatformProjectName },
+    {
+      title: '项目检查费用',
+      dataIndex: 'examFee',
+      width: 88,
+      render: (price) => Number(price).toFixed(1),
+    },
+    {
+      title: '项目耗材费用',
+      dataIndex: 'materialFee',
+      width: 88,
+      render: (price) => Number(price).toFixed(1),
+    },
+    {
+      title: '项目药品费用',
+      dataIndex: 'drugFee',
+      width: 88,
+      render: (price) => Number(price).toFixed(1),
+    },
+    {
+      title: '检查项目总金额',
+      width: 98,
+      render: (_, row) => <span className="activity-price-origin">￥{calculatePatientDisplayPrice(row).toFixed(1)}</span>,
     },
     {
       title: activeRuleMeta.priceColumnTitle,
-      width: 150,
+      width: 126,
       render: (_, row) => (
-        <InputNumber
-          min={0}
-          precision={2}
-          value={selectedProjectMap[row.id]}
-          placeholder="填写价格"
-          addonBefore="￥"
-          disabled={!activeInstitutionId}
-          onChange={(value) => setInstitutionProjectMap((prev) => ({
-            ...prev,
-            [activeInstitutionId]: {
-              ...(prev[activeInstitutionId] || {}),
-              [row.id]: value,
-            },
-          }))}
-        />
+        <div className={row.rowType === 'bundle' ? 'activity-bundle-price' : undefined}>
+          {row.rowType === 'bundle' ? <span>组合项目一口价</span> : null}
+          <InputNumber
+            min={0}
+            precision={2}
+            value={getConfigActivityPrice(selectedProjectMap[row.id])}
+            placeholder="填写价格"
+            addonBefore="￥"
+            disabled={!activeInstitutionId}
+            onChange={(value) => setInstitutionProjectMap((prev) => {
+              const current = { ...(prev[activeInstitutionId] || {}) }
+              const currentConfig = current[row.id]
+              current[row.id] = isBundleConfig(currentConfig)
+                ? { ...currentConfig, activityPrice: value }
+                : value
+
+              return {
+                ...prev,
+                [activeInstitutionId]: current,
+              }
+            })}
+          />
+        </div>
       ),
     },
     {
       title: '操作',
-      width: 90,
+      width: 58,
       render: (_, row) => (
         <Button
           type="link"
@@ -1093,28 +1676,61 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
     },
   ]
 
-  const handleAddProjects = () => {
+  const resetProjectModalState = () => {
+    setProjectModalOpen(false)
+    setLibrarySelectedIds([])
+    setProjectKeywordInput('')
+    setProjectKeyword('')
+    setProjectTypeInput(undefined)
+    setProjectType(undefined)
+  }
+
+  const openProjectModal = (mode) => {
     if (!activeInstitutionId) {
-      message.warning('请先选择业务通道和适用签约交付中心')
+      message.warning(isInternetHospitalConfig ? '请先选择交付范围' : '请先选择活动对象')
       return
     }
+    setProjectModalMode(mode)
+    setLibrarySelectedIds([])
+    setProjectModalOpen(true)
+  }
+
+  const handleAddProjects = () => {
     if (!librarySelectedIds.length) {
-      message.warning('请先从平台标准项目库选择检查项目')
+      message.warning('请先从检查项目已对码表选择检查项目')
+      return
+    }
+
+    if (projectModalMode === 'bundle' && librarySelectedIds.length < 2) {
+      message.warning('组套项目SKU至少需要选择 2 个检查项目')
       return
     }
 
     setInstitutionProjectMap((prev) => {
       const currentProjectMap = { ...(prev[activeInstitutionId] || {}) }
-      librarySelectedIds.forEach((projectId) => {
-        currentProjectMap[projectId] = currentProjectMap[projectId] ?? getDefaultActivityPrice(projectId)
-      })
+
+      if (projectModalMode === 'bundle') {
+        const bundleId = `bundle-${Date.now()}`
+        const bundleProjectIds = [...librarySelectedIds]
+        currentProjectMap[bundleId] = {
+          type: 'bundle',
+          skuId: bundleId,
+          skuName: getBundleDisplayName(bundleProjectIds),
+          projectIds: bundleProjectIds,
+          activityPrice: Number(getBundleDefaultPrice(bundleProjectIds).toFixed(2)),
+        }
+      } else {
+        librarySelectedIds.forEach((projectId) => {
+          currentProjectMap[projectId] = currentProjectMap[projectId] ?? getDefaultActivityPrice(projectId)
+        })
+      }
+
       return {
         ...prev,
         [activeInstitutionId]: currentProjectMap,
       }
     })
-    setLibrarySelectedIds([])
-    setProjectModalOpen(false)
+    resetProjectModalState()
   }
 
   const handleProjectSearch = () => {
@@ -1124,58 +1740,124 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
 
   const handleChannelChange = (value) => {
     setChannelId(value)
-    setSelectedInstitutionIds([])
-    setActiveInstitutionId(undefined)
+    const nextInstitutionIds = getDefaultInstitutionIds(ruleType, value)
+    setSelectedInstitutionIds(nextInstitutionIds)
+    setActiveInstitutionId(nextInstitutionIds[0])
     setInstitutionProjectMap({})
-    form.setFieldValue('institutionIds', [])
+    const nextDiscountConfigKey = getActivityDiscountConfigKey(ruleType, value, effectiveActivityMethod)
+    if (nextDiscountConfigKey) {
+      setPlatformActivityConfig(getPlatformActivityConfig(nextDiscountConfigKey))
+    }
+    form.setFieldValue('deliveryScopeIds', isInternetHospitalActivity(ruleType) ? nextInstitutionIds : undefined)
   }
 
   const handleRuleTypeChange = (value) => {
+    const nextActivityObjectId = getDefaultActivityObjectId(value)
+    const nextInstitutionIds = getDefaultInstitutionIds(value, nextActivityObjectId)
+    const nextActivityMethod = undefined
+    const nextDiscountConfigKey = getActivityDiscountConfigKey(value, nextActivityObjectId, nextActivityMethod)
     setRuleType(value)
+    setChannelId(nextActivityObjectId)
+    setActivityMethod(nextActivityMethod)
+    setSelectedInstitutionIds(nextInstitutionIds)
+    setActiveInstitutionId(nextInstitutionIds[0])
+    setInstitutionProjectMap({})
+    setPlatformActivityConfig(getPlatformActivityConfig(nextDiscountConfigKey || 'full-reduction'))
+    form.setFieldValue('channelId', nextActivityObjectId)
+    form.setFieldValue('activityMethod', nextActivityMethod)
+    form.setFieldValue('deliveryScopeIds', isInternetHospitalActivity(value) ? nextInstitutionIds : undefined)
   }
 
-  const handleInstitutionChange = (values) => {
+  const handleActivityMethodChange = (value) => {
+    setActivityMethod(value)
+    setInstitutionProjectMap({})
+    if (value) {
+      setPlatformActivityConfig(getPlatformActivityConfig(value))
+    }
+  }
+
+  const handleDeliveryScopeChange = (values = []) => {
     setSelectedInstitutionIds(values)
-    setActiveInstitutionId((prev) => (values.includes(prev) ? prev : values[0]))
-    setInstitutionProjectMap((prev) => Object.fromEntries(
-      values.map((institutionId) => [institutionId, prev[institutionId] || {}]),
+    setActiveInstitutionId((current) => values.includes(current) ? current : values[0])
+    setInstitutionProjectMap((prev) => (
+      Object.fromEntries(Object.entries(prev).filter(([institutionId]) => values.includes(institutionId)))
     ))
+  }
+
+  const updatePlatformActivityConfig = (key, value) => {
+    setPlatformActivityConfig((prev) => normalizePlatformActivityConfig(activityDiscountConfigKey || 'full-reduction', {
+      ...prev,
+      [key]: value,
+    }))
   }
 
   const handleSubmit = async () => {
     const values = await form.validateFields()
-    const error = canPassIntegrity(values, institutionProjectMap, activities, editingActivity?.id)
+    const submittedActivityMethod = allowInternetHospitalActivityMethod ? values.activityMethod : undefined
+    const submitValues = {
+      ...values,
+      activityMethod: submittedActivityMethod,
+      platformActivityConfig: normalizedPlatformActivityConfig,
+    }
+    const discountConfigKey = getActivityDiscountConfigKey(values.ruleType, values.channelId, submittedActivityMethod)
+    const isSubmittingPlatformConfig = isPlatformActivityConfig(values.ruleType, values.channelId)
+    const isSubmittingDiscountConfig = Boolean(discountConfigKey)
+    const isSubmittingInternetHospitalMethodConfig = allowInternetHospitalActivityMethod
+      && isInternetHospitalActivity(values.ruleType)
+      && isInternetHospitalActivityMethod(submittedActivityMethod)
+    const effectiveInstitutionIds = isSubmittingPlatformConfig
+      ? [ACTIVITY_SCOPE_ID]
+      : selectedInstitutionIds.length
+      ? selectedInstitutionIds
+      : [activeInstitutionId].filter(Boolean)
+    const submitInstitutionProjectMap = isInternetHospitalActivity(values.ruleType) && !isSubmittingDiscountConfig
+      ? getSharedInstitutionProjectMap(institutionProjectMap, effectiveInstitutionIds, activeInstitutionId)
+      : institutionProjectMap
+    const error = canPassIntegrity(submitValues, submitInstitutionProjectMap, activities, editingActivity?.id, effectiveInstitutionIds)
     if (error) {
       message.error(error)
       return
     }
 
     const actionAt = now()
+    const activityId = editingActivity?.id || `act-${actionAt.replace(/\D/g, '')}`
+    const nextRuleMeta = getRuleTypeMeta(values.ruleType)
     const nextActivity = {
-      id: editingActivity?.id || `act-${Date.now()}`,
+      id: activityId,
       name: values.name.trim(),
-      description: values.description.trim(),
+      description: isSubmittingDiscountConfig
+        ? `${isSubmittingPlatformConfig ? '青藤平台' : `互联网医院${getChannelName(values.channelId)}`}：${getPlatformActivityText(discountConfigKey, normalizedPlatformActivityConfig)}，患者下单链路自动展示并在结算时抵扣。`
+        : activeRuleMeta.description,
       ruleType: values.ruleType,
-      sourcePlatformId: values.sourcePlatformId,
+      activityMethod: isSubmittingInternetHospitalMethodConfig ? submittedActivityMethod : undefined,
+      sourcePlatformId: 'all',
       channelId: values.channelId,
-      institutionIds: values.institutionIds,
+      institutionIds: effectiveInstitutionIds,
       startAt: values.timeRange[0].format(DATE_TIME_FORMAT),
       endAt: values.timeRange[1].format(DATE_TIME_FORMAT),
       status: 'listed',
       creator: editingActivity?.creator || DEMO_OPERATOR_NAME,
       updatedAt: actionAt,
-      priority: getRuleTypeMeta(values.ruleType).priority,
-      institutionConfigs: toInstitutionConfigs(institutionProjectMap, values.institutionIds),
+      priority: nextRuleMeta.priority,
+      institutionConfigs: isSubmittingDiscountConfig
+        ? {}
+        : toInstitutionConfigs(submitInstitutionProjectMap, effectiveInstitutionIds),
+      platformActivityConfig: isSubmittingDiscountConfig ? normalizedPlatformActivityConfig : undefined,
+      fullReductionRule: undefined,
       logs: [
         ...(editingActivity?.logs || []),
         {
-          action: isEdit ? '编辑价格规则' : '创建价格规则',
+          action: isEdit ? '编辑活动' : '创建活动',
           operator: DEMO_OPERATOR_NAME,
           at: actionAt,
-          detail: `配置 ${values.institutionIds.length} 个适用中心的${getRuleTypeMeta(values.ruleType).label}`,
+          detail: isSubmittingPlatformConfig
+            ? `配置青藤平台活动：${getPlatformActivityText(values.channelId, normalizedPlatformActivityConfig)}`
+            : isSubmittingInternetHospitalMethodConfig
+              ? `配置互联网医院活动方式：${getActivityMethodName(submittedActivityMethod)}`
+            : `配置${nextRuleMeta.label}类型的活动项目`,
         },
         ...(editingActivity?.status !== 'listed'
-          ? [{ action: '上架价格规则', operator: DEMO_OPERATOR_NAME, at: actionAt, detail: '手动上架价格规则' }]
+          ? [{ action: '上架活动', operator: DEMO_OPERATOR_NAME, at: actionAt, detail: '手动上架活动' }]
           : []),
       ],
     }
@@ -1184,13 +1866,13 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
       if (isEdit) return prev.map((item) => item.id === nextActivity.id ? nextActivity : item)
       return [nextActivity, ...prev]
     })
-    message.success('价格规则已保存并上架')
+    message.success('活动已保存并上架')
     navigate(basePath)
   }
 
   return (
     <ActivityFrame
-      title={isEdit ? '编辑价格规则' : '新建价格规则'}
+      title={isEdit ? '编辑活动' : '新建活动'}
       extra={(
         <Space>
           <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(basePath)}>返回列表</Button>
@@ -1203,80 +1885,114 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
         <Annotatable id={2}>
           <Card className="activity-panel" title="基础信息">
             <Form form={form} layout="vertical" initialValues={initialValues}>
-              <Form.Item name="name" label="价格规则名称" rules={[{ required: true, message: '请填写价格规则名称' }]}>
-                <Input placeholder="例如：平安平台肺结节专项价" maxLength={30} showCount />
+              <Form.Item name="name" label="活动名称" rules={[{ required: true, message: '请填写活动名称' }]}>
+                <Input placeholder="例如：平安肺结节专项活动" maxLength={30} showCount />
               </Form.Item>
-              <Form.Item name="ruleType" label="价格规则类型" rules={[{ required: true, message: '请选择价格规则类型' }]}>
-                <Select placeholder="请选择价格规则类型" options={priceRuleTypes} onChange={handleRuleTypeChange} />
+              <Form.Item name="ruleType" label="活动类型" rules={[{ required: true, message: '请选择活动类型' }]}>
+                <Select placeholder="请选择活动类型" options={priceRuleTypes} onChange={handleRuleTypeChange} />
               </Form.Item>
-              <Form.Item name="channelId" label="业务通道" rules={[{ required: true, message: '请选择业务通道' }]}>
-                <Select placeholder="请选择业务通道" options={channels} onChange={handleChannelChange} />
+              <Form.Item name="channelId" label="活动对象" rules={[{ required: true, message: '请选择活动对象' }]}>
+                <Select placeholder="请选择活动对象" options={activityObjectOptions} onChange={handleChannelChange} />
               </Form.Item>
-              <Form.Item name="sourcePlatformId" label="来源平台/合作平台" rules={[{ required: true, message: '请选择来源平台/合作平台' }]}>
-                <Select placeholder="请选择来源平台/合作平台" options={sourcePlatforms} />
-              </Form.Item>
-              <Form.Item name="institutionIds" label="适用签约交付中心" rules={[{ required: true, message: '请至少选择一个适用签约交付中心' }]}>
-                <Select
-                  mode="multiple"
-                  placeholder={channelId ? '请选择适用签约交付中心，可多选' : '请先选择业务通道'}
-                  options={availableInstitutions}
-                  disabled={!channelId}
-                  onChange={handleInstitutionChange}
-                />
-              </Form.Item>
+              {isInternetHospitalConfig ? (
+                <>
+                  {allowInternetHospitalActivityMethod ? (
+                    <Form.Item name="activityMethod" label="活动方式">
+                      <Select
+                        allowClear
+                        placeholder="请选择活动方式（选填）"
+                        options={internetHospitalActivityMethodOptions}
+                        onChange={handleActivityMethodChange}
+                      />
+                    </Form.Item>
+                  ) : null}
+                  <Form.Item name="deliveryScopeIds" label="交付范围" rules={[{ required: true, message: '请选择交付范围' }]}>
+                    <Select
+                      mode="multiple"
+                      placeholder="请选择一脉中心机构，可多选"
+                      options={deliveryScopeOptions}
+                      onChange={handleDeliveryScopeChange}
+                    />
+                  </Form.Item>
+                </>
+              ) : null}
               <Form.Item name="timeRange" label="生效时间" rules={[{ required: true, message: '请选择生效开始和结束时间' }]}>
                 <RangePicker showTime format={DATE_TIME_FORMAT} style={{ width: '100%' }} />
               </Form.Item>
-              <Form.Item name="description" label="规则说明" rules={[{ required: true, message: '请填写规则说明' }]}>
-                <Input.TextArea rows={5} placeholder="填写价格背景、适用范围、展示价/记录价口径或叠加说明" maxLength={160} showCount />
-              </Form.Item>
-              <Alert
-                className="activity-rule-note"
-                type="info"
-                showIcon
-                title={activeRuleMeta.formTitle}
-                description={activeRuleMeta.description}
-              />
             </Form>
           </Card>
         </Annotatable>
 
         <div className="activity-project-flow">
           <Annotatable id={3}>
+            {activityDiscountConfigKey ? (
+              <Card
+                className="activity-panel"
+                title={isPlatformConfig ? '青藤平台配置方案' : '互联网医院活动方式配置'}
+                extra={<Tag color="purple">{isPlatformConfig ? activeActivityObjectName : getActivityMethodName(activityMethod)}</Tag>}
+              >
+                <div className="activity-discount-layout">
+                  <div className="activity-discount-config">
+                    <div className="activity-discount-config__header">
+                      <Text strong>{isPlatformConfig ? `青藤平台对象：${activeActivityObjectName}` : `活动对象：${activeActivityObjectName} / 活动方式：${getActivityMethodName(activityMethod)}`}</Text>
+                      <Text type="secondary">{getPlatformActivityConfigIntro(activityDiscountConfigKey, activityDiscountContext)}</Text>
+                    </div>
+                    <div className="activity-discount-fields">
+                      {platformActivityFieldConfigs.map((field) => (
+                        <label
+                          key={field.key}
+                          className={`activity-discount-field${field.wide ? ' activity-discount-field--wide' : ''}`}
+                        >
+                          <span>{field.label}</span>
+                          {field.type === 'text' ? (
+                            <Input
+                              value={normalizedPlatformActivityConfig[field.key]}
+                              maxLength={field.maxLength}
+                              onChange={(event) => updatePlatformActivityConfig(field.key, event.target.value)}
+                            />
+                          ) : (
+                            <InputNumber
+                              min={field.min}
+                              max={field.max}
+                              precision={field.precision}
+                              value={normalizedPlatformActivityConfig[field.key]}
+                              addonBefore={field.addonBefore}
+                              addonAfter={field.addonAfter}
+                              onChange={(value) => updatePlatformActivityConfig(field.key, value)}
+                            />
+                          )}
+                        </label>
+                      ))}
+                    </div>
+                    <PlatformActivityRuleNote config={normalizedPlatformActivityConfig} />
+                  </div>
+                </div>
+              </Card>
+            ) : (
             <Card
               className="activity-panel"
               title="适用项目与规则价格"
               extra={(
-                <Button icon={<PlusOutlined />} disabled={!activeInstitutionId} onClick={() => setProjectModalOpen(true)}>
-                  添加检查项目
-                </Button>
+                <Space>
+                  <Button icon={<PlusOutlined />} disabled={!canAddProjectConfig} onClick={() => openProjectModal('project')}>
+                    添加检查项目
+                  </Button>
+                </Space>
               )}
             >
               <div className="activity-project-hint">
                 <div>
                   <Text strong>{activeRuleMeta.formTitle}</Text>
-                  <Paragraph type="secondary">
-                    先选择业务通道、来源平台和适用签约中心，再切换到当前中心维护项目。交付中心只是适用范围，价格规则主体是业务通道与来源平台。
-                  </Paragraph>
                 </div>
                 <Tag color="green">
-                  {activeInstitutionId ? `${activeInstitutionName} 已添加 ${selectedProjectRows.length} 项` : '未选择中心'}
+                  {activeInstitutionId
+                    ? `已添加 ${selectedProjectRows.length} 项${selectedBundleCount ? `，含 ${selectedBundleCount} 个组套` : ''}`
+                    : isInternetHospitalConfig ? '请选择交付范围' : '未选择活动对象'}
                 </Tag>
               </div>
-              <div className="activity-institution-switcher">
-                {selectedInstitutionIds.length ? selectedInstitutionIds.map((institutionId) => (
-                  <button
-                    key={institutionId}
-                    type="button"
-                    className={`activity-institution-chip${institutionId === activeInstitutionId ? ' activity-institution-chip--active' : ''}`}
-                    onClick={() => setActiveInstitutionId(institutionId)}
-                  >
-                    {getInstitutionName(institutionId)}
-                  </button>
-                )) : null}
-              </div>
               <Table
-                className="activity-table"
+                className="activity-table activity-price-config-table"
+                size="small"
                 rowKey="id"
                 columns={selectedProjectColumns}
                 dataSource={selectedProjectRows}
@@ -1290,39 +2006,32 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
                     />
                   ),
                 }}
-                scroll={{ x: 680 }}
+                scroll={{ x: 1018 }}
               />
             </Card>
+            )}
           </Annotatable>
         </div>
         <Annotatable id={4}>
           <Modal
-            title="平台标准项目库"
+            title={projectModalMode === 'bundle' ? '添加组套项目SKU' : '检查项目已对码表'}
             open={projectModalOpen}
             width={980}
-            okText="确认添加"
+            okText={projectModalMode === 'bundle' ? '生成组套SKU' : '确认添加'}
             cancelText="取消"
-            okButtonProps={{ disabled: !activeInstitutionId }}
-            onOk={handleAddProjects}
-            onCancel={() => {
-              setProjectModalOpen(false)
-              setLibrarySelectedIds([])
-              setProjectKeywordInput('')
-              setProjectKeyword('')
-              setProjectTypeInput(undefined)
-              setProjectType(undefined)
+            okButtonProps={{
+              disabled: !canAddProjectConfig || (projectModalMode === 'bundle' ? librarySelectedIds.length < 2 : !librarySelectedIds.length),
             }}
+            onOk={handleAddProjects}
+            onCancel={resetProjectModalState}
           >
             <Paragraph type="secondary">
               {activeInstitutionId
-                ? `当前为“${activeInstitutionName}”添加平台标准检查项目。已添加项目和与同类型价格规则冲突的项目会自动禁选。`
-                : '请先选择适用签约交付中心。'}
+                ? projectModalMode === 'bundle'
+                  ? `为“${activeActivityObjectName} / ${activeInstitutionName}”选择多个已对码项目，提交后会合并为一个组套项目SKU，并在右侧只维护一个组合项目一口价。`
+                  : `为“${activeActivityObjectName} / ${activeInstitutionName}”添加已对码检查项目。已添加项目会自动禁选。`
+                : isInternetHospitalConfig ? '请先选择交付范围。' : '请先选择活动对象。'}
             </Paragraph>
-            {activeInstitutionId ? (
-              <div className="activity-project-conflict-tip">
-                同一业务通道、来源平台、规则类型、签约中心、项目在重叠时间内只能存在一条有效价格规则；不同类型规则后续由优先级和叠加规则决定最终价格。
-              </div>
-            ) : null}
             <div className="activity-project-search-bar">
               <span className="activity-project-search-label">检查类型：</span>
               <ConfigProvider
@@ -1365,18 +2074,18 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
                   getCheckboxProps: (record) => {
                     const conflict = conflictProjectMap[record.id]
                     return {
-                      disabled: selectedProjectIds.includes(record.id) || !activeInstitutionId || Boolean(conflict),
+                      disabled: selectedLibraryProjectIds.includes(record.id) || !activeInstitutionId || Boolean(conflict),
                       title: conflict
-                        ? `与价格规则“${conflict.activityName}”冲突，时间：${conflict.period}`
-                        : selectedProjectIds.includes(record.id)
-                          ? '当前中心已添加该项目'
+                        ? `与活动“${conflict.activityName}”冲突，时间：${conflict.period}`
+                        : selectedLibraryProjectIds.includes(record.id)
+                          ? '当前活动已添加该项目'
                           : !activeInstitutionId
-                            ? '请先选择适用签约交付中心'
+                            ? isInternetHospitalConfig ? '请先选择交付范围' : '请先选择活动对象'
                             : '',
                     }
                   },
                 }}
-                scroll={{ x: 760 }}
+                scroll={{ x: 1190 }}
               />
           </Modal>
         </Annotatable>
@@ -1385,103 +2094,123 @@ function ActivityFormPage({ activities, commit, basePath, standalone }) {
   )
 }
 
-function ActivityDetailPage({ activities, commit, basePath, standalone }) {
+function ActivityDetailPage({ activities, basePath, standalone, variant }) {
   const navigate = useNavigate()
   const { id } = useParams()
   const activity = activities.find((item) => item.id === id)
   const [activeInstitutionId, setActiveInstitutionId] = useState(() => activity?.institutionIds?.[0])
+  const allowInternetHospitalActivityMethod = variant === 'copy'
 
   if (!activity) {
     return (
-      <ActivityFrame title="价格规则详情" extra={<Button onClick={() => navigate(basePath)}>返回列表</Button>} standalone={standalone}>
+      <ActivityFrame title="活动详情" extra={<Button onClick={() => navigate(basePath)}>返回列表</Button>} standalone={standalone}>
         <Card>
-          <Text type="secondary">未找到该价格规则。</Text>
+          <Text type="secondary">未找到该活动。</Text>
         </Card>
       </ActivityFrame>
     )
   }
 
   const row = enrichActivity(activity)
+  const detailActivityMethod = allowInternetHospitalActivityMethod ? activity.activityMethod : undefined
+  const detailDiscountConfigKey = getActivityDiscountConfigKey(activity.ruleType, activity.channelId, detailActivityMethod)
+  const isPlatformActivityDetail = isPlatformActivityConfig(activity.ruleType, activity.channelId)
+  const detailDiscountContext = isPlatformActivityDetail ? 'qingteng' : 'internet-hospital'
+  const detailPlatformActivityConfig = detailDiscountConfigKey
+    ? applyActivityDiscountContext(getPlatformActivityConfig(detailDiscountConfigKey, activity.platformActivityConfig), detailDiscountContext, row.channelName)
+    : undefined
   const activeConfigs = activity.institutionConfigs?.[activeInstitutionId] || []
-  const projectRows = activeConfigs.map((item) => {
-    const project = getProject(item.projectId)
-    return {
-      ...project,
-      activityPrice: item.activityPrice,
-      diff: item.activityPrice - project.originPrice,
-    }
-  })
-
-  const handleOffline = () => {
-    Modal.confirm({
-      title: '确认下架价格规则',
-      content: '下架后，相关项目将恢复基础价格或由其他优先级规则接管。',
-      okText: '确认下架',
-      cancelText: '取消',
-      onOk: () => {
-        const actionAt = now()
-        commit((prev) => prev.map((item) => item.id === activity.id ? {
-          ...item,
-          status: 'offline',
-          updatedAt: actionAt,
-          logs: [
-            ...(item.logs || []),
-            { action: '下架价格规则', operator: DEMO_OPERATOR_NAME, at: actionAt, detail: '手动下架并恢复基础价格' },
-          ],
-        } : item))
-        message.success('价格规则已下架')
-      },
-    })
-  }
+  const projectRows = getSelectedConfigRows(getConfigMapFromSavedConfigs(activeConfigs))
 
   const projectColumns = [
-    { title: '项目名称', dataIndex: 'name', width: 230 },
-    { title: '所属分类', dataIndex: 'category', width: 120 },
-    { title: '编码', dataIndex: 'code', width: 100 },
-    { title: '检查类型', dataIndex: 'type', width: 100, render: (type) => <Tag color="green">{type}</Tag> },
-    { title: '门市价', dataIndex: 'originPrice', width: 110, render: (price) => <span className="activity-price-origin">￥{price.toFixed(2)}</span> },
-    { title: row.ruleTypeMeta.priceColumnTitle, dataIndex: 'activityPrice', width: 120, render: (price) => <Text strong style={{ color: '#14916a' }}>￥{price.toFixed(2)}</Text> },
     {
-      title: '价格变化',
-      dataIndex: 'diff',
-      width: 110,
-      render: (diff) => <Text type={diff > 0 ? 'danger' : 'secondary'}>{diff > 0 ? '+' : ''}{diff.toFixed(2)}</Text>,
+      title: '项目名称',
+      dataIndex: 'name',
+      width: 150,
+      ellipsis: true,
+      render: (_, projectRow) => projectRow.rowType === 'bundle' ? (
+        <div className="activity-bundle-name">
+          <Text strong>{projectRow.skuName}</Text>
+        </div>
+      ) : projectRow.name,
+    },
+    {
+      title: '检查类型',
+      dataIndex: 'type',
+      width: 78,
+      render: (_, projectRow) => projectRow.rowType === 'bundle' ? <Tag color="orange">组套SKU</Tag> : <Tag color="green">{projectRow.type}</Tag>,
+    },
+    { title: '平台项目编码', dataIndex: 'platformCode', width: 118, ellipsis: true },
+    { title: '平台项目名称', dataIndex: 'platformName', width: 126, render: renderPlatformProjectName },
+    {
+      title: '项目检查费用',
+      dataIndex: 'examFee',
+      width: 88,
+      render: (price) => Number(price).toFixed(1),
+    },
+    {
+      title: '项目耗材费用',
+      dataIndex: 'materialFee',
+      width: 88,
+      render: (price) => Number(price).toFixed(1),
+    },
+    {
+      title: '项目药品费用',
+      dataIndex: 'drugFee',
+      width: 88,
+      render: (price) => Number(price).toFixed(1),
+    },
+    {
+      title: '检查项目总金额',
+      width: 98,
+      render: (_, projectRow) => <span className="activity-price-origin">￥{calculatePatientDisplayPrice(projectRow).toFixed(1)}</span>,
+    },
+    {
+      title: row.ruleTypeMeta.priceColumnTitle,
+      dataIndex: 'activityPrice',
+      width: 126,
+      render: (price, projectRow) => (
+        <div className={projectRow.rowType === 'bundle' ? 'activity-bundle-price' : undefined}>
+          {projectRow.rowType === 'bundle' ? <span>组合项目一口价</span> : null}
+          <Text strong style={{ color: '#14916a' }}>￥{Number(price).toFixed(2)}</Text>
+        </div>
+      ),
     },
   ]
 
   return (
     <Annotatable id={5}>
       <ActivityFrame
-        title="价格规则详情"
+        title="活动详情"
         extra={(
-          <Space>
-            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(basePath)}>返回列表</Button>
-            <Button icon={<EditOutlined />} onClick={() => navigate(`${basePath}/edit/${activity.id}`)}>编辑价格规则</Button>
-            {row.status === 'running' || row.status === 'listed' ? <Button danger icon={<StopOutlined />} onClick={handleOffline}>下架价格规则</Button> : null}
-          </Space>
+          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(basePath)}>返回列表</Button>
         )}
         standalone={standalone}
       >
         <Card className="activity-panel" title="基础信息">
           <Descriptions column={3} bordered size="middle">
-            <Descriptions.Item label="价格规则名称">{activity.name}</Descriptions.Item>
-            <Descriptions.Item label="规则类型"><Tag color={row.ruleTypeMeta.tagColor}>{row.ruleTypeLabel}</Tag></Descriptions.Item>
+            <Descriptions.Item label="活动名称">{activity.name}</Descriptions.Item>
+            <Descriptions.Item label="活动类型"><Tag color={row.ruleTypeMeta.tagColor}>{row.ruleTypeLabel}</Tag></Descriptions.Item>
             <Descriptions.Item label="状态">
               <Tag color={statusMeta[row.status]?.tagColor}>{statusMeta[row.status]?.label}</Tag>
             </Descriptions.Item>
-            <Descriptions.Item label="业务通道">{row.channelName}</Descriptions.Item>
-            <Descriptions.Item label="来源平台">{row.sourcePlatformName}</Descriptions.Item>
-            <Descriptions.Item label="优先级">{row.priority}</Descriptions.Item>
+            <Descriptions.Item label="活动对象">{row.channelName}</Descriptions.Item>
+            {allowInternetHospitalActivityMethod && activity.activityMethod ? <Descriptions.Item label="活动方式">{getActivityMethodName(activity.activityMethod)}</Descriptions.Item> : null}
+            <Descriptions.Item label="项目数">{row.projectCount}</Descriptions.Item>
+            <Descriptions.Item label="更新时间">{activity.updatedAt}</Descriptions.Item>
             <Descriptions.Item label="生效时间" span={2}>{activity.startAt} 至 {activity.endAt}</Descriptions.Item>
             <Descriptions.Item label="创建人">{activity.creator}</Descriptions.Item>
-            <Descriptions.Item label="更新时间">{activity.updatedAt}</Descriptions.Item>
-            <Descriptions.Item label="适用签约中心" span={2}>{row.institutionSummary}</Descriptions.Item>
-            <Descriptions.Item label="中心数">{row.institutionCount}</Descriptions.Item>
-            <Descriptions.Item label="项目/组套数">{row.projectCount}</Descriptions.Item>
-            <Descriptions.Item label="规则说明" span={3}>{activity.description}</Descriptions.Item>
           </Descriptions>
         </Card>
 
+        {detailDiscountConfigKey ? (
+          <Card className="activity-panel activity-log" title={isPlatformActivityDetail ? '青藤平台配置方案' : '互联网医院活动方式配置'}>
+            <div className="activity-discount-detail">
+              <PlatformActivitySummary activityObjectId={detailDiscountConfigKey} config={detailPlatformActivityConfig} />
+              <PlatformActivityRuleNote config={detailPlatformActivityConfig} />
+            </div>
+          </Card>
+        ) : (
         <Card className="activity-panel activity-log" title="适用项目与规则价格">
           <div className="activity-institution-switcher">
             {activity.institutionIds.map((institutionId) => (
@@ -1495,36 +2224,41 @@ function ActivityDetailPage({ activities, commit, basePath, standalone }) {
               </button>
             ))}
           </div>
-          <Paragraph type="secondary">
-            当前查看签约中心：{getInstitutionName(activeInstitutionId)}。该中心仅表示规则适用范围，最终价格由规则类型、来源平台、优先级与叠加规则共同决定。
-          </Paragraph>
           <Table
-            className="activity-table"
+            className="activity-table activity-price-config-table"
+            size="small"
             rowKey="id"
             columns={projectColumns}
             dataSource={projectRows}
             pagination={false}
-            scroll={{ x: 900 }}
+            scroll={{ x: 960 }}
           />
         </Card>
+        )}
       </ActivityFrame>
     </Annotatable>
   )
 }
 
-export default function ActivityManagementPage() {
+export function ActivityManagementCopyPage() {
+  return <ActivityManagementPage />
+}
+
+export default function ActivityManagementPage({ variant: explicitVariant }) {
   const location = useLocation()
-  const basePath = getActivityBasePath(location.pathname)
-  const standalone = isSharePath(location.pathname)
-  const [activities, commit] = useActivityStore(getActivityStorageKey(location.pathname))
+  const variant = getActivityVariant(location.pathname, explicitVariant)
+  const basePath = getActivityBasePath(variant)
+  const standalone = variant === 'share'
+  const pageTitle = getActivityPageTitle(variant)
+  const [activities, commit] = useActivityStore(getActivityStorageKey(variant))
 
   if (isCreatePath(location.pathname, basePath) || isEditPath(location.pathname, basePath)) {
-    return <ActivityFormPage activities={activities} commit={commit} basePath={basePath} standalone={standalone} />
+    return <ActivityFormPage activities={activities} commit={commit} basePath={basePath} standalone={standalone} variant={variant} />
   }
 
   if (isDetailPath(location.pathname, basePath) && !isCreatePath(location.pathname, basePath) && !isEditPath(location.pathname, basePath)) {
-    return <ActivityDetailPage activities={activities} commit={commit} basePath={basePath} standalone={standalone} />
+    return <ActivityDetailPage activities={activities} basePath={basePath} standalone={standalone} variant={variant} />
   }
 
-  return <ActivityListPage activities={activities} commit={commit} basePath={basePath} standalone={standalone} />
+  return <ActivityListPage activities={activities} commit={commit} basePath={basePath} standalone={standalone} pageTitle={pageTitle} />
 }
